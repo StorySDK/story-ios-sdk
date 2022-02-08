@@ -1,0 +1,9 @@
+/* 
+  Localizable.strings
+  ios-sdk
+
+  Created by MeadowsPhone Team on 18.02.2022.
+  
+*/
+
+"text_field_placeholder" = "Вставьте текст...";

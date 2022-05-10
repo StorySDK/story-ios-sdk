@@ -1,9 +1,34 @@
+# macOS
 .DS_Store
-.swiftpm/
-.swiftpm/*
-*.xcodeproj
-!/Examples/*/*.xcodeproj
-/.build
-/Packages
-Package.resolved
+
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
 xcuserdata/
+*.xccheckout
+profile
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+/Packages
+/*.xcodeproj
+.swiftpm/config/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc
+
+# Bundler
+.bundle
+
+# Add this line if you want to avoid checking in source code from Carthage dependencies.
+# Carthage/Checkouts
+
+Carthage/Build
+Example/Pods

@@ -1,0 +1,39 @@
+disabled_rules: # rule identifiers to exclude from running
+  # TODOs and FIXMEs should be resolved.
+  - todo
+  # Identifier names should only contain alphanumeric characters
+  # and start with a lowercase character or should only contain
+  # capital letters. In an exception to the above, variable names
+  # may start with a capital letter when they are declared static
+  # and immutable. Variable names should not be too long or too short.
+  - identifier_name
+  # Lines should not have trailing whitespace.
+  - trailing_whitespace
+  # Number of function parameters should be low.
+  - function_parameter_count
+  # Types should be nested at most 1 level deep, and statements should
+  # be nested at most 5 levels deep.
+  - nesting
+  # Complexity of function bodies should be limited.
+  - cyclomatic_complexity
+opt_in_rules:
+  # Prefer using AnyObject over class for class-only protocols.
+  - anyobject_protocol
+  # Explicitly calling .init() should be avoided.
+  - explicit_init
+  # Prefer implicit returns in closures, functions and getters.
+  - implicit_return
+included:
+  - Sources
+line_length: 300
+function_body_length: 60
+type_body_length: 300
+force_cast: warning
+force_try: warning
+trailing_comma:
+    mandatory_comma: true
+implicit_return:
+    included:
+        - closure
+        - getter
+

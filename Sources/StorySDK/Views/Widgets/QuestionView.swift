@@ -1,0 +1,178 @@
+//
+//  QuestionView.swift
+//  StorySDK
+//
+//  Created by MeadowsPhone Team on 06.02.2022.
+//
+
+import UIKit
+
+class QuestionView: UIView {
+    /*
+     const INIT_ELEMENT_STYLES = {
+       text: {
+         fontSize: 14,
+         marginBottom: 10
+       },
+       button: {
+         height: 50,
+         fontSize: 24,
+         borderRadius: 10
+       }
+     };
+
+     */
+    private var story: Story!
+    private var data: WidgetData!
+    private var questionWidget: QuestionWidget!
+    
+    private lazy var buttonsView: UIStackView = {
+        let sv = UIStackView()
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        sv.axis = .horizontal
+        sv.distribution = .fillEqually
+        return sv
+    }()
+    
+    private lazy var grayView: UIView = {
+        let v = UIView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.backgroundColor = gray
+        return v
+    }()
+
+    private lazy var yesButton: UIButton = {
+        let b = UIButton()
+        b.translatesAutoresizingMaskIntoConstraints = false
+        return b
+    }()
+    
+    private lazy var noButton: UIButton = {
+        let b = UIButton()
+        b.translatesAutoresizingMaskIntoConstraints = false
+        return b
+    }()
+
+    private lazy var titleLabel: UILabel = {
+        let l = UILabel()
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.numberOfLines = 0
+        l.textAlignment = .center
+        return l
+    }()
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+        
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+
+    convenience init(frame: CGRect, story: Story, data: WidgetData, questionWidget: QuestionWidget) {
+        self.init(frame: frame)
+        self.story = story
+        self.data = data
+        self.questionWidget = questionWidget
+        self.transform = CGAffineTransform.identity.rotated(by: data.position.rotate * .pi / 180)
+
+        backgroundColor = .clear
+        layer.cornerRadius = frame.height / 2
+        layer.shadowColor = black.withAlphaComponent(0.15).cgColor
+        layer.shadowOpacity = 1
+        layer.shadowOffset = .zero
+        layer.shadowRadius = 4
+        clipsToBounds = false
+        prepareUI()
+    }
+    
+    private func prepareUI() {
+        addSubview(titleLabel)
+        addSubview(buttonsView)
+        addSubview(grayView)
+        NSLayoutConstraint.activate([
+            grayView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            grayView.widthAnchor.constraint(equalToConstant: 1),
+            grayView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
+            grayView.heightAnchor.constraint(equalToConstant: 50 * xScaleFactor - 8),
+        ])
+        
+        NSLayoutConstraint.activate([
+            buttonsView.leftAnchor.constraint(equalTo: leftAnchor),
+            buttonsView.rightAnchor.constraint(equalTo: rightAnchor),
+            buttonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            buttonsView.heightAnchor.constraint(equalToConstant: 50 * xScaleFactor),
+        ])
+
+        buttonsView.layer.cornerRadius = 10 * xScaleFactor
+        
+        let color = Utils.getColor(questionWidget.color)
+        buttonsView.backgroundColor = color
+        titleLabel.textColor = .white
+        
+        NSLayoutConstraint.activate([
+            titleLabel.leftAnchor.constraint(equalTo: leftAnchor),
+            titleLabel.rightAnchor.constraint(equalTo: rightAnchor),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: buttonsView.topAnchor),
+        ])
+        titleLabel.text = questionWidget.question
+        var fontScaleFactor: CGFloat = 1
+        if let minWidth = data.positionLimits.minWidth {
+            fontScaleFactor *= frame.width / CGFloat(minWidth)
+        }
+        let font = UIFont.getFont(name: "Inter-Bold", size: 16 * fontScaleFactor)
+        titleLabel.font = font
+        
+        yesButton.setTitle(questionWidget.confirm.uppercased(), for: [])
+        yesButton.setTitleColor(green, for: [])
+        yesButton.titleLabel?.font = font
+        yesButton.tag = 0
+        yesButton.addTarget(self, action: #selector(answerTapped(_:)), for: .touchUpInside)
+        buttonsView.addArrangedSubview(yesButton)
+        
+        noButton.setTitle(questionWidget.decline.uppercased(), for: [])
+        noButton.setTitleColor(orangeRed, for: [])
+        noButton.titleLabel?.font = font
+        noButton.tag = 1
+        noButton.addTarget(self, action: #selector(answerTapped(_:)), for: .touchUpInside)
+        buttonsView.addArrangedSubview(noButton)
+    }
+    
+    @objc func answerTapped(_ sender: UIButton) {
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: disableSwipeNotificanionName), object: nil)
+        let answer = sender.tag == 0 ? "confirm" : "decline"
+        let reaction = WidgetReaction(story_id: story.id,
+                                      group_id: story.group_id,
+                                      user_id: UserDefaults.standard.string(forKey: userIdKey) ?? "",
+                                      widget_id: data.id,
+                                      type: statisticAnswerParam,
+                                      value: answer,
+                                      locale: StorySDK.defaultLanguage)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        let jsonData = try! encoder.encode(reaction)
+        StorySDK.sendStatistic(jsonData, completion: { error, dict, code in
+            if let error = error {
+                print(error.localizedDescription)
+            }
+            if let dict = dict {
+                print(code, dict)
+            }
+        })
+
+        let b = sender.tag == 0 ? noButton : yesButton
+        grayView.isHidden = true
+        UIView.animate(withDuration: 0.5, animations: {
+            b.isHidden = true
+        }, completion: {_ in
+//            NotificationCenter.default.post(name: NSNotification.Name(rawValue: sendStatisticNotificationName), object: nil, userInfo: [
+//                widgetTypeParam: statisticAnswerParam,
+//                groupIdParam: self.story.group_id,
+//                storyIdParam: self.story.id,
+//                widgetIdParam: self.data.id,
+//                widgetValueParam: answer
+//            ])
+        })
+    }
+}

@@ -11,8 +11,6 @@ public typealias Json = [String: Any]
 
 /// Длительность анимаций при действиях
 let animationsDuration: TimeInterval = 0.2
-/// Длительность анимации при показе виджетов. Может меняться из основного приложения.
-var progressDuration: TimeInterval = 6.0
 
 /// Размеры окна в редакторе на сайте. Понадобится для масштабирования
 let editorWindowSize = CGSize(width: 390, height: 694)
@@ -22,14 +20,6 @@ var xScaleFactor: CGFloat = 1
 var yScaleFactor: CGFloat = 1
 /// Высота верхней вьюшки (где картинка и название Story)
 let topViewHeight: CGFloat = 64
-/// Надо ли показывать верхнюю вьюшку
-var needShowTitle = false
-/// Используем ли весь экран
-var needFullScreen = true
-/// Цвет пргресса вверху окна при показе виджетов. Может меняться из основного приложения.
-var progressColor = #colorLiteral(red: 0, green: 0.6980392157, blue: 1, alpha: 1)  // #00B2FF
-
-let userIdKey = "userID"
 
 public let pinkColor = #colorLiteral(red: 0.9843137255, green: 0.337254902, blue: 0.4745098039, alpha: 1)  // #FB5679
 

@@ -18,9 +18,13 @@ class DemoViewController: UIViewController {
     @IBOutlet weak var fullScreenSwitcher: UISwitch!
     @IBOutlet weak var showTitleSwitcher: UISwitch!
 
-    private let sdkId = "f4f64a87-9ee7-4f47-9444-92b97fe596ed"
-    
-    private var storySDK: StorySDK!
+    private let storySDK = StorySDK(
+        configuration: .init(
+            language: "en",
+            sdkId: "f4f64a87-9ee7-4f47-9444-92b97fe596ed",
+            storyDuration: 10
+        )
+    )
     private var groups = [StoryGroup]()
     private var storyApp: StoryApp!
     
@@ -39,67 +43,48 @@ class DemoViewController: UIViewController {
         fullScreenSwitcher.isEnabled = false
         showTitleSwitcher.isEnabled = false
         
-        idTextField.text = sdkId
-        storySDK = StorySDK(sdkId, preferredLanguage: preferredStoryLanguage)
-
-        storySDK.setProgressDuration(10)
-        
-        storySDK.changePrefferedLanguage("en")
-        
         getAppID()
     }
 
     private func getAppID() {
-        storySDK.getApps(completion: { error, app in
-            DispatchQueue.main.async {
-                self.blockView.isHidden = true
-            }
-            if let error = error {
-                self.showMessage(error.localizedDescription)
-                return
-            }
-            if let app = app {
-                self.storyApp = app
-                self.defaultStoryLanguage = self.storyApp!.localization.default_locale
-                self.storySDK.setDefaultLanguage(self.defaultStoryLanguage)
+        storySDK.getApps { [weak self] result in
+            DispatchQueue.main.async { self?.blockView.isHidden = true }
+            guard let wSelf = self else { return }
+            switch result {
+            case .success(let app):
+                wSelf.storyApp = app
+                wSelf.defaultStoryLanguage = app.localization.default_locale
+                wSelf.storySDK.configuration.language = wSelf.defaultStoryLanguage
                 DispatchQueue.main.async {
-                    self.getGoupsButton.isEnabled = true
-                    self.activeSwitcher.isEnabled = true
-                    self.fullScreenSwitcher.isEnabled = true
-                    self.showTitleSwitcher.isEnabled = true
+                    wSelf.getGoupsButton.isEnabled = true
+                    wSelf.activeSwitcher.isEnabled = true
+                    wSelf.fullScreenSwitcher.isEnabled = true
+                    wSelf.showTitleSwitcher.isEnabled = true
                 }
+            case .failure(let error):
+                wSelf.showMessage(error.localizedDescription)
             }
-            else {
-                self.showMessage("Unknow error")
-            }
-        })
+        }
     }
     
     @IBAction func getGroupsClicked(_ sender: Any) {
         blockView.isHidden = false
-        storySDK.getGroups(appID: storyApp.id, statistic: true, completion: { error, result in
-            DispatchQueue.main.async {
-                self.blockView.isHidden = true
+        storySDK.getGroups(appId: storyApp.id, statistic: true) { [weak self] result in
+            DispatchQueue.main.async { self?.blockView.isHidden = true }
+            switch result {
+            case .success(let groups):
+                self?.groups = groups
+                DispatchQueue.main.async { self?.tableView.reloadData() }
+            case .failure(let error):
+                self?.showMessage(error.localizedDescription)
             }
-            if let error = error {
-                self.showMessage(error.localizedDescription)
-                return
-            }
-            if let result = result {
-                self.groups = result
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-            }
-        })
+        }
     }
     
     @IBAction func switcherChanged(_ sender: UISwitch) {
-        if sender.tag == 0 {
-            storySDK.setFullScreen(sender.isOn)
-        }
-        else {
-            storySDK.setTitleEnabled(sender.isOn)
+        switch sender.tag {
+        case 0: storySDK.configuration.needFullScreen = sender.isOn
+        default: storySDK.configuration.needShowTitle = sender.isOn
         }
     }
     
@@ -136,30 +121,31 @@ extension DemoViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
         let group = groups[indexPath.row]
-        if group.active {
-            blockView.isHidden = false
-            storySDK.getStories(group, statistic: true, completion: { error, result in
-                DispatchQueue.main.async { [self] in
-                    self.blockView.isHidden = true
-                    if let error = error {
-                        self.showMessage(error.localizedDescription)
-                        return
-                    }
-                    if let result = result {
-                        if result.count > 0 {
-                            let storyViewController = StoriesViewController(result, for: group, activeOnly: self.activeSwitcher.isOn)
-                            self.present(storyViewController, animated: true, completion: nil)
-                        }
-                        else {
-                            self.showMessage("No active stories!")
-                        }
+        guard group.active else { return }
+        blockView.isHidden = false
+        storySDK.getStories(group, statistic: true) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.blockView.isHidden = true
+                switch result {
+                case .failure(let error):
+                    self?.showMessage(error.localizedDescription)
+                case .success(let stories):
+                    if stories.isEmpty {
+                        self?.showMessage("No active stories!")
+                    } else {
+                        self?.presentStories(stories, of: group)
                     }
                 }
-            })
+            }
         }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80
+    }
+    
+    func presentStories(_ stories: [Story], of group: StoryGroup) {
+        let storyViewController = StoriesViewController(stories, for: group, activeOnly: activeSwitcher.isOn, sdk: storySDK)
+        present(storyViewController, animated: true, completion: nil)
     }
 }

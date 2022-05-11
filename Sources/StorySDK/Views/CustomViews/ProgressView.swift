@@ -14,8 +14,9 @@ protocol ProgressDelegate: AnyObject {
 final class ProgressView: UIProgressView {
     weak var delegate: ProgressDelegate?
     
-    private var story: Story!
-    private var index: Int!
+    private let story: Story
+    private let index: Int
+    private let storyDuration: TimeInterval
     
     /// Timer
     private var timer: Timer?
@@ -24,12 +25,16 @@ final class ProgressView: UIProgressView {
     /// Текущее значение таймера
     var currentTime: TimeInterval = 0.0
     
-    convenience init(_ story: Story, with index: Int) {
-        self.init()
+    init(_ story: Story, with index: Int, duration: TimeInterval) {
         self.story = story
         self.index = index
-        self.tintColor = progressColor
+        self.storyDuration = duration
+        super.init(frame: .zero)
         self.progress = 0.0
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     func start() {
@@ -40,7 +45,7 @@ final class ProgressView: UIProgressView {
     
     func finish() {
         progress = 1
-        currentTime = progressDuration
+        currentTime = storyDuration
         timer?.invalidate()
         timer = nil
     }
@@ -74,9 +79,9 @@ extension ProgressView {
     }
     
     @objc private func update () {
-        if currentTime < progressDuration {
+        if currentTime < storyDuration {
             currentTime += timeDelta
-            let progress = currentTime / progressDuration
+            let progress = currentTime / storyDuration
             self.setProgress(Float(progress), animated: true)
         } else {
             guard self.timer != nil else { return }

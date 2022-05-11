@@ -49,8 +49,9 @@ public final class StoriesViewController: UIViewController {
     }()
     
     // MARK: - Data
-    private var stories: [Story]!
-    private var group: StoryGroup!
+    private let stories: [Story]
+    private let group: StoryGroup
+    private let storySdk: StorySDK
     
     private var currentIndex: Int = 0 {
         didSet {
@@ -64,11 +65,11 @@ public final class StoriesViewController: UIViewController {
     private var progressViews: [ProgressView]!
 
     // MARK: - Initializers
-    public init(_ stories: [Story], for group: StoryGroup, activeOnly: Bool) {
+    public init(_ stories: [Story], for group: StoryGroup, activeOnly: Bool, sdk: StorySDK = .shared) {
         self.stories = stories.sorted(by: { $0.position < $1.position})
         self.group = group
         self.activeOnly = activeOnly
-        
+        self.storySdk = sdk
         super.init(nibName: nil, bundle: nil)
 
         modalPresentationStyle = .fullScreen
@@ -151,6 +152,7 @@ public final class StoriesViewController: UIViewController {
     }
     
     private func prepareTop() {
+        let needShowTitle = storySdk.configuration.needShowTitle
         topView.isUserInteractionEnabled = false
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
@@ -176,7 +178,8 @@ public final class StoriesViewController: UIViewController {
         ])
         imageView.layer.cornerRadius = (topViewHeight - 24) / 2
         imageView.clipsToBounds = true
-        if let url = URL(string: group.getImageURL()) {
+        let locale = storySdk.configuration.language
+        if let imageUrl = group.getImageURL(locale: locale), let url = URL(string: imageUrl) {
             LazyImageLoader.shared.loadImage(url: url, completion: { image, error in
                 if error == nil, let image = image {
                     DispatchQueue.main.async {
@@ -195,7 +198,7 @@ public final class StoriesViewController: UIViewController {
             l.centerYAnchor.constraint(equalTo: topView.centerYAnchor),
             l.leftAnchor.constraint(equalTo: v.rightAnchor, constant: 8),
         ])
-        l.text = group.getTitle()
+        l.text = group.getTitle(locale: locale)
         l.isHidden = !needShowTitle
         
         let sv = UIStackView()
@@ -211,12 +214,14 @@ public final class StoriesViewController: UIViewController {
         ])
 
         progressViews = [ProgressView]()
+        let storyDuration = storySdk.configuration.storyDuration
         for i in 0 ..< stories.count {
-            let storyData = stories[i].getStoryData()
+            guard let storyData = stories[i].getStoryData(locale: locale) else { continue }
             if self.activeOnly && storyData.status != "active" {
                 continue
             }
-            let pv = ProgressView(stories[i], with: i)
+            let pv = ProgressView(stories[i], with: i, duration: storyDuration)
+            pv.tintColor = storySdk.configuration.progressColor
             progressViews.append(pv)
             pv.delegate = self
             sv.addArrangedSubview(pv)
@@ -227,8 +232,9 @@ public final class StoriesViewController: UIViewController {
         pageContainer.delegate = self
         pageContainer.dataSource = self
         pages = [ShowStoryViewController]()
+        let locale = storySdk.configuration.language
         for story in stories {
-            let storyData = story.getStoryData()
+            guard let storyData = story.getStoryData(locale: locale) else { continue }
             if self.activeOnly && storyData.status != "active" {
                 continue
             }
@@ -242,13 +248,14 @@ public final class StoriesViewController: UIViewController {
 // MARK: - Actions
 extension StoriesViewController {
     @objc func closeTapped(_ sender: UIButton) {
-        let reaction = WidgetReaction(story_id: stories[currentIndex].id,
-                                      group_id: "",
-                                      user_id: UserDefaults.standard.string(forKey: userIdKey) ?? "",
-                                      widget_id: "",
-                                      type: statisticCloseParam,
-                                      value: "",
-                                      locale: StorySDK.deviceLanguage)
+        let reaction = WidgetReaction(
+            storyId: stories[currentIndex].id,
+            groupId: "",
+            userId: storySdk.configuration.userId,
+            type: statisticCloseParam,
+            value: "",
+            locale: storySdk.configuration.language
+        )
         sendStatistics(reaction)
         
         _ = LazyImageLoader.shared.cancel()
@@ -266,22 +273,23 @@ extension StoriesViewController: UIPageViewControllerDelegate, UIPageViewControl
         let time = self.progressViews[currentIndex].currentTime
 //        print("Current time from progress:", time, "index:", currentIndex)
         if time > 2 {
-            let reaction = WidgetReaction(story_id: story.id,
-                                          group_id: story.group_id,
-                                          user_id: UserDefaults.standard.string(forKey: userIdKey) ?? "",
-                                          widget_id: "",
-                                          type: statisticImpressionParam,
-                                          value: "",
-                                          locale: StorySDK.deviceLanguage)
+            let reaction = WidgetReaction(
+                storyId: story.id,
+                groupId: story.group_id,
+                userId: storySdk.configuration.userId,
+                type: statisticImpressionParam,
+                locale: storySdk.configuration.language
+            )
             sendStatistics(reaction)
         }
-        let reaction = WidgetReaction(story_id: story.id,
-                                      group_id: story.group_id,
-                                      user_id: UserDefaults.standard.string(forKey: userIdKey) ?? "",
-                                      widget_id: "",
-                                      type: statisticDurationParam,
-                                      value: "\(time)",
-                                      locale: StorySDK.deviceLanguage)
+        let reaction = WidgetReaction(
+            storyId: story.id,
+            groupId: story.group_id,
+            userId: storySdk.configuration.userId,
+            type: statisticDurationParam,
+            value: "\(time)",
+            locale: storySdk.configuration.language
+        )
         sendStatistics(reaction)
         currentIndex = index + 1
         DispatchQueue.main.async {
@@ -321,37 +329,37 @@ extension StoriesViewController: UIPageViewControllerDelegate, UIPageViewControl
     }
     
     public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        if completed {
-            let time = self.progressViews[currentIndex].currentTime
-            let story = stories[currentIndex]
-//            print("Current time:", time, "index:", currentIndex)
-            if time > 2 {
-                let reaction = WidgetReaction(story_id: story.id,
-                                              group_id: story.group_id,
-                                              user_id: UserDefaults.standard.string(forKey: userIdKey) ?? "",
-                                              widget_id: "",
-                                              type: statisticImpressionParam,
-                                              value: "",
-                                              locale: StorySDK.deviceLanguage)
-                sendStatistics(reaction)
-            }
-            let reaction = WidgetReaction(story_id: story.id,
-                                          group_id: story.group_id,
-                                          user_id: UserDefaults.standard.string(forKey: userIdKey) ?? "",
-                                          widget_id: "",
-                                          type: statisticDurationParam,
-                                          value: "\(time)",
-                                          locale: StorySDK.deviceLanguage)
+        guard completed else { return }
+        let time = self.progressViews[currentIndex].currentTime
+        let story = stories[currentIndex]
+//      print("Current time:", time, "index:", currentIndex)
+        if time > 2 {
+            let reaction = WidgetReaction(
+                storyId: story.id,
+                groupId: story.group_id,
+                userId: storySdk.configuration.userId,
+                type: statisticImpressionParam,
+                locale: storySdk.configuration.language
+            )
             sendStatistics(reaction)
-            if let index = self.pendingIndex {
-                if index > self.currentIndex {
-                    self.progressViews[currentIndex].finish()
-                } else if index < self.currentIndex {
-                    self.progressViews[currentIndex].reset()
-                }
-                self.currentIndex = index
-                self.progressViews[currentIndex].start()
+        }
+        let reaction = WidgetReaction(
+            storyId: story.id,
+            groupId: story.group_id,
+            userId: storySdk.configuration.userId,
+            type: statisticDurationParam,
+            value: "\(time)",
+            locale: storySdk.configuration.language
+        )
+        sendStatistics(reaction)
+        if let index = self.pendingIndex {
+            if index > self.currentIndex {
+                self.progressViews[currentIndex].finish()
+            } else if index < self.currentIndex {
+                self.progressViews[currentIndex].reset()
             }
+            self.currentIndex = index
+            self.progressViews[currentIndex].start()
         }
     }
 }
@@ -361,30 +369,25 @@ extension StoriesViewController {
     func needSendStatistics(notification: Notification) {
         pageContainer.isPagingEnabled = true
         self.progressViews[currentIndex].resume()
-        if let ui = notification.userInfo, let type = ui[widgetTypeParam] as? String, let group_id = ui[groupIdParam] as? String, let story_id = ui[storyIdParam] as? String, let widget_id = ui[widgetIdParam] as? String, let value = ui[widgetValueParam] as? String {
-            let userID = UserDefaults.standard.string(forKey: userIdKey) ?? ""
-            let reaction = WidgetReaction(story_id: story_id,
-                                          group_id: group_id,
-                                          user_id: userID,
-                                          widget_id: widget_id,
-                                          type: type,
-                                          value: value,
-                                          locale: StorySDK.deviceLanguage)
-            sendStatistics(reaction)
-        }
+        let reaction = WidgetReaction(
+            storyId: notification.userInfo?[storyIdParam] as? String,
+            groupId: notification.userInfo?[groupIdParam] as? String,
+            userId: storySdk.configuration.userId,
+            widgetId: notification.userInfo?[widgetIdParam] as? String,
+            type: notification.userInfo?[widgetTypeParam] as? String,
+            value: notification.userInfo?[widgetValueParam] as? String,
+            locale: storySdk.configuration.language
+        )
+        sendStatistics(reaction)
     }
     
-    private func sendStatistics(_ reaction: WidgetReaction) {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-        let jsonData = try! encoder.encode(reaction)
-        let reactionString = String(data: jsonData, encoding: .utf8)!
-        print(reactionString)
-        StorySDK.sendStatistic(jsonData, completion: { error, _, _ in
-            if let error = error {
-                print(error.localizedDescription)
-            }
-        })
+    private func sendStatistics(_ reaction: WidgetReaction?) {
+        guard let reaction = reaction else { return }
+        guard let jsonData = try? JSONEncoder().encode(reaction) else { return }
+        storySdk.sendStatistic(jsonData) { result in
+            guard case .failure(let error) = result else { return }
+            print(error.localizedDescription)
+        }
     }
     
     func disableSwipe(notification: Notification) {

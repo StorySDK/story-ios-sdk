@@ -22,9 +22,11 @@ class QuestionView: UIView {
      };
 
      */
-    private var story: Story!
-    private var data: WidgetData!
-    private var questionWidget: QuestionWidget!
+    private let story: Story
+    private let data: WidgetData
+    private let questionWidget: QuestionWidget
+    // TODO: Remove it
+    private let storySdk: StorySDK
     
     private lazy var buttonsView: UIStackView = {
         let sv = UIStackView()
@@ -61,19 +63,12 @@ class QuestionView: UIView {
         return l
     }()
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-        
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-
-    convenience init(frame: CGRect, story: Story, data: WidgetData, questionWidget: QuestionWidget) {
-        self.init(frame: frame)
+    init(frame: CGRect, story: Story, data: WidgetData, questionWidget: QuestionWidget, sdk: StorySDK) {
         self.story = story
         self.data = data
         self.questionWidget = questionWidget
+        self.storySdk = sdk
+        super.init(frame: frame)
         self.transform = CGAffineTransform.identity.rotated(by: data.position.rotate * .pi / 180)
 
         backgroundColor = .clear
@@ -84,6 +79,10 @@ class QuestionView: UIView {
         layer.shadowRadius = 4
         clipsToBounds = false
         prepareUI()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func prepareUI() {
@@ -142,24 +141,25 @@ class QuestionView: UIView {
     @objc func answerTapped(_ sender: UIButton) {
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: disableSwipeNotificanionName), object: nil)
         let answer = sender.tag == 0 ? "confirm" : "decline"
-        let reaction = WidgetReaction(story_id: story.id,
-                                      group_id: story.group_id,
-                                      user_id: UserDefaults.standard.string(forKey: userIdKey) ?? "",
-                                      widget_id: data.id,
-                                      type: statisticAnswerParam,
-                                      value: answer,
-                                      locale: StorySDK.defaultLanguage)
+        let config = storySdk.configuration
+        guard let reaction = WidgetReaction(
+            storyId: story.id,
+            groupId: story.group_id,
+            userId: config.userId,
+            widgetId: data.id,
+            type: statisticAnswerParam,
+            value: answer,
+            locale: config.language
+        ) else { return }
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         let jsonData = try! encoder.encode(reaction)
-        StorySDK.sendStatistic(jsonData, completion: { error, dict, code in
-            if let error = error {
-                print(error.localizedDescription)
+        storySdk.sendStatistic(jsonData) { result in
+            switch result {
+            case .success(let dict): print(dict)
+            case .failure(let error): print(error.localizedDescription)
             }
-            if let dict = dict {
-                print(code, dict)
-            }
-        })
+        }
 
         let b = sender.tag == 0 ? noButton : yesButton
         grayView.isHidden = true

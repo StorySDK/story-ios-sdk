@@ -10,231 +10,185 @@ import UIKit
 
 final class NetworkManager {
     static let shared = NetworkManager()
-    private let base_url = "https://api.diffapp.link/api/v1/"
+    private let session = URLSession.shared
+    private static let baseUrl = "https://api.diffapp.link/api/v1/"
 }
 
 // MARK: - App
 extension NetworkManager {
     /// Method for getting Story Apps with specific SDK ID
-    ///
     /// - Parameters:
-    ///   - sdkID: The corresponding SDK ID for the App
-    ///   - completion: Closure wit herror if any or the array of StoryApp
-    func getApps(_ sdkId: String, completion: @escaping (Error?, [StoryApp]?) -> Void) {
-        let url = URL(string: "\(base_url)apps")
-        var request = URLRequest(url: url!)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-type")
-        request.setValue("SDK \(sdkId)", forHTTPHeaderField: "Authorization")
-        let session = URLSession.shared
+    ///   - sdkId: The corresponding SDK ID for the App
+    func getApps(_ sdkId: String, completion: @escaping (Result<[StoryApp], Error>) -> Void) {
+        guard let request = Self.makeRequest("apps", method: .get, sdkId: sdkId) else {
+            completion(.failure(SRError.unknownError))
+            return
+        }
         session.dataTask(with: request) { (data, response, error) in
-            guard error == nil else {
-                completion(error, nil)
-                return
+            do {
+                let result = try Self.decode([StoryApp].self, from: data, response: response, error: error)
+                completion(.success(result))
+            } catch {
+                completion(.failure(error))
             }
-            
-            guard let data = data else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty for apps"]), nil)
-                return
-            }
-            let response = response as? HTTPURLResponse
-            print((response)!.statusCode)
-            if let json = (try? JSONSerialization.jsonObject(with: data)) as? Json {
-                if response?.statusCode == 200 {
-                    guard let appData = json["data"] as? NSArray, appData.count > 0, let jsonData = try? JSONSerialization.data(withJSONObject: appData, options: .prettyPrinted), let apps = try? JSONDecoder().decode([StoryApp].self, from: jsonData) else {
-                        completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Incorrect data for apps"]), nil)
-                        return
-                    }
-                    completion(nil, apps)
-                } else if let errorString = json["error"] as? String {
-                    completion(NSError(domain: "", code: response!.statusCode, userInfo: [NSLocalizedDescriptionKey: "\(errorString)\n Code: \(response!.statusCode)"]), nil)
-                }
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty - response code is not equal 200"]), nil)
-            }
-
         }.resume()
     }
     
-    /**
-     Получение  приложения с конкретным app_id, привязанное к SDK token
-     */
-    func getApp(_ sdkId: String, appID: String, completion: @escaping (Error?, StoryApp?) -> Void) {
-        let url = URL(string: "\(base_url)apps/\(appID)")
-        var request = URLRequest(url: url!)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-type")
-        request.setValue("SDK \(sdkId)", forHTTPHeaderField: "Authorization")
-        let session = URLSession.shared
+    /// Fetch the app with id
+    /// - Parameters:
+    ///   - sdkId: SDK Token
+    ///   - appId: App identifier
+    func getApp(_ sdkId: String, appId: String, completion: @escaping (Result<StoryApp, Error>) -> Void) {
+        guard let request = Self.makeRequest("apps/\(appId)", method: .get, sdkId: sdkId) else {
+            completion(.failure(SRError.unknownError))
+            return
+        }
         session.dataTask(with: request) { (data, response, error) in
-            guard error == nil else {
-                completion(error, nil)
-                return
+            do {
+                let result = try Self.decode(StoryApp.self, from: data, response: response, error: error)
+                completion(.success(result))
+            } catch {
+                completion(.failure(error))
             }
-            
-            guard let data = data else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty for apps"]), nil)
-                return
-            }
-            
-            if let response = response as? HTTPURLResponse, response.statusCode == 200, let json = (try? JSONSerialization.jsonObject(with: data)) as? Json {
-                guard let appData = json["data"] as? Json, let jsonData = try? JSONSerialization.data(withJSONObject: appData, options: .prettyPrinted), let app = try? JSONDecoder().decode(StoryApp.self, from: jsonData) else {
-                    completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Incorrect data for apps"]), nil)
-                    return
-                }
-
-                completion(nil, app)
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty - response code is not equal 200"]), nil)
-            }
-
         }.resume()
     }
     
-    /**
-     Получение списка групп приложения с конкретным app_id, привязанное к SDK token
-     */
-    func getGroups(_ sdkId: String, appID: String, statistic: Bool? = nil, date_from: String? = nil, date_to: String? = nil, completion: @escaping (Error?, [StoryGroup]?) -> Void) {
-        var urlString = "\(base_url)apps/\(appID)/groups"
-        statistic.map { urlString += "?statistic=\($0)" }
-        let url = URL(string: urlString)
-        var request = URLRequest(url: url!)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-type")
-        request.setValue("SDK \(sdkId)", forHTTPHeaderField: "Authorization")
-        let session = URLSession.shared
+    /// Fetch groups for the app
+    /// - Parameters:
+    ///   - sdkId: SDK Token
+    ///   - appId: App identifier
+    ///   - statistic: Send statistics
+    ///   - from: From date
+    ///   - to: To date
+    func getGroups(_ sdkId: String, appId: String, statistic: Bool? = nil, from: String? = nil, to: String? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
+        guard let request = Self.makeRequest("apps/\(appId)/groups", method: .get, sdkId: sdkId, statistic: statistic) else {
+            completion(.failure(SRError.unknownError))
+            return
+        }
         session.dataTask(with: request) { (data, response, error) in
-            guard error == nil else {
-                completion(error, nil)
-                return
+            do {
+                let result = try Self.decode([StoryGroup].self, from: data, response: response, error: error)
+                completion(.success(result))
+            } catch {
+                completion(.failure(error))
             }
-            
-            guard let data = data else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty for groups"]), nil)
-                return
-            }
-            
-            if let response = response as? HTTPURLResponse {
-                if response.statusCode == 200, let json = (try? JSONSerialization.jsonObject(with: data)) as? Json {
-                    guard let groupsData = json["data"] as? NSArray, let jsonData = try? JSONSerialization.data(withJSONObject: groupsData, options: .prettyPrinted), let groups = try? JSONDecoder().decode([StoryGroup].self, from: jsonData) else {
-                        completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Incorrect data for groups"]), nil)
-                        return
-                    }
-                    completion(nil, groups)
-                } else {
-                    completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty, responce code = \(response.statusCode)"]), nil)
-                }
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty - response code is not equal 200"]), nil)
-            }
-
         }.resume()
     }
     
     /**
      Получение группы с group_id для  приложения с конкретным app_id, привязанное к SDK token
      */
-    func getGroup(_ sdkId: String, appID: String, groupID: String, statistic: Bool? = nil, date_from: String? = nil, date_to: String? = nil, completion: @escaping (Error?, StoryGroup?) -> Void) {
-        var urlString = "\(base_url)apps/\(appID)/groups/\(groupID)"
-        statistic.map { urlString += "?statistic=\($0)" }
-        let url = URL(string: urlString)
-        var request = URLRequest(url: url!)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-type")
-        request.setValue("SDK \(sdkId)", forHTTPHeaderField: "Authorization")
-        let session = URLSession.shared
+    
+    /// Fetch group for the app
+    /// - Parameters:
+    ///   - sdkId: SDK Token
+    ///   - appId: App identifier
+    ///   - groupId: Group identifier
+    ///   - statistic: Send statistics
+    ///   - from: From date
+    ///   - to: To date
+    func getGroup(_ sdkId: String, appId: String, groupId: String, statistic: Bool? = nil, from: String? = nil, to: String? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
+        guard let request = Self.makeRequest("apps/\(appId)/groups/\(groupId)", method: .get, sdkId: sdkId, statistic: statistic) else {
+            completion(.failure(SRError.unknownError))
+            return
+        }
         session.dataTask(with: request) { (data, response, error) in
-            guard error == nil else {
-                completion(error, nil)
-                return
+            do {
+                let result = try Self.decode(StoryGroup.self, from: data, response: response, error: error)
+                completion(.success(result))
+            } catch {
+                completion(.failure(error))
             }
-            
-            guard let data = data else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty for groups"]), nil)
-                return
-            }
-            
-            if let response = response as? HTTPURLResponse, response.statusCode == 200, let json = (try? JSONSerialization.jsonObject(with: data)) as? Json {
-                guard let groupData = json["data"] as? Json, let jsonData = try? JSONSerialization.data(withJSONObject: groupData, options: .prettyPrinted), let group = try? JSONDecoder().decode(StoryGroup.self, from: jsonData) else {
-                    completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Incorrect data for groups"]), nil)
-                    return
-                }
-                completion(nil, group)
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty - response code is not equal 200"]), nil)
-            }
-
         }.resume()
     }
     
-    /**
-     Получение всех Story группы с group_id для  приложения с конкретным app_id, привязанное к SDK token
-     */
-    func getStories(_ sdkId: String, appID: String, groupID: String, statistic: Bool? = nil, completion: @escaping (Error?, [Story]?) -> Void) {
-        var urlString = "\(base_url)apps/\(appID)/groups/\(groupID)/stories"
-        statistic.map { urlString += "?statistic=\($0)" }
-        let url = URL(string: urlString)
-        var request = URLRequest(url: url!)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-type")
-        request.setValue("SDK \(sdkId)", forHTTPHeaderField: "Authorization")
-        let session = URLSession.shared
+    /// Fetch stories of the group for the app
+    /// - Parameters:
+    ///   - sdkId: SDK Token
+    ///   - appId: App identifier
+    ///   - groupId: Group identifier
+    ///   - statistic: Send statistics
+    func getStories(_ sdkId: String, appId: String, groupId: String, statistic: Bool? = nil, completion: @escaping (Result<[Story], Error>) -> Void) {
+        guard let request = Self.makeRequest("apps/\(appId)/groups/\(groupId)/stories", method: .get, sdkId: sdkId, statistic: statistic) else {
+            completion(.failure(SRError.unknownError))
+            return
+        }
         session.dataTask(with: request) { (data, response, error) in
-            guard error == nil else {
-                completion(error, nil)
-                return
+            do {
+                let storiesData = try Self.decodeJsonArray(from: data, response: response, error: error)
+                let result = storiesData.map { Story(from: $0) }
+                completion(.success(result))
+            } catch {
+                completion(.failure(error))
             }
-            
-            guard let data = data else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty for groups"]), nil)
-                return
-            }
-            
-            if let response = response as? HTTPURLResponse, response.statusCode == 200, let json = (try? JSONSerialization.jsonObject(with: data)) as? Json {
-                guard let storiesData = json["data"] as? [Json] else {
-                    completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Incorrect data for groups"]), nil)
-                    return
-                }
-                var stories = [Story]()
-                for dict in storiesData {
-                    let story = Story(from: dict)
-                    stories.append(story)
-                }
-                completion(nil, stories)
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty - response code is not equal 200"]), nil)
-            }
-
         }.resume()
     }
     
-    func sendStatistic(_ sdkId: String, reaction: Data, completion: @escaping (Error?, Json?, Int) -> Void) {
-        let url = URL(string: "\(base_url)reactions")
-        var request = URLRequest(url: url!)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-type")
-        request.setValue("SDK \(sdkId)", forHTTPHeaderField: "Authorization")
+    func sendStatistic(_ sdkId: String, reaction: Data, completion: @escaping (Result<Json, Error>) -> Void) {
+        guard var request = Self.makeRequest("reactions", method: .post, sdkId: sdkId) else {
+            completion(.failure(SRError.unknownError))
+            return
+        }
         request.httpBody = reaction
         let session = URLSession.shared
         session.dataTask(with: request) { (data, response, error) in
-            guard error == nil else {
-                completion(error, nil, 404)
-                return
+            do {
+                if let json = try Self.decodeData(from: data, response: response, error: error) as? Json {
+                    completion(.success(json))
+                } else {
+                    throw SRError.emptyResponse
+                }
+            } catch {
+                completion(.failure(error))
             }
-            
-            guard let data = data, let json = (try? JSONSerialization.jsonObject(with: data)) as? Json else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Data is empty for statistics"]), nil, 404)
-                return
-            }
-            print(json)
-
-            if let response = response as? HTTPURLResponse {
-                completion(nil, json, response.statusCode)
-            } else {
-                completion(nil, json, 404)
-            }
-
         }.resume()
-
+    }
+    
+    private static func decode<T>(_ type: T.Type, from data: Data?, response: URLResponse?, error: Error?) throws -> T where T : Decodable {
+        let data = try decodeData(from: data, response: response, error: error)
+        let jsonData = try JSONSerialization.data(withJSONObject: data, options: .prettyPrinted)
+        return try JSONDecoder().decode(type, from: jsonData)
+    }
+    
+    private static func decodeJsonArray(from data: Data?, response: URLResponse?, error: Error?) throws -> [Json] {
+        let data = try decodeData(from: data, response: response, error: error)
+        guard let json = data as? [Json] else {
+            throw SRError.emptyResponse
+        }
+        return json
+    }
+    
+    private static func decodeData(from data: Data?, response: URLResponse?, error: Error?) throws -> Any {
+        if let error = error { throw error }
+        guard let data = data, let statusCode = (response as? HTTPURLResponse)?.statusCode else {
+            throw SRError.emptyResponse
+        }
+        let jsonObject = try JSONSerialization.jsonObject(with: data)
+        guard let json = jsonObject as? Json else {
+            throw SRError.wrongFormat
+        }
+        guard statusCode == 200 else {
+            throw SRError.serverError(json["error"] as? String)
+        }
+        guard let appData = json["data"] else {
+            throw SRError.emptyResponse
+        }
+        return appData
+    }
+    
+    private static func makeRequest(_ path: String, method: HTTPMethod, sdkId: String, statistic: Bool? = nil) -> URLRequest? {
+        var urlString = "\(baseUrl)\(path)"
+        statistic.map { urlString += "?statistic=\($0)" }
+        guard let url = URL(string: urlString) else { return nil }
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-type")
+        request.setValue("SDK \(sdkId)", forHTTPHeaderField: "Authorization")
+        return request
+    }
+    
+    private enum HTTPMethod: String {
+        case get = "GET"
+        case post = "POST"
     }
 }

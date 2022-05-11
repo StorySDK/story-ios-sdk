@@ -7,185 +7,165 @@
 
 import UIKit
 
+public struct SRConfiguration {
+    public var language = "en"
+    public var sdkId: String?
+    public var userId: String?
+    
+    /// Duration in seconds for each story in a group
+    public var storyDuration: TimeInterval
+    /// Show title for stories
+    public var needShowTitle: Bool
+    /// Show stories in full screen
+    public var needFullScreen: Bool
+    /// Filled story progress color
+    public var progressColor: UIColor
+    
+    
+    public init(language: String = "en",
+                sdkId: String? = nil,
+                userId: String? = nil,
+                storyDuration: TimeInterval = 6.0,
+                needShowTitle: Bool = false,
+                needFullScreen: Bool = true,
+                progressColor: UIColor = .blue
+    ) {
+        self.language = language
+        self.sdkId = sdkId
+        self.userId = userId
+        self.storyDuration = storyDuration
+        self.needShowTitle = needShowTitle
+        self.needFullScreen = needFullScreen
+        self.progressColor = progressColor
+    }
+}
+
 public final class StorySDK: NSObject {
-    private static var sdk_id = ""
-    static var defaultLanguage = "en"
-    static var deviceLanguage = "en"
-    private var user_id = ""
+    public static let shared = StorySDK()
+    public var configuration = SRConfiguration()
     
-    private override init() {
+    public init(configuration: SRConfiguration = .init()) {
+        self.configuration = configuration
         super.init()
-    }
-    
-    /// Initializer of StorySDK
-    ///
-    /// - Parameters:
-    ///   - id: The corresponding SDK ID for the App
-    ///   - userID: unique userID (for statistic , optional).
-    ///   - preferredLanguage: preferred device language
-    ///
-    /// User ID is permanent allways while app is installed. If userID == nil, storySDK creates own unique userID
-    public convenience init(_ id: String, userID: String? = nil, preferredLanguage: String) {
-        self.init()
-        
-        StorySDK.sdk_id = id
-        StorySDK.deviceLanguage = preferredLanguage
-        
-        // Установим уникальное имя пользователя
-        if UserDefaults.standard.string(forKey: userIdKey) == nil {
-            if let userID = userID {
-                self.user_id = userID
-            } else {
-                self.user_id = UUID().uuidString
-            }
-            UserDefaults.standard.set(self.user_id, forKey: userIdKey)
-        }
-    }
-    
-    public func setDefaultLanguage(_ language: String) {
-        StorySDK.defaultLanguage = language
-    }
-    
-    public func changePrefferedLanguage(_ languange: String) {
-        StorySDK.deviceLanguage = languange
-    }
-    
-    /// Set timeline duration for each story in group
-    ///
-    /// - Parameters:
-    /// - duration in seconds (double)
-    public func setProgressDuration(_ duration: TimeInterval) {
-        progressDuration = duration
-    }
-    
-    /// Set color of progress
-    ///
-    /// - Parameters:
-    /// - color - new progress color (UIColor)
-    public func setProgressColor(_ color: UIColor) {
-        progressColor = color
-    }
-    
-    public func setFullScreen(_ need: Bool) {
-        needFullScreen = need
-    }
-    
-    public func setTitleEnabled(_ enabled: Bool) {
-        needShowTitle = enabled
     }
 }
 
 // MARK: - Network for App
 extension StorySDK {
-    public func getApps(completion: @escaping (Error?, StoryApp?) -> Void) {
-        NetworkManager.shared.getApps(StorySDK.sdk_id, completion: { error, result in
-            if let error = error {
-                completion(error, nil)
-                return
-            }
-            if let result = result, let app = result.first {
-                completion(nil, app)
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Unknown error"]), nil)
+    public func getApps(completion: @escaping (Result<StoryApp, Error>) -> Void) {
+        guard let sdkId = configuration.sdkId else {
+            completion(.failure(SRError.sdkIdIsNill))
+            return
+        }
+        NetworkManager.shared.getApps(sdkId, completion: { result in
+            switch result {
+            case .success(let apps):
+                if let app = apps.first {
+                    completion(.success(app))
+                } else {
+                    completion(.failure(SRError.noAppsToDisplay))
+                }
+            case .failure(let error):
+                completion(.failure(error))
             }
         })
     }
     
-    public func getApp(appID: String, completion: @escaping (Error?, StoryApp?) -> Void) {
-        NetworkManager.shared.getApp(StorySDK.sdk_id, appID: appID, completion: { error, result in
-            if let error = error {
-                completion(error, nil)
-                return
-            }
-            if let result = result {
-                completion(nil, result)
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Unknown error"]), nil)
-            }
-        })
+    public func getApp(appId: String, completion: @escaping (Result<StoryApp, Error>) -> Void) {
+        guard let sdkId = configuration.sdkId else {
+            completion(.failure(SRError.sdkIdIsNill))
+            return
+        }
+        NetworkManager.shared.getApp(sdkId, appId: appId, completion: completion)
     }
 }
 
 // MARK: - Network for Groups
 extension StorySDK {
-    public func getGroups(statistic: Bool? = nil, date_from: String? = nil, date_to: String? = nil, completion: @escaping (Error?, [StoryGroup]?) -> Void) {
-        NetworkManager.shared.getApps(StorySDK.sdk_id, completion: { error, result in
-            if let error = error {
-                completion(error, nil)
-                return
-            }
-            if let result = result {
-                let appID = result[0].id
-                self.getGroups(appID: appID, statistic: statistic, date_from: date_from, date_to: date_to, completion: { err, groups in
-                    completion(err, groups)
-                })
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Unknown error"]), nil)
-            }
-        })
-    }
-    
-    public func getGroups(appID: String, statistic: Bool? = nil, date_from: String? = nil, date_to: String? = nil, completion: @escaping (Error?, [StoryGroup]?) -> Void) {
-        NetworkManager.shared.getGroups(StorySDK.sdk_id, appID: appID, statistic: statistic, date_from: date_from, date_to: date_to, completion: { error, result in
-            if let error = error {
-                completion(error, nil)
-                return
-            }
-            if let result = result {
-                completion(nil, result)
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Unknown error"]), nil)
+    public func getGroups(from: String? = nil, to: String? = nil, statistic: Bool? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
+        guard let sdkId = configuration.sdkId else {
+            completion(.failure(SRError.sdkIdIsNill))
+            return
+        }
+        NetworkManager.shared.getApps(sdkId, completion: { [weak self] result in
+            switch result {
+            case .success(let apps):
+                if let id = apps.first?.id, let sdk = self {
+                    sdk.getGroups(appId: id, from: from, to: to, statistic: statistic, completion: completion)
+                } else {
+                    completion(.failure(SRError.emptyResponse))
+                }
+            case .failure(let error):
+                completion(.failure(error))
             }
         })
     }
     
-    public func getGroup(appID: String, groupID: String, statistic: Bool? = nil, date_from: String? = nil, date_to: String? = nil, completion: @escaping (Error?, StoryGroup?) -> Void) {
-        NetworkManager.shared.getGroup(StorySDK.sdk_id, appID: appID, groupID: groupID, statistic: statistic, date_from: date_from, date_to: date_to, completion: { error, result in
-            if let error = error {
-                completion(error, nil)
-                return
-            }
-            if let result = result {
-                completion(nil, result)
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Unknown error"]), nil)
-            }
-        })
+    public func getGroups(appId: String, from: String? = nil, to: String? = nil, statistic: Bool? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
+        guard let sdkId = configuration.sdkId else {
+            completion(.failure(SRError.sdkIdIsNill))
+            return
+        }
+        NetworkManager.shared.getGroups(sdkId, appId: appId, statistic: statistic, from: from, to: to, completion: completion)
+    }
+    
+    public func getGroup(appId: String, groupId: String, from: String? = nil, to: String? = nil, statistic: Bool? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
+        guard let sdkId = configuration.sdkId else {
+            completion(.failure(SRError.sdkIdIsNill))
+            return
+        }
+        NetworkManager.shared.getGroup(sdkId, appId: appId, groupId: groupId, statistic: statistic, completion: completion)
     }
 }
 
 // MARK: - Network for Stories
 extension StorySDK {
-    public func getStories(_ group: StoryGroup, statistic: Bool? = nil, completion: @escaping (Error?, [Story]?) -> Void) {
-        self.getStories(appID: group.app_id, groupID: group.id, statistic: statistic, completion: completion)
+    public func getStories(_ group: StoryGroup, statistic: Bool? = nil, completion: @escaping (Result<[Story], Error>) -> Void) {
+        getStories(appId: group.app_id, groupId: group.id, statistic: statistic, completion: completion)
     }
     
-    public func getStories(appID: String, groupID: String, statistic: Bool? = nil, completion: @escaping (Error?, [Story]?) -> Void) {
-        NetworkManager.shared.getStories(StorySDK.sdk_id, appID: appID, groupID: groupID, statistic: statistic, completion: { error, result in
-            if let error = error {
-                completion(error, nil)
-                return
-            }
-            if let result = result {
-//                if activeOnly {
-//                    let filtered = result.filter({ $0.status == "active" })
-//                    completion(nil, filtered)
-//                }
-//                else {
-                    completion(nil, result)
-//                }
-            } else {
-                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Unknown error"]), nil)
-            }
-        })
+    public func getStories(appId: String, groupId: String, statistic: Bool? = nil, completion: @escaping (Result<[Story], Error>) -> Void) {
+        guard let sdkId = configuration.sdkId else {
+            completion(.failure(SRError.sdkIdIsNill))
+            return
+        }
+        NetworkManager.shared.getStories(sdkId, appId: appId, groupId: groupId, statistic: statistic, completion: completion)
     }
 }
 
 // MARK: - Statistic
 extension StorySDK {
-    static func sendStatistic(_ reaction: Data, completion: @escaping (Error?, [String: Any]?, Int) -> Void) {
-        NetworkManager.shared.sendStatistic(sdk_id, reaction: reaction, completion: { error, dict, status in
-            completion(error, dict, status)
-        })
+    func sendStatistic(_ reaction: Data, completion: @escaping (Result<[String: Any], Error>) -> Void) {
+        guard let sdkId = configuration.sdkId else {
+            completion(.failure(SRError.sdkIdIsNill))
+            return
+        }
+        NetworkManager.shared.sendStatistic(sdkId, reaction: reaction, completion: completion)
+    }
+}
+
+public enum SRError: Error, LocalizedError {
+    case sdkIdIsNill
+    case noAppsToDisplay
+    case emptyResponse
+    case serverError(String?)
+    case wrongFormat
+    case unknownError
+    
+    public var errorDescription: String? {
+        switch self {
+        case .sdkIdIsNill:
+            return "SDK id is nil"
+        case .noAppsToDisplay:
+            return "You don't have apps to display"
+        case .emptyResponse:
+            return "Data is empty"
+        case .serverError(let info):
+            return info.map { "Error response: \($0)" } ?? "Error response"
+        case .wrongFormat:
+            return "Wrong response format"
+        case .unknownError:
+            return "Unknown error"
+        }
     }
 }

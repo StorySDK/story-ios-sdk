@@ -17,12 +17,18 @@ struct WidgetReaction: Codable {
     let value: [String]
     let locale: String
 
-    init(story_id: String, group_id: String, user_id: String, widget_id: String? = nil, type: String, value: String, locale: String) {
+    init?(storyId: String?, groupId: String?, userId: String?, widgetId: String? = nil, type: String? = nil, value: String? = nil, locale: String) {
+        guard let storyId = storyId else { return nil }
+        guard let groupId = groupId else { return nil }
+        guard let userId = userId else { return nil }
+        guard let type = type else { return nil }
+        guard let value = value else { return nil }
+        
         self.data = [String]()
-        self.story_id = story_id
-        self.group_id = group_id
-        self.user_id = user_id
-        self.widget_id = widget_id
+        self.story_id = storyId
+        self.group_id = groupId
+        self.user_id = userId
+        self.widget_id = widgetId
         self.type = type
         self.value = [value]
         self.locale = locale

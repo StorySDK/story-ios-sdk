@@ -48,11 +48,7 @@ public struct Story {
         }
     }
     
-    public func getStoryData() -> StoryData {
-        if story_data.keys.contains(StorySDK.deviceLanguage) {
-            return story_data[StorySDK.deviceLanguage]!
-        } else {
-            return story_data[StorySDK.defaultLanguage]!
-        }
+    public func getStoryData(locale: String) -> StoryData? {
+        story_data[locale] ?? story_data["en"]
     }
 }

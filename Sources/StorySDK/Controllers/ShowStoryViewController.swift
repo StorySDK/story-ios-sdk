@@ -38,14 +38,16 @@ class ShowStoryViewController: UIViewController {
         return v
     }()
 
-    private var story: Story!
-    private var storyData: StoryData!
+    private let story: Story
+    private let storyData: StoryData
+    private let storySdk: StorySDK
     private var keyboardHeight: CGFloat = 0
     
     // MARK: - Initializers
-    public init(_ story: Story, storyData: StoryData) {
+    public init(_ story: Story, storyData: StoryData, sdk: StorySDK = .shared) {
         self.story = story
         self.storyData = storyData
+        self.storySdk = sdk
         
         super.init(nibName: nil, bundle: nil)
         DispatchQueue.main.async {
@@ -80,6 +82,8 @@ class ShowStoryViewController: UIViewController {
     }
     
     private func prepareUI() {
+        let needFullScreen = storySdk.configuration.needFullScreen
+        let needShowTitle = storySdk.configuration.needShowTitle
         view.addSubview(bgView)
         NSLayoutConstraint.activate([
             bgView.topAnchor.constraint(equalTo: needFullScreen ? self.view.topAnchor : self.view.safeAreaLayoutGuide.topAnchor),
@@ -224,7 +228,7 @@ class ShowStoryViewController: UIViewController {
                 let v = SliderView(frame: widgetFrame, story: story, data: widget, sliderWidget: sliderWidget)
                 storyView.addSubview(v)
             case .question(let questionWidget):
-                let v = QuestionView(frame: widgetFrame, story: story, data: widget, questionWidget: questionWidget)
+                let v = QuestionView(frame: widgetFrame, story: story, data: widget, questionWidget: questionWidget, sdk: storySdk)
                 storyView.addSubview(v)
             case .talk_about(let talkAboutWidget):
                 var scale: CGFloat = 1

@@ -20,19 +20,11 @@ public struct StoryGroup: Codable {
     public let created_at: String
     public let updated_at: String
     
-    public func getTitle() -> String {
-        if title.keys.contains(StorySDK.deviceLanguage) {
-            return title[StorySDK.deviceLanguage]!
-        } else {
-            return title[StorySDK.defaultLanguage]!
-        }
+    public func getTitle(locale: String) -> String? {
+        title[locale] ?? title["en"]
     }
     
-    public func getImageURL() -> String {
-        if image_url.keys.contains(StorySDK.deviceLanguage) {
-            return image_url[StorySDK.deviceLanguage]!
-        } else {
-            return image_url[StorySDK.defaultLanguage]!
-        }
+    public func getImageURL(locale: String) -> String? {
+        image_url[locale] ?? image_url["en"]
     }
 }

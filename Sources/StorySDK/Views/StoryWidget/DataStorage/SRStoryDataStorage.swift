@@ -9,10 +9,17 @@ import UIKit
 import Combine
 
 public protocol SRStoryDataStorage: AnyObject {
+    /// Number of groups in the app
     var numberOfItems: Int { get }
+    /// Groups collection has been updated
     var onReloadData: (() -> Void)? { get set }
+    /// An error has been received
     var onErrorReceived: ((Error) -> Void)? { get set }
+    /// Configures cell with a group with index
     func setupCell(_ cell: SRStoryCollectionCell, index: Int)
+    /// Returns group with index
+    func group(with index: Int) -> StoryGroup?
+    /// Loads groups for the app
     func load(app: StoryApp)
 }
 

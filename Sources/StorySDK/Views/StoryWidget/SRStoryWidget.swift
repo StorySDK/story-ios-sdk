@@ -7,6 +7,17 @@
 
 import UIKit
 
+public protocol SRStoryWidgetDelegate: AnyObject {
+    func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget)
+    func onWidgetGroupPresent(_ group: StoryGroup, widget: SRStoryWidget)
+}
+
+public extension SRStoryWidgetDelegate {
+    func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget) {
+        print("StoryKit > Error:", error.localizedDescription)
+    }
+}
+
 public class SRStoryWidget: UIView {
     public override var intrinsicContentSize: CGSize {
         .init(width: CGFloat.greatestFiniteMagnitude,
@@ -36,6 +47,7 @@ public class SRStoryWidget: UIView {
         v.register(SRCollectionCell.self, forCellWithReuseIdentifier: "StoryCell")
         return v
     }()
+    public weak var delegate: SRStoryWidgetDelegate?
     
     public init(dataStorage: SRStoryDataStorage = SRDefaultStoryDataStorage(sdk: .shared)) {
         self.viewModel = .init(dataStorage: dataStorage)
@@ -62,8 +74,13 @@ public class SRStoryWidget: UIView {
     
     public func bindView() {
         collectionView.dataSource = self
+        collectionView.delegate = self
         viewModel.onReloadData = { [weak collectionView] in
             collectionView?.reloadData()
+        }
+        viewModel.onErrorReceived = { [weak self] error in
+            guard let widget = self else { return }
+            widget.delegate?.onWidgetErrorReceived(error, widget: widget)
         }
     }
     
@@ -82,5 +99,12 @@ extension SRStoryWidget: UICollectionViewDataSource {
         guard let cell = reusable as? SRCollectionCell else { return reusable }
         viewModel.setupCell(cell, index: indexPath.row)
         return cell
+    }
+}
+
+extension SRStoryWidget: UICollectionViewDelegate {
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let group = viewModel.group(with: indexPath.row) else { return }
+        delegate?.onWidgetGroupPresent(group, widget: self)
     }
 }

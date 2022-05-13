@@ -30,4 +30,8 @@ class SRStoryViewModel {
     func setupCell(_ cell: SRStoryCollectionCell, index: Int) {
         dataStorage.setupCell(cell, index: index)
     }
+    
+    func group(with index: Int) -> StoryGroup? {
+        dataStorage.group(with: index)
+    }
 }

@@ -38,8 +38,7 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
     }
     
     public func setupCell(_ cell: SRStoryCollectionCell, index: Int) {
-        guard index < groups.count else { return } // In case if we trying to update cells while reloading stories
-        let story = groups[index]
+        guard let story = group(with: index) else { return } 
         cell.title = story.getTitle(locale: locale, defaultLocale: defaulLocale)
         if let url = story.getImageURL(locale: locale, defaultLocale: defaulLocale) {
             cell.cancelable = storySdk.imageLoader.load(url) { [weak self, weak cell] result in
@@ -49,5 +48,10 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
                 }
             }
         }
+    }
+    
+    public func group(with index: Int) -> StoryGroup? {
+        guard index < groups.count else { return nil } // In case if we trying to update cells while reloading stories
+        return groups[index]
     }
 }

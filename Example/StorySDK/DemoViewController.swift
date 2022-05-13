@@ -51,7 +51,11 @@ class DemoViewController: UIViewController {
             DispatchQueue.main.async { self?.blockView.isHidden = true }
             guard let wSelf = self else { return }
             switch result {
-            case .success(let app):
+            case .success(let apps):
+                guard let app = apps.first else {
+                    wSelf.showMessage("No stories to display")
+                    return
+                }
                 wSelf.storyApp = app
                 wSelf.defaultStoryLanguage = app.localization.defaultLocale
                 wSelf.storySDK.configuration.language = wSelf.defaultStoryLanguage

@@ -10,19 +10,8 @@ import Foundation
 // MARK: - Network for App
 
 extension StorySDK {
-    public func getApps(completion: @escaping (Result<StoryApp, Error>) -> Void) {
-        network.getApps { result in
-            switch result {
-            case .success(let apps):
-                if let app = apps.first {
-                    completion(.success(app))
-                } else {
-                    completion(.failure(SRError.noAppsToDisplay))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    public func getApps(completion: @escaping (Result<[StoryApp], Error>) -> Void) {
+        network.getApps(completion: completion)
     }
     
     public func getApp(appId: String, completion: @escaping (Result<StoryApp, Error>) -> Void) {

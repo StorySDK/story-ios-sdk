@@ -35,7 +35,7 @@ class DemoTableViewCell: UITableViewCell {
         roundedView.layer.borderColor = group.active ? pinkColor.cgColor : UIColor.gray.cgColor
         imgView.layer.cornerRadius = imgView.frame.width / 2
         let imageLanguage = group.imageUrl.keys.contains(preferredLanguage) ? preferredLanguage : defaultLanguage
-        if isStarted, let image_url = group.imageUrl[imageLanguage], let url = URL(string: image_url) {
+        if isStarted, let url = group.imageUrl[imageLanguage] {
             isStarted = false
             imgView.load(url: url)
         }

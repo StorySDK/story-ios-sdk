@@ -1,13 +1,10 @@
 # StorySDK
 
-[![CI Status](https://img.shields.io/travis/StorySDK/StorySDK.svg?style=flat)](https://travis-ci.org/StorySDK/StorySDK)
 [![Version](https://img.shields.io/cocoapods/v/StorySDK.svg?style=flat)](https://cocoapods.org/pods/StorySDK)
 [![License](https://img.shields.io/cocoapods/l/StorySDK.svg?style=flat)](https://cocoapods.org/pods/StorySDK)
 [![Platform](https://img.shields.io/cocoapods/p/StorySDK.svg?style=flat)](https://cocoapods.org/pods/StorySDK)
 
-## Example
-
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+iOS Framework for the StorySDK service for creating and adding stories to mobile apps 
 
 ## Installation
 
@@ -47,11 +44,13 @@ import StorySDK
 
 ### Setup
 
-To use SDK you need token from StorySDK Dashboard -> Settings (https://app.diffapp.link/dashboard/)
+To use SDK you need token from StorySDK Dashboard > Settings [https://app.diffapp.link/dashboard/](https://app.diffapp.link/dashboard/)
 
 ```swift
 StorySDK.shared.configuration.sdkId = "[YOUR_SDK_ID]"
 ```
+
+#### Optional
 
 To track users you need to declare unique user id. And keep it between the app runtimes. You can save it to UserDefaults for example.
 
@@ -70,7 +69,7 @@ if let id = UserDefaults.standard.string(forKey: "[YOUR_USER_ID_KEY]") {
 StorySDK.shared.configuration.userId = userId
 ```
 
-*Optional*. Also you can define language for the stories. 
+Also you can define language for the stories. 
 
 ```swift
 StorySDK.shared.configuration.language = "en"
@@ -86,7 +85,7 @@ StorySDK.shared.configuration.userId = "[YOUR_USER_ID]"
 ### UI Integration
 
 
-1. Get AppID for your SDK ID
+Get AppID for your SDK ID
 
 ```swift
 storySDK.getApps { [weak self] result in
@@ -101,7 +100,7 @@ storySDK.getApps { [weak self] result in
 }
 ```
 
-2. Get groups for selected app
+Get groups for selected app
 
 ```swift
 storySDK.getGroups(appId: storyApp.id) { [weak self] result in
@@ -116,7 +115,7 @@ storySDK.getGroups(appId: storyApp.id) { [weak self] result in
 }
 ```
 
-3. Show selected group using top view controller
+Show selected group using top view controller
 
 ```swift
 storySDK.getStories(group) { [weak self] result in
@@ -133,36 +132,36 @@ storySDK.getStories(group) { [weak self] result in
 }
 ```
 
-**TIPS**
+#### Configuration
 
 a) Set full screen on / off
 
 ```swift
-storySDK.setFullScreen(true / false)
+StorySDK.shared.configuration.needFullScreen = true / false
 ```
 
 b) Show title on / off
 
 ```swift
-storySDK.setTitleEnabled(true / false)
+StorySDK.shared.configuration.needShowTitle = true / false
 ```
 
 c) Set show time duration for each story
 
 ```swift
-storySDK.configuration.storyDuration = 10
+StorySDK.shared.configuration.storyDuration = 10 // 10 seconds
 ```
 
 d) Set progress color
 
 ```swift
-storySDK.setProgressColor(UIColor.green)
+StorySDK.shared.configuration.progressColor = .green
 ```
 
 e) Change preffered language
 
 ```swift
-storySDK.changePrefferedLanguage("en")
+StorySDK.shared.configuration.language = "en"
 ```
 
 ## License

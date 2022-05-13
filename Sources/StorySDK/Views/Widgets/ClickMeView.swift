@@ -40,102 +40,13 @@ class ClickMeView: UIView {
     
     private func prepareUI() {
         clipsToBounds = true
-//        layer.cornerRadius = frame.height / 2
+        
         layer.shadowColor = black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero
         layer.shadowRadius = 4
         backgroundColor = .clear
-//        switch clickMeWidget.backgroundColor {
-//        case .color(let value):
-//            if value.value == "purple" {
-//                let colors = [purpleStart, purpleFinish]
-//                let points = [CGPoint(x: 0.02, y: 0), CGPoint(x: 0.96, y: 0)]
-//                let l = Utils.getGradient(frame: bounds, colors: colors, points: points)
-//                l.cornerRadius = 10
-//                layer.insertSublayer(l, at: 0)
-//            }
-//            else {
-//                backgroundColor = Utils.getColor(value.value)
-//            }
-//        case .gradient(let value):
-//            if value.type == "gradient", value.value.count > 1 {
-//                let startColor = Utils.getColor(value.value[0])
-//                let finishColor = Utils.getColor(value.value[1])
-//
-//                let l = Utils.getGradient(frame: bounds, colors: [startColor, finishColor], points: [CGPoint(x: 0, y: 0), CGPoint(x: 0, y: 1)])
-//                layer.insertSublayer(l, at: 0)
-//            }
-//        case .null(_):
-//            break
-//        }
-//        if clickMeWidget.hasBorder {
-//            layer.borderWidth = CGFloat(clickMeWidget.borderWidth)
-//            switch clickMeWidget.borderColor {
-//            case .color(let value):
-//                if value.value != "purple" {
-//                    layer.borderColor = Utils.getColor(value.value).withAlphaComponent(CGFloat(clickMeWidget.borderOpacity / 100)).cgColor
-//                }
-//            default:
-//                break
-//            }
-//        }
-//
-//        let sv = UIStackView()
-//        sv.translatesAutoresizingMaskIntoConstraints = false
-//        sv.backgroundColor = .clear
-//        addSubview(sv)
-//        NSLayoutConstraint.activate([
-//            sv.centerXAnchor.constraint(equalTo: centerXAnchor),
-//            sv.centerYAnchor.constraint(equalTo: centerYAnchor),
-//            sv.topAnchor.constraint(greaterThanOrEqualTo: topAnchor, constant: 4),
-//            sv.bottomAnchor.constraint(greaterThanOrEqualTo: bottomAnchor, constant: -4),
-//            sv.leftAnchor.constraint(greaterThanOrEqualTo: leftAnchor, constant: 8),
-//            sv.rightAnchor.constraint(greaterThanOrEqualTo: rightAnchor, constant: -8)
-//        ])
-//        sv.axis = .horizontal
-//        sv.spacing = 8
-//        sv.alignment = .center
-//        sv.distribution = .fill
-//        var color = UIColor.white
-//        switch clickMeWidget.color {
-//        case .color(let value):
-//            if value.value != "purple" {
-//                color = Utils.getColor(value.value).withAlphaComponent(CGFloat(clickMeWidget.opacity / 100))
-//            }
-//        default:
-//            break
-//        }
-//
-//        if clickMeWidget.hasIcon {
-//            if let maskImage = UIImage(named: clickMeWidget.icon.name, in: Bundle(for: StoriesViewController.self), compatibleWith: nil) {
-//                let iv = UIImageView()
-//                NSLayoutConstraint.activate([
-//                    iv.heightAnchor.constraint(equalToConstant: CGFloat(clickMeWidget.iconSize)),
-//                    iv.widthAnchor.constraint(equalToConstant: CGFloat(clickMeWidget.iconSize))
-//                ])
-//                iv.image = maskImage.withTintColor(color)
-//
-//                sv.addArrangedSubview(iv)
-//            }
-//        }
-//
-//        let label = UILabel()
-//        switch clickMeWidget.color {
-//        case .color(let value):
-//            if value.value != "purple" {
-//                label.textColor = color
-//            }
-//        default:
-//            break
-//        }
-//        label.text = clickMeWidget.text
-//        let font = Utils.getFont(fontFamily: clickMeWidget.fontFamily, fontSize: clickMeWidget.fontSize, fontParams: clickMeWidget.fontParams)
-//        label.font = font
-//        label.numberOfLines = 0
-//
-//        sv.addArrangedSubview(label)
-
+        
         addSubview(imageView)
         NSLayoutConstraint.activate([
             imageView.leftAnchor.constraint(equalTo: leftAnchor, constant: 0),
@@ -166,7 +77,7 @@ class ClickMeView: UIView {
             }, completion: {_ in
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: sendStatisticNotificationName), object: nil, userInfo: [
                     widgetTypeParam: statisticClickParam,
-                    groupIdParam: self.story.group_id,
+                    groupIdParam: self.story.groupId,
                     storyIdParam: self.story.id,
                     widgetIdParam: self.data.id,
                     widgetValueParam: self.clickMeWidget.url,

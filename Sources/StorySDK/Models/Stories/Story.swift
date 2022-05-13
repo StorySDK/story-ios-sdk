@@ -9,23 +9,17 @@ import Foundation
 import Foundation
 
 public struct Story {
-    let id: String
-    let group_id: String
-    let position: Int
-    let story_data: [String: StoryData]
-    let statistic: StoreStatistic?
+    var id: String = ""
+    var groupId: String = ""
+    var position: Int = 0
+    var storyData: [String: StoryData] = [:]
+    var statistic: StoreStatistic? = nil
 
-    public init() {
-        id = ""
-        group_id = ""
-        position = 0
-        story_data = [String: StoryData]()
-        statistic = nil
-    }
+    public init() {}
     
     public init(from dict: Json) {
         self.id = dict["id"] as? String ?? ""
-        self.group_id = dict["group_id"] as? String ?? ""
+        self.groupId = dict["group_id"] as? String ?? ""
         self.position = dict["position"] as? Int ?? 0
         
         if let story_dict = dict["story_data"] as? [String: Json] {
@@ -36,9 +30,9 @@ public struct Story {
                     stories.updateValue(story, forKey: key)
                 }
             }
-            self.story_data = stories
+            self.storyData = stories
         } else {
-            self.story_data = [String: StoryData]()
+            self.storyData = [:]
         }
         
         if let statisticDict = dict["statistic"] as? Json {
@@ -48,7 +42,9 @@ public struct Story {
         }
     }
     
-    public func getStoryData(locale: String) -> StoryData? {
-        story_data[locale] ?? story_data["en"]
+    public func getStoryData(locale: String, defaultLocale: String? = nil) -> StoryData? {
+        if let data = storyData[locale] { return data }
+        guard let defaultLocale = defaultLocale else { return nil }
+        return storyData[defaultLocale]
     }
 }

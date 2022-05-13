@@ -127,7 +127,7 @@ class EmojiReactionView: UIView {
             emoji.removeFromSuperview()
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: sendStatisticNotificationName), object: nil, userInfo: [
                 widgetTypeParam: statisticClickParam,
-                groupIdParam: self.story.group_id,
+                groupIdParam: self.story.groupId,
                 storyIdParam: self.story.id,
                 widgetIdParam: self.data.id,
                 widgetValueParam: self.emojiReactionWidget.emoji[number].unicode,

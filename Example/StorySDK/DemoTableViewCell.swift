@@ -34,8 +34,8 @@ class DemoTableViewCell: UITableViewCell {
         roundedView.layer.borderWidth = 2
         roundedView.layer.borderColor = group.active ? pinkColor.cgColor : UIColor.gray.cgColor
         imgView.layer.cornerRadius = imgView.frame.width / 2
-        let imageLanguage = group.image_url.keys.contains(preferredLanguage) ? preferredLanguage : defaultLanguage
-        if isStarted, let image_url = group.image_url[imageLanguage], let url = URL(string: image_url) {
+        let imageLanguage = group.imageUrl.keys.contains(preferredLanguage) ? preferredLanguage : defaultLanguage
+        if isStarted, let image_url = group.imageUrl[imageLanguage], let url = URL(string: image_url) {
             isStarted = false
             imgView.load(url: url)
         }
@@ -49,12 +49,12 @@ class DemoTableViewCell: UITableViewCell {
         }
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
-        if group.start_time != "" {
-            let date = Date(timeIntervalSince1970: TimeInterval(group.start_time)! / 1000)
+        if group.startTime != "" {
+            let date = Date(timeIntervalSince1970: TimeInterval(group.startTime)! / 1000)
             startLabel.text = dateFormatter.string(from: date)
         }
-        if group.end_time != "" {
-            let date = Date(timeIntervalSince1970: TimeInterval(group.end_time)! / 1000)
+        if group.endTime != "" {
+            let date = Date(timeIntervalSince1970: TimeInterval(group.endTime)! / 1000)
             finishLabel.text = dateFormatter.string(from: date)
         }
     }

@@ -263,7 +263,7 @@ extension TalkAboutView {
         }
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: sendStatisticNotificationName), object: nil, userInfo: [
             widgetTypeParam: statisticAnswerParam,
-            groupIdParam: self.story.group_id,
+            groupIdParam: self.story.groupId,
             storyIdParam: self.story.id,
             widgetIdParam: self.data.id,
             widgetValueParam: txt,

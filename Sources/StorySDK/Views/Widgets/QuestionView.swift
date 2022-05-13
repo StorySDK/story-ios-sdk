@@ -144,7 +144,7 @@ class QuestionView: UIView {
         let config = storySdk.configuration
         guard let reaction = WidgetReaction(
             storyId: story.id,
-            groupId: story.group_id,
+            groupId: story.groupId,
             userId: config.userId,
             widgetId: data.id,
             type: statisticAnswerParam,

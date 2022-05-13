@@ -53,7 +53,7 @@ class DemoViewController: UIViewController {
             switch result {
             case .success(let app):
                 wSelf.storyApp = app
-                wSelf.defaultStoryLanguage = app.localization.default_locale
+                wSelf.defaultStoryLanguage = app.localization.defaultLocale
                 wSelf.storySDK.configuration.language = wSelf.defaultStoryLanguage
                 DispatchQueue.main.async {
                     wSelf.getGoupsButton.isEnabled = true

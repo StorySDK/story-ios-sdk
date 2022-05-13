@@ -179,7 +179,7 @@ extension ChooseAnswerView {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: sendStatisticNotificationName), object: nil, userInfo: [
                 widgetTypeParam: statisticAnswerParam,
-                groupIdParam: self.story.group_id,
+                groupIdParam: self.story.groupId,
                 storyIdParam: self.story.id,
                 widgetIdParam: self.data.id,
                 widgetValueParam: id,

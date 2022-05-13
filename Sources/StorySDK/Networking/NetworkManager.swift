@@ -10,17 +10,24 @@ import UIKit
 
 final class NetworkManager {
     static let shared = NetworkManager()
-    private let session = URLSession.shared
+    private let configuration: URLSessionConfiguration = {
+        let config = URLSessionConfiguration.default
+        config.httpAdditionalHeaders = ["Content-type": "application/json"]
+        return config
+    }()
+    private lazy var session = URLSession(configuration: configuration)
     private static let baseUrl = "https://api.diffapp.link/api/v1/"
+    
+    func setupAuthorization(_ id: String?) {
+        configuration.httpAdditionalHeaders?["Authorization"] = id.map { "SDK \($0)" }
+    }
 }
 
 // MARK: - App
 extension NetworkManager {
     /// Method for getting Story Apps with specific SDK ID
-    /// - Parameters:
-    ///   - sdkId: The corresponding SDK ID for the App
-    func getApps(_ sdkId: String, completion: @escaping (Result<[StoryApp], Error>) -> Void) {
-        guard let request = Self.makeRequest("apps", method: .get, sdkId: sdkId) else {
+    func getApps(completion: @escaping (Result<[StoryApp], Error>) -> Void) {
+        guard let request = Self.makeRequest("apps", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -36,10 +43,9 @@ extension NetworkManager {
     
     /// Fetch the app with id
     /// - Parameters:
-    ///   - sdkId: SDK Token
     ///   - appId: App identifier
-    func getApp(_ sdkId: String, appId: String, completion: @escaping (Result<StoryApp, Error>) -> Void) {
-        guard let request = Self.makeRequest("apps/\(appId)", method: .get, sdkId: sdkId) else {
+    func getApp(appId: String, completion: @escaping (Result<StoryApp, Error>) -> Void) {
+        guard let request = Self.makeRequest("apps/\(appId)", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -55,13 +61,12 @@ extension NetworkManager {
     
     /// Fetch groups for the app
     /// - Parameters:
-    ///   - sdkId: SDK Token
     ///   - appId: App identifier
     ///   - statistic: Send statistics
     ///   - from: From date
     ///   - to: To date
-    func getGroups(_ sdkId: String, appId: String, statistic: Bool? = nil, from: String? = nil, to: String? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
-        guard let request = Self.makeRequest("apps/\(appId)/groups", method: .get, sdkId: sdkId, statistic: statistic) else {
+    func getGroups(appId: String, statistic: Bool? = nil, from: String? = nil, to: String? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
+        guard let request = Self.makeRequest("apps/\(appId)/groups", method: .get, statistic: statistic) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -75,20 +80,15 @@ extension NetworkManager {
         }.resume()
     }
     
-    /**
-     Получение группы с group_id для  приложения с конкретным app_id, привязанное к SDK token
-     */
-    
     /// Fetch group for the app
     /// - Parameters:
-    ///   - sdkId: SDK Token
     ///   - appId: App identifier
     ///   - groupId: Group identifier
     ///   - statistic: Send statistics
     ///   - from: From date
     ///   - to: To date
-    func getGroup(_ sdkId: String, appId: String, groupId: String, statistic: Bool? = nil, from: String? = nil, to: String? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
-        guard let request = Self.makeRequest("apps/\(appId)/groups/\(groupId)", method: .get, sdkId: sdkId, statistic: statistic) else {
+    func getGroup(appId: String, groupId: String, statistic: Bool? = nil, from: String? = nil, to: String? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
+        guard let request = Self.makeRequest("apps/\(appId)/groups/\(groupId)", method: .get, statistic: statistic) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -104,12 +104,11 @@ extension NetworkManager {
     
     /// Fetch stories of the group for the app
     /// - Parameters:
-    ///   - sdkId: SDK Token
     ///   - appId: App identifier
     ///   - groupId: Group identifier
     ///   - statistic: Send statistics
-    func getStories(_ sdkId: String, appId: String, groupId: String, statistic: Bool? = nil, completion: @escaping (Result<[Story], Error>) -> Void) {
-        guard let request = Self.makeRequest("apps/\(appId)/groups/\(groupId)/stories", method: .get, sdkId: sdkId, statistic: statistic) else {
+    func getStories(appId: String, groupId: String, statistic: Bool? = nil, completion: @escaping (Result<[Story], Error>) -> Void) {
+        guard let request = Self.makeRequest("apps/\(appId)/groups/\(groupId)/stories", method: .get, statistic: statistic) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -124,8 +123,8 @@ extension NetworkManager {
         }.resume()
     }
     
-    func sendStatistic(_ sdkId: String, reaction: Data, completion: @escaping (Result<Json, Error>) -> Void) {
-        guard var request = Self.makeRequest("reactions", method: .post, sdkId: sdkId) else {
+    func sendStatistic(reaction: Data, completion: @escaping (Result<Json, Error>) -> Void) {
+        guard var request = Self.makeRequest("reactions", method: .post) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -145,16 +144,24 @@ extension NetworkManager {
     }
     
     private static func decode<T>(_ type: T.Type, from data: Data?, response: URLResponse?, error: Error?) throws -> T where T : Decodable {
-        let data = try decodeData(from: data, response: response, error: error)
-        let jsonData = try JSONSerialization.data(withJSONObject: data, options: .prettyPrinted)
-        return try JSONDecoder().decode(type, from: jsonData)
+        if let error = error { throw error }
+        guard let data = data, let statusCode = (response as? HTTPURLResponse)?.statusCode else {
+            throw SRError.emptyResponse
+        }
+        let object = try JSONDecoder.storySdk.decode(SKResponse<T>.self, from: data)
+        guard (200..<300).contains(statusCode) else {
+            throw SRError.serverError(object.error)
+        }
+        guard let result = object.data else {
+            throw SRError.emptyResponse
+        }
+        print("!!!", result)
+        return result
     }
     
     private static func decodeJsonArray(from data: Data?, response: URLResponse?, error: Error?) throws -> [Json] {
         let data = try decodeData(from: data, response: response, error: error)
-        guard let json = data as? [Json] else {
-            throw SRError.emptyResponse
-        }
+        guard let json = data as? [Json] else { throw SRError.emptyResponse }
         return json
     }
     
@@ -173,17 +180,16 @@ extension NetworkManager {
         guard let appData = json["data"] else {
             throw SRError.emptyResponse
         }
+        print(appData)
         return appData
     }
     
-    private static func makeRequest(_ path: String, method: HTTPMethod, sdkId: String, statistic: Bool? = nil) -> URLRequest? {
+    private static func makeRequest(_ path: String, method: HTTPMethod, statistic: Bool? = nil) -> URLRequest? {
         var urlString = "\(baseUrl)\(path)"
         statistic.map { urlString += "?statistic=\($0)" }
         guard let url = URL(string: urlString) else { return nil }
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
-        request.setValue("application/json", forHTTPHeaderField: "Content-type")
-        request.setValue("SDK \(sdkId)", forHTTPHeaderField: "Authorization")
         return request
     }
     
@@ -191,4 +197,21 @@ extension NetworkManager {
         case get = "GET"
         case post = "POST"
     }
+}
+
+private extension JSONDecoder {
+    static let storySdk: JSONDecoder = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .formatted(formatter) // .iso8601
+        return decoder
+    }()
+}
+
+struct SKResponse<T: Decodable>: Decodable {
+    var data: T?
+    var error: String?
 }

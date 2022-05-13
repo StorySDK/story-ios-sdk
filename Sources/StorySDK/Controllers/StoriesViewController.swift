@@ -120,13 +120,6 @@ public final class StoriesViewController: UIViewController {
                                                queue: nil,
                                                using: startConfetti)
     }
-
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: enableSwipeNotificanionName), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: disableSwipeNotificanionName), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: sendStatisticNotificationName), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: startConfettiNotificationName), object: nil)
-    }
     
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -179,7 +172,8 @@ public final class StoriesViewController: UIViewController {
         imageView.layer.cornerRadius = (topViewHeight - 24) / 2
         imageView.clipsToBounds = true
         let locale = storySdk.configuration.language
-        if let imageUrl = group.getImageURL(locale: locale), let url = URL(string: imageUrl) {
+        let defaultLocale = storySdk.context.defaultLocale
+        if let url = group.getImageURL(locale: locale, defaultLocale: defaultLocale) {
             LazyImageLoader.shared.loadImage(url: url, completion: { image, error in
                 if error == nil, let image = image {
                     DispatchQueue.main.async {
@@ -198,7 +192,7 @@ public final class StoriesViewController: UIViewController {
             l.centerYAnchor.constraint(equalTo: topView.centerYAnchor),
             l.leftAnchor.constraint(equalTo: v.rightAnchor, constant: 8),
         ])
-        l.text = group.getTitle(locale: locale)
+        l.text = group.getTitle(locale: locale, defaultLocale: defaultLocale)
         l.isHidden = !needShowTitle
         
         let sv = UIStackView()
@@ -275,7 +269,7 @@ extension StoriesViewController: UIPageViewControllerDelegate, UIPageViewControl
         if time > 2 {
             let reaction = WidgetReaction(
                 storyId: story.id,
-                groupId: story.group_id,
+                groupId: story.groupId,
                 userId: storySdk.configuration.userId,
                 type: statisticImpressionParam,
                 locale: storySdk.configuration.language
@@ -284,7 +278,7 @@ extension StoriesViewController: UIPageViewControllerDelegate, UIPageViewControl
         }
         let reaction = WidgetReaction(
             storyId: story.id,
-            groupId: story.group_id,
+            groupId: story.groupId,
             userId: storySdk.configuration.userId,
             type: statisticDurationParam,
             value: "\(time)",
@@ -336,7 +330,7 @@ extension StoriesViewController: UIPageViewControllerDelegate, UIPageViewControl
         if time > 2 {
             let reaction = WidgetReaction(
                 storyId: story.id,
-                groupId: story.group_id,
+                groupId: story.groupId,
                 userId: storySdk.configuration.userId,
                 type: statisticImpressionParam,
                 locale: storySdk.configuration.language
@@ -345,7 +339,7 @@ extension StoriesViewController: UIPageViewControllerDelegate, UIPageViewControl
         }
         let reaction = WidgetReaction(
             storyId: story.id,
-            groupId: story.group_id,
+            groupId: story.groupId,
             userId: storySdk.configuration.userId,
             type: statisticDurationParam,
             value: "\(time)",

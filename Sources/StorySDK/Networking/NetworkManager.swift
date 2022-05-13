@@ -15,7 +15,11 @@ final class NetworkManager {
         config.httpAdditionalHeaders = ["Content-type": "application/json"]
         return config
     }()
-    private lazy var session = URLSession(configuration: configuration)
+    private lazy var session = URLSession(
+        configuration: configuration,
+        delegate: nil,
+        delegateQueue: .main
+    )
     private static let baseUrl = "https://api.diffapp.link/api/v1/"
     
     func setupAuthorization(_ id: String?) {
@@ -155,7 +159,6 @@ extension NetworkManager {
         guard let result = object.data else {
             throw SRError.emptyResponse
         }
-        print("!!!", result)
         return result
     }
     

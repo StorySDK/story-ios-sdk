@@ -21,16 +21,13 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
     private let storySdk: StorySDK
     var cellConfg: SRCollectionCellStyle = .init()
     
-    private var locale: String { storySdk.configuration.language }
-    private var defaulLocale: String? { app?.localization.defaultLocale }
-    
     public init(sdk: StorySDK = .shared) {
         self.storySdk = sdk
     }
     
-    public func load(app: StoryApp) {
+    public func load() {
+        if app == nil { loadApp() }
         groups = []
-        groupsStyle = app.settings.groupView.ios
         storySdk.getGroups { [weak self] result in
             switch result {
             case .success(let groups):
@@ -73,5 +70,18 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
     public func group(with index: Int) -> StoryGroup? {
         guard index < groups.count else { return nil } // In case if we trying to update cells while reloading stories
         return groups[index]
+    }
+    
+    func loadApp() {
+        storySdk.getApp { [weak self] result in
+            switch result {
+            case .success(let app):
+                self?.app = app
+                self?.groupsStyle = app.settings.groupView.ios
+                self?.onReloadData?()
+            case .failure(let error):
+                self?.onErrorReceived?(error)
+            }
+        }
     }
 }

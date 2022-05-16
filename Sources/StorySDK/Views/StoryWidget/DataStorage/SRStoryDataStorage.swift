@@ -21,8 +21,8 @@ public protocol SRStoryDataStorage: AnyObject {
     func setupCell(_ cell: SRStoryCollectionCell, index: Int)
     /// Returns group with index
     func group(with index: Int) -> StoryGroup?
-    /// Loads groups for the app
-    func load(app: StoryApp)
+    /// Loads groups
+    func load()
 }
 
 public protocol SRStoryCollectionCell: AnyObject {

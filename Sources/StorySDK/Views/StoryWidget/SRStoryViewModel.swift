@@ -23,8 +23,8 @@ class SRStoryViewModel {
         self.dataStorage = dataStorage
     }
     
-    func load(app: StoryApp) {
-        dataStorage.load(app: app)
+    func load() {
+        dataStorage.load()
     }
     
     func setupLayout(_ layout: SRStoryLayout) {

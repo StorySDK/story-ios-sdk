@@ -82,8 +82,8 @@ public class SRStoryWidget: UIView {
         }
     }
     
-    public func load(app: StoryApp) {
-        viewModel.load(app: app)
+    public func load() {
+        viewModel.load()
     }
 }
 

@@ -39,11 +39,7 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
         l.endPoint = CGPoint(x: 1.0, y: 0.5)
         return l
     }()
-    private let titleLabel: UILabel = {
-        let v = UILabel()
-        v.textColor = .label
-        return v
-    }()
+    private let titleLabel = UILabel()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -65,26 +61,9 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
         cancelable = nil
     }
     
-    func setupStyle(_ style: SRCollectionCellStyle) {
-        self.style = style
-        if style.isTitleInside {
-            titleLabel.numberOfLines = 0
-            titleLabel.textAlignment = .left
-        } else {
-            titleLabel.numberOfLines = 1
-            titleLabel.textAlignment = .center
-        }
-        titleLabel.font = style.font
-        
-        imageView.layer.borderColor = style.backgroundColor.cgColor
-        borderLayer.colors = (isNew ? style.newBorderColors : style.normalBorderColors).map(\.cgColor)
-        
-        setNeedsLayout()
-    }
-    
     override func layoutSubviews() {
         super.layoutSubviews()
-        let imageSize: CGSize
+        var imageSize: CGSize
         if style.isTitleInside {
             imageSize = bounds.size
         } else {
@@ -103,7 +82,8 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
         
         // let titleRect: CGRect
         if style.isTitleInside {
-            let titleRect = imageView.frame.insetBy(dx: inset, dy: inset)
+            let padding = inset * 3
+            let titleRect = imageView.frame.insetBy(dx: padding, dy: padding)
             let titleSize = titleLabel.sizeThatFits(titleRect.size)
             titleLabel.frame = .init(
                 x: titleRect.minX,
@@ -122,6 +102,33 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         imageView.layer.borderColor = style.backgroundColor.cgColor
-        borderLayer.colors = (isNew ? style.newBorderColors : style.normalBorderColors).map(\.cgColor)
+        updateBorder(isNew ? style.newBorderColors : style.normalBorderColors)
+    }
+    
+    func setupStyle(_ style: SRCollectionCellStyle) {
+        self.style = style
+        if style.isTitleInside {
+            titleLabel.numberOfLines = 0
+            titleLabel.textAlignment = .left
+            titleLabel.textColor = .white
+        } else {
+            titleLabel.numberOfLines = 1
+            titleLabel.textAlignment = .center
+            titleLabel.textColor = .label
+        }
+        titleLabel.font = style.font
+        
+        imageView.layer.borderColor = style.backgroundColor.cgColor
+        updateBorder(isNew ? style.newBorderColors : style.normalBorderColors)
+        
+        setNeedsLayout()
+    }
+    
+    func updateBorder(_ colors: [UIColor]) {
+        if colors.count == 1 {
+            borderLayer.colors = [colors[0], colors[0]].map(\.cgColor)
+        } else {
+            borderLayer.colors = colors.map(\.cgColor)
+        }
     }
 }

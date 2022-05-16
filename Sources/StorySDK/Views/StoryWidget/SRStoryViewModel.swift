@@ -27,6 +27,10 @@ class SRStoryViewModel {
         dataStorage.load(app: app)
     }
     
+    func setupLayout(_ layout: SRStoryLayout) {
+        dataStorage.setupLayout(layout)
+    }
+    
     func setupCell(_ cell: SRStoryCollectionCell, index: Int) {
         dataStorage.setupCell(cell, index: index)
     }

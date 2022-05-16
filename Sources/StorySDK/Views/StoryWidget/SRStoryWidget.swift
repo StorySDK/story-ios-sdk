@@ -35,12 +35,7 @@ public class SRStoryWidget: UIView {
         set { viewModel.onErrorReceived = newValue }
     }
     private let viewModel: SRStoryViewModel
-    private let layout: UICollectionViewFlowLayout = {
-        let l = UICollectionViewFlowLayout()
-        l.minimumLineSpacing = 14
-        l.itemSize = .init(width: 90, height: 90)
-        return l
-    }()
+    private let layout = UICollectionViewFlowLayout()
     private lazy var collectionView: UICollectionView = {
         let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
         v.contentInset = .init(top: 14, left: 14, bottom: 14, right: 14)
@@ -75,8 +70,11 @@ public class SRStoryWidget: UIView {
     public func bindView() {
         collectionView.dataSource = self
         collectionView.delegate = self
-        viewModel.onReloadData = { [weak collectionView] in
-            collectionView?.reloadData()
+        viewModel.onReloadData = { [weak self] in
+            guard let wSelf = self else { return }
+            wSelf.viewModel.setupLayout(wSelf.layout)
+            wSelf.invalidateIntrinsicContentSize()
+            wSelf.collectionView.reloadData()
         }
         viewModel.onErrorReceived = { [weak self] error in
             guard let widget = self else { return }
@@ -106,5 +104,16 @@ extension SRStoryWidget: UICollectionViewDelegate {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let group = viewModel.group(with: indexPath.row) else { return }
         delegate?.onWidgetGroupPresent(group, widget: self)
+    }
+}
+
+extension UICollectionViewFlowLayout: SRStoryLayout {
+    public func updateSpacing(_ spacing: CGFloat) {
+        minimumLineSpacing = spacing
+        minimumInteritemSpacing = spacing
+    }
+    
+    public func updateItemSize(_ size: CGSize) {
+        itemSize = size
     }
 }

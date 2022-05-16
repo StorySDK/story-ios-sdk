@@ -15,7 +15,11 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
     
     private(set) var groups: [StoryGroup] = []
     private(set) var app: StoryApp?
+    private(set) var groupsStyle: AppGroupViewSettings = .circle {
+        didSet { cellConfg.update(settings: groupsStyle) }
+    }
     private let storySdk: StorySDK
+    var cellConfg: SRCollectionCellStyle = .init()
     
     private var locale: String { storySdk.configuration.language }
     private var defaulLocale: String? { app?.localization.defaultLocale }
@@ -26,7 +30,8 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
     
     public func load(app: StoryApp) {
         groups = []
-        storySdk.getGroups(appId: app.id) { [weak self] result in
+        groupsStyle = app.settings.groupView.ios
+        storySdk.getGroups { [weak self] result in
             switch result {
             case .success(let groups):
                 self?.groups = groups
@@ -37,15 +42,30 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
         }
     }
     
+    public func setupLayout(_ layout: SRStoryLayout) {
+        switch groupsStyle {
+        case .circle, .square:
+            layout.updateSpacing(10)
+            layout.updateItemSize(.init(width: 90, height: 90))
+        case .bigSquare:
+            layout.updateSpacing(0)
+            layout.updateItemSize(.init(width: 90, height: 90))
+        case .rectangle:
+            layout.updateSpacing(0)
+            layout.updateItemSize(.init(width: 72, height: 90))
+        }
+        layout.invalidateLayout()
+    }
+    
     public func setupCell(_ cell: SRStoryCollectionCell, index: Int) {
-        guard let story = group(with: index) else { return } 
-        cell.title = story.getTitle(locale: locale, defaultLocale: defaulLocale)
-        if let url = story.getImageURL(locale: locale, defaultLocale: defaulLocale) {
-            cell.cancelable = storySdk.imageLoader.load(url) { [weak self, weak cell] result in
-                switch result {
-                case .success(let image): cell?.image = image
-                case .failure(let error): self?.onErrorReceived?(error)
-                }
+        guard let story = group(with: index) else { return }
+        cell.setupStyle(cellConfg)
+        cell.title = story.title
+        guard let url = story.imageUrl else { return }
+        cell.cancelable = storySdk.imageLoader.load(url) { [weak self, weak cell] result in
+            switch result {
+            case .success(let image): cell?.image = image
+            case .failure(let error): self?.onErrorReceived?(error)
             }
         }
     }

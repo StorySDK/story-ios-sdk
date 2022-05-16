@@ -171,17 +171,15 @@ public final class StoriesViewController: UIViewController {
         ])
         imageView.layer.cornerRadius = (topViewHeight - 24) / 2
         imageView.clipsToBounds = true
-        let locale = storySdk.configuration.language
-        let defaultLocale = storySdk.context.defaultLocale
-        if let url = group.getImageURL(locale: locale, defaultLocale: defaultLocale) {
-            LazyImageLoader.shared.loadImage(url: url, completion: { image, error in
+        if let url = group.imageUrl {
+            LazyImageLoader.shared.loadImage(url: url) { image, error in
                 if error == nil, let image = image {
                     DispatchQueue.main.async {
                         self.imageView.image = image
                         v.layer.borderColor = pinkColor.cgColor
                     }
                 }
-            })
+            }
         }
         imageView.isHidden = !needShowTitle
         
@@ -192,7 +190,7 @@ public final class StoriesViewController: UIViewController {
             l.centerYAnchor.constraint(equalTo: topView.centerYAnchor),
             l.leftAnchor.constraint(equalTo: v.rightAnchor, constant: 8),
         ])
-        l.text = group.getTitle(locale: locale, defaultLocale: defaultLocale)
+        l.text = group.title
         l.isHidden = !needShowTitle
         
         let sv = UIStackView()
@@ -209,6 +207,7 @@ public final class StoriesViewController: UIViewController {
 
         progressViews = [ProgressView]()
         let storyDuration = storySdk.configuration.storyDuration
+        let locale = storySdk.configuration.language
         for i in 0 ..< stories.count {
             guard let storyData = stories[i].getStoryData(locale: locale) else { continue }
             if self.activeOnly && storyData.status != "active" {

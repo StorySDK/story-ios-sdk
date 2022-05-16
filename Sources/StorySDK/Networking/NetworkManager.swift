@@ -20,36 +20,21 @@ final class NetworkManager {
         delegate: nil,
         delegateQueue: .main
     )
-    private static let baseUrl = "https://api.diffapp.link/api/v1/"
+    private static let baseUrl = "https://api.diffapp.link/sdk/v1/"
     
     func setupAuthorization(_ id: String?) {
         configuration.httpAdditionalHeaders?["Authorization"] = id.map { "SDK \($0)" }
+    }
+    func setupLanguage(_ value: String?) {
+        configuration.httpAdditionalHeaders?["Accept-Language"] = value
     }
 }
 
 // MARK: - App
 extension NetworkManager {
-    /// Method for getting Story Apps with specific SDK ID
-    func getApps(completion: @escaping (Result<[StoryApp], Error>) -> Void) {
-        guard let request = Self.makeRequest("apps", method: .get) else {
-            completion(.failure(SRError.unknownError))
-            return
-        }
-        session.dataTask(with: request) { (data, response, error) in
-            do {
-                let result = try Self.decode([StoryApp].self, from: data, response: response, error: error)
-                completion(.success(result))
-            } catch {
-                completion(.failure(error))
-            }
-        }.resume()
-    }
-    
-    /// Fetch the app with id
-    /// - Parameters:
-    ///   - appId: App identifier
-    func getApp(appId: String, completion: @escaping (Result<StoryApp, Error>) -> Void) {
-        guard let request = Self.makeRequest("apps/\(appId)", method: .get) else {
+    /// Fetch story app
+    func getApp(completion: @escaping (Result<StoryApp, Error>) -> Void) {
+        guard let request = Self.makeRequest("app", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -65,12 +50,11 @@ extension NetworkManager {
     
     /// Fetch groups for the app
     /// - Parameters:
-    ///   - appId: App identifier
-    ///   - statistic: Send statistics
     ///   - from: From date
     ///   - to: To date
-    func getGroups(appId: String, statistic: Bool? = nil, from: String? = nil, to: String? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
-        guard let request = Self.makeRequest("apps/\(appId)/groups", method: .get, statistic: statistic) else {
+    ///   - statistic: Send statistics   
+    func getGroups(from: String? = nil, to: String? = nil, statistic: Bool? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
+        guard let request = Self.makeRequest("groups", method: .get, statistic: statistic) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -86,13 +70,12 @@ extension NetworkManager {
     
     /// Fetch group for the app
     /// - Parameters:
-    ///   - appId: App identifier
     ///   - groupId: Group identifier
     ///   - statistic: Send statistics
     ///   - from: From date
     ///   - to: To date
-    func getGroup(appId: String, groupId: String, statistic: Bool? = nil, from: String? = nil, to: String? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
-        guard let request = Self.makeRequest("apps/\(appId)/groups/\(groupId)", method: .get, statistic: statistic) else {
+    func getGroup(groupId: String, statistic: Bool? = nil, from: String? = nil, to: String? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
+        guard let request = Self.makeRequest("groups/\(groupId)", method: .get, statistic: statistic) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -108,11 +91,10 @@ extension NetworkManager {
     
     /// Fetch stories of the group for the app
     /// - Parameters:
-    ///   - appId: App identifier
     ///   - groupId: Group identifier
     ///   - statistic: Send statistics
-    func getStories(appId: String, groupId: String, statistic: Bool? = nil, completion: @escaping (Result<[Story], Error>) -> Void) {
-        guard let request = Self.makeRequest("apps/\(appId)/groups/\(groupId)/stories", method: .get, statistic: statistic) else {
+    func getStories(groupId: String, statistic: Bool? = nil, completion: @escaping (Result<[Story], Error>) -> Void) {
+        guard let request = Self.makeRequest("groups/\(groupId)/stories", method: .get, statistic: statistic) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -204,12 +186,9 @@ extension NetworkManager {
 
 private extension JSONDecoder {
     static let storySdk: JSONDecoder = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        decoder.dateDecodingStrategy = .formatted(formatter) // .iso8601
+        decoder.dateDecodingStrategy = .formatted(.rfc3339) // .iso8601
         return decoder
     }()
 }
@@ -217,4 +196,12 @@ private extension JSONDecoder {
 struct SKResponse<T: Decodable>: Decodable {
     var data: T?
     var error: String?
+}
+
+private extension DateFormatter {
+    static let rfc3339: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        return formatter
+    }
 }

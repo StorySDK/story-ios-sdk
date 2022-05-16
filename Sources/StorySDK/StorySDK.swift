@@ -25,6 +25,7 @@ public final class StorySDK: NSObject {
     
     private func update(configuration: SRConfiguration) {
         network.setupAuthorization(configuration.sdkId)
+        network.setupLanguage(configuration.language)
     }
 }
 

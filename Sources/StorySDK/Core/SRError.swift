@@ -8,7 +8,6 @@
 import Foundation
 
 public enum SRError: Error, LocalizedError {
-    case sdkIdIsNill
     case noAppsToDisplay
     case emptyResponse
     case serverError(String?)
@@ -17,8 +16,6 @@ public enum SRError: Error, LocalizedError {
     
     public var errorDescription: String? {
         switch self {
-        case .sdkIdIsNill:
-            return "SDK id is nil"
         case .noAppsToDisplay:
             return "You don't have apps to display"
         case .emptyResponse:

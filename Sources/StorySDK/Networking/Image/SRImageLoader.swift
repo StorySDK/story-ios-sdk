@@ -19,6 +19,7 @@ public class SRImageLoader {
         self.cache = cache
     }
     
+    @discardableResult
     public func load(_ url: URL, completion: @escaping (Result<UIImage, Error>) -> Void) -> Cancellable? {
         let cacheKey = url.absoluteString
         if let image = cache.loadImage(cacheKey) {

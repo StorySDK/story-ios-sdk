@@ -34,23 +34,13 @@ class RectangleView: UIView {
         layer.shadowOffset = .zero
         layer.shadowRadius = 4
 
-        switch rectangleWidget.fillColor {
-        case .color(let value):
-            backgroundColor = Utils.getColor(value.value).withAlphaComponent(CGFloat(rectangleWidget.fillOpacity / 100))
-        default:
-            break
+        if case .color(let color) = rectangleWidget.fillColor {
+            backgroundColor = color.withAlphaComponent(CGFloat(rectangleWidget.fillOpacity / 100))
         }
         layer.cornerRadius = CGFloat(rectangleWidget.fillBorderRadius)
 
-        if rectangleWidget.hasBorder {
-            switch rectangleWidget.strokeColor {
-            case .color(let value):
-                let borderColor = Utils.getColor(value.value).withAlphaComponent(CGFloat(rectangleWidget.strokeOpacity / 100))
-                layer.borderColor = borderColor.cgColor
-            default:
-                break
-            }
-            
+        if rectangleWidget.hasBorder, case .color(let color) = rectangleWidget.strokeColor {
+            layer.borderColor = color.withAlphaComponent(CGFloat(rectangleWidget.strokeOpacity / 100)).cgColor
             layer.borderWidth = CGFloat(rectangleWidget.strokeThickness)
         }
     }

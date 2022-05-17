@@ -122,48 +122,29 @@ class ShowStoryViewController: UIViewController {
     }
     
     private func changeBackground() {
-        let bg = storyData.background
-        switch bg {
-        case .color(let value):
-            setColoredBG(value)
-        case .gradient(let value):
-            setGradientBG(value)
-        default:
-            break
-        }
-    }
-    
-    private func setColoredBG(_ value: ColorValue) {
-        if value.type == "color" {
-            bgView.backgroundColor = Utils.getColor(value.value)
-        } else if value.type == "image", let url = URL(string: value.value) {
+        guard let background = storyData.background else { return }
+        switch background {
+        case .color(let color):
+            bgView.backgroundColor = color
+        case .gradient(let colors):
+            let l = Utils.getGradient(
+                frame: view.bounds,
+                colors: colors,
+                points: [CGPoint(x: 0, y: 0), CGPoint(x: 0, y: 1)]
+            )
+            bgView.layer.insertSublayer(l, at: 0)
+        case .image(let url):
             indicator.startAnimating()
             indicator.isHidden = false
-            LazyImageLoader.shared.loadImage(url: url, completion: { image, error in
-                DispatchQueue.main.async {
-                    self.indicator.stopAnimating()
-                    self.indicator.isHidden = true
+            storySdk.imageLoader.load(url) { [weak self] result in
+                defer {
+                    self?.indicator.stopAnimating()
+                    self?.indicator.isHidden = true
                 }
-                if let error = error {
-                    print(error.localizedDescription)
-                } else if let image = image {
-                    DispatchQueue.main.async {
-                        self.bgImageView.image = image
-                        self.bgImageView.isHidden = false
-                    }
-                }
-            })
-            view.setNeedsLayout()
-        }
-    }
-    
-    private func setGradientBG(_ value: GradientValue) {
-        if value.type == "gradient", value.value.count > 1 {
-            let startColor = Utils.getColor(value.value[0])
-            let finishColor = Utils.getColor(value.value[1])
-            
-            let l = Utils.getGradient(frame: view.bounds, colors: [startColor, finishColor], points: [CGPoint(x: 0, y: 0), CGPoint(x: 0, y: 1)])
-            bgView.layer.insertSublayer(l, at: 0)
+                guard case .success(let image) = result else { return }
+                self?.bgImageView.image = image
+                self?.bgImageView.isHidden = false
+            }
         }
     }
     

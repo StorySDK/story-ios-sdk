@@ -34,23 +34,17 @@ class EllipseView: UIView {
         layer.shadowOffset = .zero
         layer.shadowRadius = 4
 
-        switch ellipseWidget.fillColor {
-        case .color(let value):
-            backgroundColor = Utils.getColor(value.value).withAlphaComponent(CGFloat(ellipseWidget.fillOpacity / 100))
-        default:
-            break
+        if case .color(let color) = ellipseWidget.fillColor {
+            backgroundColor = color
+                .withAlphaComponent(CGFloat(ellipseWidget.fillOpacity / 100))
         }
+        
         layer.cornerRadius = frame.height / 2
 
-        if ellipseWidget.hasBorder {
-            switch ellipseWidget.strokeColor {
-            case .color(let value):
-                let borderColor = Utils.getColor(value.value).withAlphaComponent(CGFloat(ellipseWidget.strokeOpacity / 100))
-                layer.borderColor = borderColor.cgColor
-            default:
-                break
-            }
-            
+        if ellipseWidget.hasBorder, case .color(let color) = ellipseWidget.strokeColor {
+            layer.borderColor = color
+                .withAlphaComponent(CGFloat(ellipseWidget.strokeOpacity / 100))
+                .cgColor
             layer.borderWidth = CGFloat(ellipseWidget.strokeThickness)
         }
     }

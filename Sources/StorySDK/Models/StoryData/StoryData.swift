@@ -14,13 +14,12 @@ import UIKit
 /// - background - background (solid color or gradient color)
 /// - status - draft or active
 public struct StoryData {
-    let widgets: [WidgetData]
-    let background: BackgroundType
-    let status: String
+    var widgets: [WidgetData]
+    var background: SRColor?
+    var status: String
     
     public init() {
         widgets = [WidgetData]()
-        background = BackgroundType.null("null")
         status = "draft"
     }
     
@@ -32,20 +31,7 @@ public struct StoryData {
             widgets.append(widget)
         }
         self.widgets = widgets
-        
-        if let backgroundDict = dict["background"] as? Json {
-            let type = backgroundDict["type"] as! String
-            if type == "color" || type == "image" || type == "video"{
-                self.background = BackgroundType.color(ColorValue(from: backgroundDict))
-            } else if type == "gradient" {
-                self.background = BackgroundType.gradient(GradientValue(from: backgroundDict))
-            } else {
-                self.background = BackgroundType.null("null")
-            }
-        } else {
-            self.background = BackgroundType.null("null")
-        }
-        
         self.status = dict["status"] as? String ?? "draft"
+        (dict["background"] as? Json).map { background = .init(json: $0) }
     }
 }

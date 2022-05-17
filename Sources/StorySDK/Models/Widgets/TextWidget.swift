@@ -8,17 +8,17 @@
 import UIKit
 
 public struct TextWidget {
-    let text: String
-    let fontSize: Double
-    let fontFamily: String
-    let fontParams: FontParamsValue
-    let align: String
-    let color: BorderType
-    let backgroundColor: BackgroundType
-    let withFill: Bool
-    let opacity: Double
-    let widgetOpacity: Double
-    let backgroundOpacity: Double
+    var text: String
+    var fontSize: Double
+    var fontFamily: String
+    var fontParams: FontParamsValue
+    var align: String
+    var color: SRColor?
+    var backgroundColor: SRColor?
+    var withFill: Bool
+    var opacity: Double
+    var widgetOpacity: Double
+    var backgroundOpacity: Double
     
     public init() {
         self.text = ""
@@ -26,8 +26,6 @@ public struct TextWidget {
         self.fontFamily = "Roboto"
         self.fontParams = FontParamsValue()
         self.align = "center"
-        self.color = BorderType.null("null")
-        self.backgroundColor = BackgroundType.null("null")
         self.withFill = false
         self.opacity = 100
         self.widgetOpacity = 100
@@ -44,33 +42,11 @@ public struct TextWidget {
             self.fontParams = FontParamsValue()
         }
         self.align = dict["align"] as? String ?? ""
-        if let colorDict = dict["color"] as? Json {
-            let type = colorDict["type"] as! String
-            if type == "color" {
-                self.color = BorderType.color(ColorValue(from: colorDict))
-            } else if type == "gradient" {
-                self.color = BorderType.gradient(GradientValue(from: colorDict))
-            } else {
-                self.color = BorderType.null("null")
-            }
-        } else {
-            self.color = BorderType.null("null")
-        }
-        if let backgroundDict = dict["backgroundColor"] as? Json {
-            let type = backgroundDict["type"] as! String
-            if type == "color" || type == "image" || type == "video"{
-                self.backgroundColor = BackgroundType.color(ColorValue(from: backgroundDict))
-            } else if type == "gradient" {
-                self.backgroundColor = BackgroundType.gradient(GradientValue(from: backgroundDict))
-            } else {
-                self.backgroundColor = BackgroundType.null("null")
-            }
-        } else {
-            self.backgroundColor = BackgroundType.null("null")
-        }
         self.withFill = dict["withFill"] as? Bool ?? false
         self.opacity = dict["opacity"] as? Double ?? 100
         self.widgetOpacity = dict["widgetOpacity"] as? Double ?? 100
         self.backgroundOpacity = dict["backgroundOpacity"] as? Double ?? 100
+        (dict["color"] as? Json).map { color = .init(json: $0) }
+        (dict["backgroundColor"] as? Json).map { backgroundColor = .init(json: $0) }
     }
 }

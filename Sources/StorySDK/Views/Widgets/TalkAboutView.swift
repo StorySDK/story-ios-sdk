@@ -113,7 +113,7 @@ class TalkAboutView: UIView {
         }
         mainView.layer.cornerRadius = 10 * xScaleFactor
         
-        if let img = UIImage(named: "IconLogoCircle", in: Bundle(for: StoriesViewController.self), compatibleWith: nil) {
+        if let img = UIImage(named: "IconLogoCircle", in: Bundle(for: SRStoriesViewController.self), compatibleWith: nil) {
             logo.image = img
         }
         

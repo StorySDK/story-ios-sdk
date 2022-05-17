@@ -311,7 +311,7 @@ final class AnswerView: UIView {
         backgroundColor = green.withAlphaComponent(0.8)
         titleLabel.textColor = .white
         layer.borderWidth = 0
-        if let maskImage = UIImage(named: "IconConfirm", in: Bundle(for: StoriesViewController.self), compatibleWith: nil) {
+        if let maskImage = UIImage(named: "IconConfirm", in: Bundle(for: SRStoriesViewController.self), compatibleWith: nil) {
             let iv = UIImageView()
             iv.translatesAutoresizingMaskIntoConstraints = false
             iconView.addSubview(iv)
@@ -331,7 +331,7 @@ final class AnswerView: UIView {
     }
     
     func setFinishAnswerStatus(isInCorrect: Bool) {
-        if let maskImage = UIImage(named: "IconDecline", in: Bundle(for: StoriesViewController.self), compatibleWith: nil) {
+        if let maskImage = UIImage(named: "IconDecline", in: Bundle(for: SRStoriesViewController.self), compatibleWith: nil) {
             let iv = UIImageView()
             iv.translatesAutoresizingMaskIntoConstraints = false
             iconView.addSubview(iv)

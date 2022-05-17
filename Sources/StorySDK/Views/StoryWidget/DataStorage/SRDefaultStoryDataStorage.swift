@@ -24,6 +24,7 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
     public init(sdk: StorySDK = .shared) {
         self.storySdk = sdk
         self.groupsStyle = sdk.app?.settings.groupView.ios ?? .circle
+        cellConfg.update(settings: groupsStyle)
     }
     
     public func load() {
@@ -70,7 +71,7 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
     }
     
     public func group(with index: Int) -> StoryGroup? {
-        guard index < groups.count else { return nil } // In case if we trying to update cells while reloading stories
+        guard index < groups.count else { return nil } // In case if we trying to update cells while stories are reloading
         return groups[index]
     }
     

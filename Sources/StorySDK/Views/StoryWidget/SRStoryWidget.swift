@@ -18,10 +18,15 @@ public extension SRStoryWidgetDelegate {
     }
 }
 
-public class SRStoryWidget: UIView {
+@IBDesignable
+public final class SRStoryWidget: UIView {
     public override var intrinsicContentSize: CGSize {
-        .init(width: CGFloat.greatestFiniteMagnitude,
+#if TARGET_INTERFACE_BUILDER
+        .init(width: CGFloat.greatestFiniteMagnitude, height: 118)
+#else
+        .init(width: .greatestFiniteMagnitude,
               height: layout.itemSize.height + contentInset.top + contentInset.bottom)
+#endif
     }
     public var contentInset: UIEdgeInsets {
         get { collectionView.contentInset }
@@ -51,10 +56,33 @@ public class SRStoryWidget: UIView {
         bindView() 
     }
     
-    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        let dataStorage = SRDefaultStoryDataStorage(sdk: .shared)
+        self.viewModel = .init(dataStorage: dataStorage)
+        super.init(coder: coder)
+        viewModel.setupLayout(layout)
+        setupLayout()
+        bindView()
     }
+    
+#if TARGET_INTERFACE_BUILDER
+    public override func draw(_ rect: CGRect) {
+        let bounds = rect.insetBy(dx: 14, dy: 14)
+        guard bounds.height > 0 else { return }
+        guard let ctx = UIGraphicsGetCurrentContext() else { return }
+        let amount = max(3, Int(ceil(bounds.width / 100)))
+        var x = bounds.minX
+        let y = bounds.minY + 90
+        ctx.setFillColor(UIColor.systemBackground.cgColor)
+        ctx.fill(bounds)
+        ctx.setFillColor(UIColor.label.cgColor)
+        for i in 0..<amount {
+            ctx.fillEllipse(in: .init(x: x + 10, y: bounds.minY, width: 70, height: 70))
+            ctx.fill(.init(x: x, y: y, width: 90, height: 10))
+            x += 100
+        }
+    }
+#endif
     
     private func setupLayout() {
         addSubview(collectionView)

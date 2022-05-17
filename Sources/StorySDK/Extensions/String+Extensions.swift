@@ -25,7 +25,7 @@ extension String {
     }
 
     func localize() -> String {
-        let bundle = Bundle(for: StoriesViewController.self)
+        let bundle = Bundle(for: SRStoriesViewController.self)
         let string = bundle.localizedString(forKey: self, value: nil, table: "Localizable")
 //        let locale = Locale.current.identifier
         return string

@@ -1,5 +1,5 @@
 //
-//  StoriesViewController.swift
+//  SRStoriesViewController.swift
 //  StorySDK
 //
 //  Created by MeadowsPhone Team on 04.02.2022.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-public final class StoriesViewController: UIViewController {
+public final class SRStoriesViewController: UIViewController {
     
     // MARK: - UI
     private lazy var topView: UIView = {
@@ -237,7 +237,7 @@ public final class StoriesViewController: UIViewController {
 }
 
 // MARK: - Actions
-extension StoriesViewController {
+extension SRStoriesViewController {
     @objc func closeTapped(_ sender: UIButton) {
         let reaction = WidgetReaction(
             storyId: stories[currentIndex].id,
@@ -259,7 +259,7 @@ extension StoriesViewController {
 }
 
 // MARK: - PageViewController Delegate, Progress Delegate
-extension StoriesViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource, ProgressDelegate {
+extension SRStoriesViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource, ProgressDelegate {
     func progressFinished(story: Story, index: Int) {
         let time = self.progressViews[currentIndex].currentTime
 //        print("Current time from progress:", time, "index:", currentIndex)
@@ -356,7 +356,7 @@ extension StoriesViewController: UIPageViewControllerDelegate, UIPageViewControl
 }
 
 // MARK: - Notifications
-extension StoriesViewController {
+extension SRStoriesViewController {
     func needSendStatistics(notification: Notification) {
         pageContainer.isPagingEnabled = true
         self.progressViews[currentIndex].resume()

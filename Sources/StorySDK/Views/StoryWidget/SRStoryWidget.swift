@@ -14,7 +14,7 @@ public protocol SRStoryWidgetDelegate: AnyObject {
 
 public extension SRStoryWidgetDelegate {
     func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget) {
-        print("StoryKit > Error:", error.localizedDescription)
+        print("StorySDK > Error:", error.localizedDescription)
     }
 }
 

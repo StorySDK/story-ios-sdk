@@ -11,7 +11,10 @@ import Foundation
 
 extension StorySDK {
     public func getApp(completion: @escaping (Result<StoryApp, Error>) -> Void) {
-        network.getApp(completion: completion)
+        network.getApp { [weak self] result in
+            if case .success(let app) = result { self?.updateApp(app) }
+            completion(result)
+        }
     }
 }
 

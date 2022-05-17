@@ -13,6 +13,7 @@ public final class StorySDK: NSObject {
     public var configuration = SRConfiguration() {
         didSet { update(configuration: configuration) }
     }
+    public private(set) var app: StoryApp?
     var context = SRContext()
     let network = NetworkManager()
     let imageLoader = SRImageLoader(cache: MemoryImageCache())
@@ -23,9 +24,14 @@ public final class StorySDK: NSObject {
         update(configuration: configuration)
     }
     
+    func updateApp(_ app: StoryApp) {
+        self.app = app
+        configuration.update(localization: app.localization)
+    }
+    
     private func update(configuration: SRConfiguration) {
         network.setupAuthorization(configuration.sdkId)
-        network.setupLanguage(configuration.language)
+        network.setupLanguage(configuration.fetchCurrentLanguage())
     }
 }
 

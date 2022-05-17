@@ -207,9 +207,8 @@ public final class StoriesViewController: UIViewController {
 
         progressViews = [ProgressView]()
         let storyDuration = storySdk.configuration.storyDuration
-        let locale = storySdk.configuration.language
         for i in 0 ..< stories.count {
-            guard let storyData = stories[i].getStoryData(locale: locale) else { continue }
+            guard let storyData = stories[i].storyData else { continue }
             if self.activeOnly && storyData.status != "active" {
                 continue
             }
@@ -225,9 +224,8 @@ public final class StoriesViewController: UIViewController {
         pageContainer.delegate = self
         pageContainer.dataSource = self
         pages = [ShowStoryViewController]()
-        let locale = storySdk.configuration.language
         for story in stories {
-            guard let storyData = story.getStoryData(locale: locale) else { continue }
+            guard let storyData = story.storyData else { continue }
             if self.activeOnly && storyData.status != "active" {
                 continue
             }

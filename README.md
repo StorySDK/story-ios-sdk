@@ -6,6 +6,8 @@
 
 iOS Framework for the StorySDK service for creating and adding stories to mobile apps 
 
+
+
 ## Installation
 
 #### Swift Package Manager
@@ -47,7 +49,7 @@ import StorySDK
 To use SDK you need token from StorySDK Dashboard > Settings [https://app.diffapp.link/dashboard/](https://app.diffapp.link/dashboard/)
 
 ```swift
-StorySDK.shared.configuration.sdkId = "[YOUR_SDK_ID]"
+storySdk.configuration.sdkId = "[YOUR_SDK_ID]"
 ```
 
 #### Optional
@@ -66,13 +68,13 @@ if let id = UserDefaults.standard.string(forKey: "[YOUR_USER_ID_KEY]") {
 ```
 
 ```swift
-StorySDK.shared.configuration.userId = userId
+storySdk.configuration.userId = userId
 ```
 
 Also you can define language for the stories. 
 
 ```swift
-StorySDK.shared.configuration.language = "en"
+storySdk.configuration.language = "en"
 ```
 
 #### TLDR
@@ -84,33 +86,39 @@ StorySDK.shared.configuration.userId = "[YOUR_USER_ID]"
 
 ### UI Integration
 
-
-Get AppID for your SDK ID
+You can use Groups Widget to display groups of stories in your app. 
 
 ```swift
-storySDK.getApps { [weak self] result in
+let widget = SRStoryWidget()
+addSubview(widget)
+```
+
+When your app will be ready to load groups just call `widget.load()`. You can process errors and taps on a group by implementing Delegate protocol `SRStoryWidgetDelegate` and put it to `widget.delegate`.
+
+### Direct API
+
+To get SDK application info
+
+```swift
+storySDK.getApps { result in
     switch result {
     case .success(let app):
-        self?.storyApp = app
-        // Additional actions if needed
+        print(app)
     case .failure(let error):
-        // Actions for error
-        break
+        print("Error:", error.localizedDescription)
     }
 }
 ```
 
-Get groups for selected app
+To get groups of the app
 
 ```swift
-storySDK.getGroups(appId: storyApp.id) { [weak self] result in
+storySDK.getGroups { result in
     switch result {
     case .success(let groups):
-        self?.groups = groups
-        // Additional actions if needed
+        print(groups)
     case .failure(let error):
-        // Actions for error
-        break
+        print("Error:", error.localizedDescription)
     }
 }
 ```
@@ -119,15 +127,12 @@ Show selected group using top view controller
 
 ```swift
 storySDK.getStories(group) { [weak self] result in
-    DispatchQueue.main.async { [self] in
-	     switch result {
-	     case .success(let stories):
-	         guard !stories.isEmpty else { break } // No active stories
-	         // Present stories
-	     case .failure(let error):
-	         // Actions for error
-	         break
-	     }
+    switch result {
+    case .success(let stories):
+        guard !stories.isEmpty else { break } // No active stories
+        // Present stories
+    case .failure(let error):
+         print("Error:", error.localizedDescription)
     }
 }
 ```
@@ -137,32 +142,27 @@ storySDK.getStories(group) { [weak self] result in
 a) Set full screen on / off
 
 ```swift
-StorySDK.shared.configuration.needFullScreen = true / false
+storySdk.configuration.needFullScreen = true / false
 ```
 
 b) Show title on / off
 
 ```swift
-StorySDK.shared.configuration.needShowTitle = true / false
+storySdk.configuration.needShowTitle = true / false
 ```
 
 c) Set show time duration for each story
 
 ```swift
-StorySDK.shared.configuration.storyDuration = 10 // 10 seconds
+storySdk.configuration.storyDuration = 10 // 10 seconds
 ```
 
 d) Set progress color
 
 ```swift
-StorySDK.shared.configuration.progressColor = .green
+storySdk.configuration.progressColor = .green
 ```
 
-e) Change preffered language
-
-```swift
-StorySDK.shared.configuration.language = "en"
-```
 
 ## License
 

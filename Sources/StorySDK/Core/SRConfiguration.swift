@@ -21,6 +21,11 @@ public struct SRConfiguration {
     /// Filled story progress color
     public var progressColor: UIColor
     
+    /// Available languages for the app.
+    /// Try to load all if it's empty
+    public private(set) var languages: Set<String> = .init()
+    /// Default language choosed for the app
+    public private(set) var defaultLangiage: String = "en"
     
     public init(language: String = "en",
                 sdkId: String? = nil,
@@ -37,5 +42,14 @@ public struct SRConfiguration {
         self.needShowTitle = needShowTitle
         self.needFullScreen = needFullScreen
         self.progressColor = progressColor
+    }
+    
+    mutating func update(localization: AppLocalization) {
+        languages = .init(localization.languages)
+        defaultLangiage = localization.defaultLocale
+    }
+    
+    func fetchCurrentLanguage() -> String {
+        languages.contains(language) ? language : defaultLangiage
     }
 }

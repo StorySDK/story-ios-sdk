@@ -14,27 +14,29 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
     public var onErrorReceived: ((Error) -> Void)?
     
     private(set) var groups: [StoryGroup] = []
-    private(set) var app: StoryApp?
-    private(set) var groupsStyle: AppGroupViewSettings = .circle {
+    private(set) var groupsStyle: AppGroupViewSettings {
         didSet { cellConfg.update(settings: groupsStyle) }
     }
     private let storySdk: StorySDK
+    var app: StoryApp? { storySdk.app }
     var cellConfg: SRCollectionCellStyle = .init()
     
     public init(sdk: StorySDK = .shared) {
         self.storySdk = sdk
+        self.groupsStyle = sdk.app?.settings.groupView.ios ?? .circle
     }
     
     public func load() {
-        if app == nil { loadApp() }
         groups = []
-        storySdk.getGroups { [weak self] result in
-            switch result {
-            case .success(let groups):
-                self?.groups = groups
-                self?.onReloadData?()
-            case .failure(let error):
-                self?.onErrorReceived?(error)
+        loadApp { [weak self] app in
+            self?.storySdk.getGroups { result in
+                switch result {
+                case .success(let groups):
+                    self?.groups = groups
+                    self?.onReloadData?()
+                case .failure(let error):
+                    self?.onErrorReceived?(error)
+                }
             }
         }
     }
@@ -72,15 +74,18 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
         return groups[index]
     }
     
-    func loadApp() {
-        storySdk.getApp { [weak self] result in
-            switch result {
-            case .success(let app):
-                self?.app = app
-                self?.groupsStyle = app.settings.groupView.ios
-                self?.onReloadData?()
-            case .failure(let error):
-                self?.onErrorReceived?(error)
+    func loadApp(_ completion: @escaping (StoryApp) -> Void) {
+        if let app = app {
+            completion(app)
+        } else {
+            storySdk.getApp { [weak self] result in
+                switch result {
+                case .success(let app):
+                    self?.groupsStyle = app.settings.groupView.ios
+                    completion(app)
+                case .failure(let error):
+                    self?.onErrorReceived?(error)
+                }
             }
         }
     }

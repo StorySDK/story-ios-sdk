@@ -58,21 +58,21 @@ class GiphyView: UIView {
             let gifURL = self.giphyWidget.gif
             if let url = URL(string: gifURL) {
 //                print("==== Start loading gif =================")
-                LazyImageLoader.shared.loadGifImage(url: url, size: self.frame.size, completion: { images, duration, error in
-                    DispatchQueue.main.async {
-                        self.indicator.stopAnimating()
-                        self.indicator.isHidden = true
-                    }
-                    if let error = error {
-                        print(error.localizedDescription)
-                    } else if let images = images {
-                        DispatchQueue.main.async {
-                            iv.animationImages = images
-                            iv.animationDuration = duration
-                            iv.startAnimating()
-                        }
-                    }
-                })
+//                LazyImageLoader.shared.loadGifImage(url: url, size: self.frame.size, completion: { images, duration, error in
+//                    DispatchQueue.main.async {
+//                        self.indicator.stopAnimating()
+//                        self.indicator.isHidden = true
+//                    }
+//                    if let error = error {
+//                        print(error.localizedDescription)
+//                    } else if let images = images {
+//                        DispatchQueue.main.async {
+//                            iv.animationImages = images
+//                            iv.animationDuration = duration
+//                            iv.startAnimating()
+//                        }
+//                    }
+//                })
             }
         }
     }

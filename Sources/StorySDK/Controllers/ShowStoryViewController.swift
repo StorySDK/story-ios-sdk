@@ -24,11 +24,12 @@ class ShowStoryViewController: UIViewController {
     }()
 
     private lazy var bgImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .clear
-        return iv
+        let v = UIImageView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.contentMode = .scaleAspectFill
+        v.backgroundColor = .clear
+        v.isHidden = true
+        return v
     }()
 
     private lazy var bgView: UIView = {
@@ -82,39 +83,50 @@ class ShowStoryViewController: UIViewController {
     }
     
     private func prepareUI() {
-        let needFullScreen = storySdk.configuration.needFullScreen
-        let needShowTitle = storySdk.configuration.needShowTitle
+        let config = storySdk.configuration
+        
+        let topAnchor: NSLayoutYAxisAnchor
+        let bottomAnchor: NSLayoutYAxisAnchor
+        if config.needFullScreen {
+            topAnchor = view.topAnchor
+            bottomAnchor = view.bottomAnchor
+        } else {
+            topAnchor = view.safeAreaLayoutGuide.topAnchor
+            bottomAnchor = view.safeAreaLayoutGuide.bottomAnchor
+        }
+        let storyOffset: CGFloat = config.needShowTitle ? topViewHeight : 0
+        
         view.addSubview(bgView)
         NSLayoutConstraint.activate([
-            bgView.topAnchor.constraint(equalTo: needFullScreen ? self.view.topAnchor : self.view.safeAreaLayoutGuide.topAnchor),
-            bgView.bottomAnchor.constraint(equalTo: needFullScreen ? self.view.bottomAnchor : self.view.safeAreaLayoutGuide.bottomAnchor),
-            bgView.rightAnchor.constraint(equalTo: self.view.rightAnchor),
-            bgView.leftAnchor.constraint(equalTo: self.view.leftAnchor),
+            bgView.topAnchor.constraint(equalTo: topAnchor),
+            bgView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            bgView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            bgView.leftAnchor.constraint(equalTo: view.leftAnchor),
         ])
         view.addSubview(bgImageView)
         
         NSLayoutConstraint.activate([
-            bgImageView.topAnchor.constraint(equalTo: needFullScreen ? self.view.topAnchor : self.view.safeAreaLayoutGuide.topAnchor),
-            bgImageView.bottomAnchor.constraint(equalTo: needFullScreen ? self.view.bottomAnchor : self.view.safeAreaLayoutGuide.bottomAnchor),
-            bgImageView.rightAnchor.constraint(equalTo: self.view.rightAnchor),
-            bgImageView.leftAnchor.constraint(equalTo: self.view.leftAnchor),
+            bgImageView.topAnchor.constraint(equalTo: topAnchor),
+            bgImageView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            bgImageView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            bgImageView.leftAnchor.constraint(equalTo: view.leftAnchor),
         ])
-        bgImageView.isHidden = true
         
         view.addSubview(storyView)
         NSLayoutConstraint.activate([
-            storyView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: needShowTitle ? topViewHeight : 0),
-            storyView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
-            storyView.rightAnchor.constraint(equalTo: self.view.rightAnchor),
-            storyView.leftAnchor.constraint(equalTo: self.view.leftAnchor),
+            storyView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: storyOffset),
+            storyView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            storyView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            storyView.leftAnchor.constraint(equalTo: view.leftAnchor),
         ])
 
         view.addSubview(indicator)
         NSLayoutConstraint.activate([
-            indicator.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            indicator.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
+            indicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            indicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
         indicator.isHidden = true
+        
         DispatchQueue.main.async {
             self.appendWidgets()
             self.view.setNeedsLayout()
@@ -136,7 +148,9 @@ class ShowStoryViewController: UIViewController {
         case .image(let url):
             indicator.startAnimating()
             indicator.isHidden = false
-            storySdk.imageLoader.load(url) { [weak self] result in
+            let bgSize = UIScreen.main.bounds.size
+            let scale = UIScreen.main.scale
+            storySdk.imageLoader.load(url, size: bgSize, scale: scale) { [weak self] result in
                 defer {
                     self?.indicator.stopAnimating()
                     self?.indicator.isHidden = true

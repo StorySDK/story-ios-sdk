@@ -9,17 +9,18 @@ import Foundation
 
 public final class StorySDK: NSObject {
     public static let shared = StorySDK()
-    public static let imageLoader = SRImageLoader(cache: MemoryImageCache())
+    public static let imageLoader = SRImageLoader()
     public var configuration = SRConfiguration() {
         didSet { update(configuration: configuration) }
     }
     public private(set) var app: StoryApp?
     var context = SRContext()
     let network = NetworkManager()
-    let imageLoader = SRImageLoader(cache: MemoryImageCache())
+    let imageLoader: SRImageLoader
     
     public init(configuration: SRConfiguration = .init(), imageLoader: SRImageLoader = StorySDK.imageLoader) {
         self.configuration = configuration
+        self.imageLoader = imageLoader
         super.init()
         update(configuration: configuration)
     }
@@ -38,3 +39,5 @@ public final class StorySDK: NSObject {
 struct SRContext {
     var defaultLocale: String?
 }
+
+let packageBundleId = "com.storysdk.framework"

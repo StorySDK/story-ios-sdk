@@ -29,7 +29,12 @@ public protocol SRStoryCollectionCell: AnyObject {
     var title: String? { get set }
     var image: UIImage? { get set }
     var cancelable: Cancellable? { get set }
+    var contentsScale: CGFloat { get }
     func setupStyle(_ style: SRCollectionCellStyle)
+}
+
+extension SRStoryCollectionCell {
+    var contentsScale: CGFloat { UIScreen.main.scale }
 }
 
 public protocol SRStoryLayout: AnyObject {

@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class MemoryImageCache: ImageCache {
+final class MemoryImageCache: ImageCache {
     let cache = NSCache<NSString, UIImage>()
     
     /// NSCache based image cache
@@ -16,16 +16,16 @@ public class MemoryImageCache: ImageCache {
         cache.totalCostLimit = limit
     }
     
-    public func loadImage(_ key: String) -> UIImage? {
+    func loadImage(_ key: String) -> UIImage? {
         cache.object(forKey: .init(string: key))
     }
-    public func saveImage(_ key: String, image: UIImage) {
+    func saveImage(_ key: String, image: UIImage) {
         cache.setObject(image, forKey: .init(string: key), cost: image.cacheCost)
     }
-    public func removeImage(_ key: String) {
+    func removeImage(_ key: String) {
         cache.removeObject(forKey: .init(string: key))
     }
-    public func removeAll() {
+    func removeAll() {
         cache.removeAllObjects()
     }
 }

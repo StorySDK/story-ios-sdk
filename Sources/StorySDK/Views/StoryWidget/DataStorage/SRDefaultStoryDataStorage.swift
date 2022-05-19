@@ -62,7 +62,11 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
         cell.setupStyle(cellConfg)
         cell.title = story.title
         guard let url = story.imageUrl else { return }
-        cell.cancelable = storySdk.imageLoader.load(url) { [weak self, weak cell] result in
+        cell.cancelable = storySdk.imageLoader.load(
+            url,
+            size: groupsStyle.iconSize,
+            scale: cell.contentsScale
+        ) { [weak self, weak cell] result in
             switch result {
             case .success(let image): cell?.image = image
             case .failure(let error): self?.onErrorReceived?(error)
@@ -88,6 +92,19 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
                     self?.onErrorReceived?(error)
                 }
             }
+        }
+    }
+}
+
+extension AppGroupViewSettings {
+    var iconSize: CGSize {
+        switch self {
+        case .circle, .square:
+            return .init(width: 64, height: 64)
+        case .bigSquare:
+            return .init(width: 90, height: 90)
+        case .rectangle:
+            return .init(width: 72, height: 90)
         }
     }
 }

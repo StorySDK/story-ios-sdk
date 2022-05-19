@@ -172,13 +172,12 @@ public final class SRStoriesViewController: UIViewController {
         imageView.layer.cornerRadius = (topViewHeight - 24) / 2
         imageView.clipsToBounds = true
         if let url = group.imageUrl {
-            LazyImageLoader.shared.loadImage(url: url) { image, error in
-                if error == nil, let image = image {
-                    DispatchQueue.main.async {
-                        self.imageView.image = image
-                        v.layer.borderColor = pinkColor.cgColor
-                    }
-                }
+            let size = UIScreen.main.bounds.size
+            let scale = UIScreen.main.scale
+            storySdk.imageLoader.load(url, size: size, scale: scale) { [weak imageView] result in
+                guard case .success(let image) = result else { return }
+                imageView?.image = image
+                imageView?.superview?.layer.borderColor = pinkColor.cgColor
             }
         }
         imageView.isHidden = !needShowTitle
@@ -249,7 +248,6 @@ extension SRStoriesViewController {
         )
         sendStatistics(reaction)
         
-        _ = LazyImageLoader.shared.cancel()
         currentIndex = 0
         for pv in progressViews {
             pv.reset()
@@ -288,7 +286,6 @@ extension SRStoriesViewController: UIPageViewControllerDelegate, UIPageViewContr
                 self.pageContainer.setViewControllers([self.pages[self.currentIndex]], direction: .forward, animated: true, completion: nil)
                 self.progressViews[self.currentIndex].start()
             } else {
-                _ = LazyImageLoader.shared.cancel()
                 self.currentIndex = 0
                 self.dismiss(animated: true, completion: nil)
             }

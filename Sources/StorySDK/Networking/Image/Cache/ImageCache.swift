@@ -8,6 +8,7 @@
 import UIKit
 
 protocol ImageCache: AnyObject {
+    func hasImage(_ key: String) -> Bool
     func loadImage(_ key: String) -> UIImage?
     func saveImage(_ key: String, image: UIImage)
     func removeImage(_ key: String)

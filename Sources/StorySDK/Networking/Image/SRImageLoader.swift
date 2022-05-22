@@ -24,9 +24,20 @@ public class SRImageLoader {
                      contentMode: UIView.ContentMode = .scaleAspectFill,
                      completion: @escaping (Result<UIImage, Error>) -> Void) -> Cancellable? {
         let cacheKey = url.absoluteString
-        if let image = cache.loadImage(cacheKey, size: size, scale: scale, contentMode: contentMode) {
-            completion(.success(image))
-            return nil
+        if let cancelable = cache.loadImage(
+            cacheKey,
+            size: size,
+            scale: scale,
+            contentMode: contentMode,
+            completion: { image in
+                if let image = image {
+                    completion(.success(image))
+                } else {
+                    completion(.failure(SRError.unknownError))
+                }
+            }
+        ) {
+            return cancelable
         }
         let task = session.dataTask(with: url) { [weak cache] data, response, error in
             if let data = data, let image = UIImage(data: data) {

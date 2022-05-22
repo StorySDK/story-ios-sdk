@@ -11,8 +11,14 @@ import UIKit
 final class DiskImageCache: ImageCache {
     private let rootDir: URL = FileManager.default.temporaryDirectory.appendingPathComponent(packageBundleId, isDirectory: true)
     private let queue = DispatchQueue(label: packageBundleId + ".DiskImageCache")
+    
     init() throws {
         try prepareDirectory()
+    }
+    
+    func hasImage(_ key: String) -> Bool {
+        guard let url = fileUrl(key) else { return false }
+        return FileManager.default.fileExists(atPath: url.path)
     }
     
     func loadImage(_ key: String) -> UIImage? {

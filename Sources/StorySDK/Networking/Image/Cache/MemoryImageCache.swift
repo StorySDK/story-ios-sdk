@@ -12,10 +12,13 @@ final class MemoryImageCache: ImageCache {
     
     /// NSCache based image cache
     /// - Parameter limit: Cache size limit in Mb. 125 Mb by default
-    init(limit: Int = 125_000_000) {
+    init(limit: Int = 125_000) {
         cache.totalCostLimit = limit
     }
     
+    func hasImage(_ key: String) -> Bool {
+        cache.object(forKey: .init(string: key)) != nil
+    }
     func loadImage(_ key: String) -> UIImage? {
         cache.object(forKey: .init(string: key))
     }

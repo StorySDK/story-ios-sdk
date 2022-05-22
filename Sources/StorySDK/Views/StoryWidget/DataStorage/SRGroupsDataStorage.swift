@@ -1,5 +1,5 @@
 //
-//  SRStoryDataStorage.swift
+//  SRGroupsDataStorage.swift
 //  
 //
 //  Created by Aleksei Cherepanov on 13.05.2022.
@@ -8,36 +8,39 @@
 import UIKit
 import Combine
 
-public protocol SRStoryDataStorage: AnyObject {
+public protocol SRGroupsDataStorage: AnyObject {
     /// Number of groups in the app
     var numberOfItems: Int { get }
     /// Groups collection has been updated
     var onReloadData: (() -> Void)? { get set }
     /// An error has been received
     var onErrorReceived: ((Error) -> Void)? { get set }
+    /// The group should be presented to a user
+    var onPresentGroup: ((StoryGroup) -> Void)? { get set }
     /// Configures story layout according used groups style
-    func setupLayout(_ layout: SRStoryLayout)
+    func setupLayout(_ layout: SRGroupsLayout)
     /// Configures cell with a group with index
-    func setupCell(_ cell: SRStoryCollectionCell, index: Int)
-    /// Returns group with index
-    func group(with index: Int) -> StoryGroup?
+    func setupCell(_ cell: SRGroupsCollectionCell, index: Int)
+    /// User has tapped on the group
+    func didTap(index: Int)
     /// Loads groups
     func load()
 }
 
-public protocol SRStoryCollectionCell: AnyObject {
+public protocol SRGroupsCollectionCell: AnyObject {
     var title: String? { get set }
     var image: UIImage? { get set }
+    var isPresented: Bool { get set }
     var cancelable: Cancellable? { get set }
     var contentsScale: CGFloat { get }
     func setupStyle(_ style: SRCollectionCellStyle)
 }
 
-extension SRStoryCollectionCell {
+extension SRGroupsCollectionCell {
     var contentsScale: CGFloat { UIScreen.main.scale }
 }
 
-public protocol SRStoryLayout: AnyObject {
+public protocol SRGroupsLayout: AnyObject {
     func updateSpacing(_ spacing: CGFloat)
     func updateItemSize(_ size: CGSize)
     func invalidateLayout()

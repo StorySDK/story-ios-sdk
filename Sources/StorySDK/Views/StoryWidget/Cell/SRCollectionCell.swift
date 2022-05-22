@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
+final class SRCollectionCell: UICollectionViewCell, SRGroupsCollectionCell {
     var title: String? {
         get { titleLabel.text }
         set { titleLabel.text = newValue }
@@ -22,7 +22,7 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
         didSet { oldValue?.cancel() }
     }
     
-    var isNew: Bool = false
+    var isPresented: Bool = false
     
     private var style: SRCollectionCellStyle = .init()
     private let imageView: UIImageView = {
@@ -33,7 +33,7 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
         v.layer.borderWidth = 2
         return v
     }()
-    private var borderLayer: CAGradientLayer = {
+    private let borderLayer: CAGradientLayer = {
         let l = CAGradientLayer()
         l.startPoint = CGPoint(x: 0.0, y: 0.5)
         l.endPoint = CGPoint(x: 1.0, y: 0.5)
@@ -55,7 +55,7 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        borderLayer.colors = style.normalBorderColors.map(\.cgColor)
+        updateBorder(style.normalBorderColors)
         title = nil
         image = nil
         cancelable = nil
@@ -69,6 +69,8 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
         } else {
             imageSize = .init(width: 64, height: 64)
         }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         borderLayer.frame = .init(
             x: (bounds.width - imageSize.width) / 2,
             y: 0,
@@ -76,6 +78,8 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
             height: imageSize.height
         )
         borderLayer.cornerRadius = imageSize.height * style.corderRadius
+        CATransaction.commit()
+        
         let inset = imageView.layer.borderWidth
         imageView.frame = borderLayer.frame.insetBy(dx: inset, dy: inset)
         imageView.layer.cornerRadius = imageView.frame.height * style.corderRadius
@@ -102,7 +106,7 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         imageView.layer.borderColor = style.backgroundColor.cgColor
-        updateBorder(isNew ? style.newBorderColors : style.normalBorderColors)
+        updateBorder(isPresented ? style.normalBorderColors : style.newBorderColors)
     }
     
     func setupStyle(_ style: SRCollectionCellStyle) {
@@ -119,16 +123,19 @@ class SRCollectionCell: UICollectionViewCell, SRStoryCollectionCell {
         titleLabel.font = style.font
         
         imageView.layer.borderColor = style.backgroundColor.cgColor
-        updateBorder(isNew ? style.newBorderColors : style.normalBorderColors)
+        updateBorder(isPresented ? style.normalBorderColors : style.newBorderColors)
         
         setNeedsLayout()
     }
     
     func updateBorder(_ colors: [UIColor]) {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         if colors.count == 1 {
             borderLayer.colors = [colors[0], colors[0]].map(\.cgColor)
         } else {
             borderLayer.colors = colors.map(\.cgColor)
         }
+        CATransaction.commit()
     }
 }

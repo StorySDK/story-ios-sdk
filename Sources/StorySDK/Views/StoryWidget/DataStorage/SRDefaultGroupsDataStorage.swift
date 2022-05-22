@@ -1,5 +1,5 @@
 //
-//  SRDefaultStoryDataStorage.swift
+//  SRDefaultGroupsDataStorage.swift
 //  
 //
 //  Created by Aleksei Cherepanov on 13.05.2022.
@@ -8,10 +8,11 @@
 import UIKit
 import Combine
 
-public class SRDefaultStoryDataStorage: SRStoryDataStorage {
+public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     public var numberOfItems: Int { groups.count }
     public var onReloadData: (() -> Void)?
     public var onErrorReceived: ((Error) -> Void)?
+    public var onPresentGroup: ((StoryGroup) -> Void)?
     
     private(set) var groups: [StoryGroup] = []
     private(set) var groupsStyle: AppGroupViewSettings {
@@ -42,7 +43,7 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
         }
     }
     
-    public func setupLayout(_ layout: SRStoryLayout) {
+    public func setupLayout(_ layout: SRGroupsLayout) {
         switch groupsStyle {
         case .circle, .square:
             layout.updateSpacing(10)
@@ -57,11 +58,12 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
         layout.invalidateLayout()
     }
     
-    public func setupCell(_ cell: SRStoryCollectionCell, index: Int) {
-        guard let story = group(with: index) else { return }
+    public func setupCell(_ cell: SRGroupsCollectionCell, index: Int) {
+        guard let group = group(with: index) else { return }
+        cell.isPresented = storySdk.userDefaults.isPresented(group: group.id)
         cell.setupStyle(cellConfg)
-        cell.title = story.title
-        guard let url = story.imageUrl else { return }
+        cell.title = group.title
+        guard let url = group.imageUrl else { return }
         cell.cancelable = storySdk.imageLoader.load(
             url,
             size: groupsStyle.iconSize,
@@ -77,6 +79,13 @@ public class SRDefaultStoryDataStorage: SRStoryDataStorage {
     public func group(with index: Int) -> StoryGroup? {
         guard index < groups.count else { return nil } // In case if we trying to update cells while stories are reloading
         return groups[index]
+    }
+    
+    public func didTap(index: Int) {
+        guard let group = group(with: index) else { return }
+        storySdk.userDefaults.didPresent(group: group.id)
+        onReloadData?()
+        onPresentGroup?(group)
     }
     
     func loadApp(_ completion: @escaping (StoryApp) -> Void) {

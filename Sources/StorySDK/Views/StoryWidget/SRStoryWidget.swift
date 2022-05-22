@@ -39,7 +39,7 @@ public final class SRStoryWidget: UIView {
         get { viewModel.onErrorReceived }
         set { viewModel.onErrorReceived = newValue }
     }
-    private let viewModel: SRStoryViewModel
+    private let viewModel: SRGroupsViewModel
     private let layout = UICollectionViewFlowLayout()
     private lazy var collectionView: UICollectionView = {
         let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -49,7 +49,7 @@ public final class SRStoryWidget: UIView {
     }()
     public weak var delegate: SRStoryWidgetDelegate?
     
-    public init(dataStorage: SRStoryDataStorage = SRDefaultStoryDataStorage(sdk: .shared)) {
+    public init(dataStorage: SRGroupsDataStorage = SRDefaultGroupsDataStorage(sdk: .shared)) {
         self.viewModel = .init(dataStorage: dataStorage)
         super.init(frame: .zero)
         setupLayout()
@@ -57,7 +57,7 @@ public final class SRStoryWidget: UIView {
     }
     
     required init?(coder: NSCoder) {
-        let dataStorage = SRDefaultStoryDataStorage(sdk: .shared)
+        let dataStorage = SRDefaultGroupsDataStorage(sdk: .shared)
         self.viewModel = .init(dataStorage: dataStorage)
         super.init(coder: coder)
         viewModel.setupLayout(layout)
@@ -108,6 +108,10 @@ public final class SRStoryWidget: UIView {
             guard let widget = self else { return }
             widget.delegate?.onWidgetErrorReceived(error, widget: widget)
         }
+        viewModel.onPresentGroup = { [weak self] group in
+            guard let widget = self else { return }
+            widget.delegate?.onWidgetGroupPresent(group, widget: widget)
+        }
     }
     
     public func load() {
@@ -130,12 +134,11 @@ extension SRStoryWidget: UICollectionViewDataSource {
 
 extension SRStoryWidget: UICollectionViewDelegate {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let group = viewModel.group(with: indexPath.row) else { return }
-        delegate?.onWidgetGroupPresent(group, widget: self)
+        viewModel.didTap(index: indexPath.row)
     }
 }
 
-extension UICollectionViewFlowLayout: SRStoryLayout {
+extension UICollectionViewFlowLayout: SRGroupsLayout {
     public func updateSpacing(_ spacing: CGFloat) {
         minimumLineSpacing = spacing
         minimumInteritemSpacing = spacing

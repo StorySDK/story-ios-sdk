@@ -17,6 +17,7 @@ public final class StorySDK: NSObject {
     var context = SRContext()
     let network = NetworkManager()
     let imageLoader: SRImageLoader
+    var userDefaults: SRUserDefaults = SRMemoryUserDefaults()
     
     public init(configuration: SRConfiguration = .init(), imageLoader: SRImageLoader = StorySDK.imageLoader) {
         self.configuration = configuration
@@ -33,6 +34,17 @@ public final class StorySDK: NSObject {
     private func update(configuration: SRConfiguration) {
         network.setupAuthorization(configuration.sdkId)
         network.setupLanguage(configuration.fetchCurrentLanguage())
+        if let sdkId = configuration.sdkId, let key = SRDiskUserDefaults.makeKey(sdkId: sdkId) {
+            do {
+                let newDefaults = try SRDiskUserDefaults(key: key)
+                userDefaults = newDefaults
+            } catch {
+                print("StorySDK > Error:", error.localizedDescription)
+                userDefaults = SRMemoryUserDefaults()
+            }
+        } else {
+            userDefaults = SRMemoryUserDefaults()
+        }
     }
 }
 

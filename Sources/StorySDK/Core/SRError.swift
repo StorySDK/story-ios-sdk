@@ -13,6 +13,7 @@ public enum SRError: Error, LocalizedError {
     case serverError(String?)
     case wrongFormat
     case unknownError
+    case missingDocumentsDirectory
     
     public var errorDescription: String? {
         switch self {
@@ -26,6 +27,8 @@ public enum SRError: Error, LocalizedError {
             return "Wrong response format"
         case .unknownError:
             return "Unknown error"
+        case .missingDocumentsDirectory:
+            return "Can't find documents directory"
         }
     }
 }

@@ -8,7 +8,7 @@
 import UIKit
 
 public struct GiphyWidget: Decodable {
-    let gif: String
+    let gif: URL
     let widgetOpacity: Double
     let borderRadius: Double
     
@@ -19,19 +19,14 @@ public struct GiphyWidget: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.gif = try container.decode(String.self, forKey: .gif)
+        self.gif = try container.decode(URL.self, forKey: .gif)
         self.widgetOpacity = try container.decode(Double.self, forKey: .widgetOpacity)
         self.borderRadius = try container.decode(Double.self, forKey: .borderRadius)
     }
     
-    public init() {
-        self.gif = ""
-        self.widgetOpacity = 100
-        self.borderRadius = 0
-    }
-    
-    public init(from dict: Json) {
-        self.gif = dict["gif"] as? String ?? ""
+    public init?(from dict: Json) {
+        guard let url = dict["gif"] as? URL else { return nil }
+        self.gif = url
         self.widgetOpacity = dict["widgetOpacity"] as? Double ?? 100
         self.borderRadius = dict["borderRadius"] as? Double ?? 0
     }

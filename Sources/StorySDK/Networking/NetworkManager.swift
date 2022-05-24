@@ -93,38 +93,38 @@ extension NetworkManager {
     /// - Parameters:
     ///   - groupId: Group identifier
     ///   - statistic: Send statistics
-    func getStories(groupId: String, statistic: Bool? = nil, completion: @escaping (Result<[Story], Error>) -> Void) {
+    func getStories(groupId: String, statistic: Bool? = nil, completion: @escaping (Result<[SRStory], Error>) -> Void) {
         guard let request = Self.makeRequest("groups/\(groupId)/stories", method: .get, statistic: statistic) else {
             completion(.failure(SRError.unknownError))
             return
         }
         session.dataTask(with: request) { (data, response, error) in
             do {
-                let storiesData = try Self.decodeJsonArray(from: data, response: response, error: error)
-                let result = storiesData.map { Story(from: $0) }
-                completion(.success(result))
+                let stories = try Self.decode([SRStory].self, from: data, response: response, error: error)
+                completion(.success(stories))
             } catch {
                 completion(.failure(error))
             }
         }.resume()
     }
     
-    func sendStatistic(reaction: Data, completion: @escaping (Result<Json, Error>) -> Void) {
+    func sendStatistic(reaction: SRStatistic, completion: @escaping (Result<Bool, Error>) -> Void) {
         guard var request = Self.makeRequest("reactions", method: .post) else {
             completion(.failure(SRError.unknownError))
             return
         }
-        request.httpBody = reaction
+        do {
+            request.httpBody = try JSONEncoder.storySdk.encode(reaction)
+        } catch {
+            completion(.failure(error))
+            return
+        }
         let session = URLSession.shared
-        session.dataTask(with: request) { (data, response, error) in
-            do {
-                if let json = try Self.decodeData(from: data, response: response, error: error) as? Json {
-                    completion(.success(json))
-                } else {
-                    throw SRError.emptyResponse
-                }
-            } catch {
+        session.dataTask(with: request) { (_, _, error) in
+            if let error = error {
                 completion(.failure(error))
+            } else {
+                completion(.success(true))
             }
         }.resume()
     }
@@ -144,12 +144,6 @@ extension NetworkManager {
         return result
     }
     
-    private static func decodeJsonArray(from data: Data?, response: URLResponse?, error: Error?) throws -> [Json] {
-        let data = try decodeData(from: data, response: response, error: error)
-        guard let json = data as? [Json] else { throw SRError.emptyResponse }
-        return json
-    }
-    
     private static func decodeData(from data: Data?, response: URLResponse?, error: Error?) throws -> Any {
         if let error = error { throw error }
         guard let data = data, let statusCode = (response as? HTTPURLResponse)?.statusCode else {
@@ -165,7 +159,6 @@ extension NetworkManager {
         guard let appData = json["data"] else {
             throw SRError.emptyResponse
         }
-        print(appData)
         return appData
     }
     
@@ -189,6 +182,15 @@ private extension JSONDecoder {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         decoder.dateDecodingStrategy = .formatted(.rfc3339) // .iso8601
+        return decoder
+    }()
+}
+
+private extension JSONEncoder {
+    static let storySdk: JSONEncoder = {
+        let decoder = JSONEncoder()
+        decoder.keyEncodingStrategy = .convertToSnakeCase
+        decoder.dateEncodingStrategy = .formatted(.rfc3339) // .iso8601
         return decoder
     }()
 }

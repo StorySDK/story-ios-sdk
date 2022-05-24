@@ -7,79 +7,54 @@
 
 import UIKit
 
-class EmojiReactionView: UIView {
-    /*
-     const INIT_ELEMENT_STYLES = {
-       widget: {
-         borderRadius: 50,
-         paddingTop: 14,
-         paddingBottom: 14,
-         paddingRight: 11,
-         paddingLeft: 11
-       },
-       emoji: {
-         width: 34
-       },
-       item: {
-         marginRight: 11,
-         marginLeft: 11
-       }
-     };
+protocol EmojiReactionViewDelegate: AnyObject {
+    func didChooseEmojiReaction(_ widget: EmojiReactionView, emoji: String)
+}
 
-     */
-    private var story: Story!
-    private var data: WidgetData!
-    private var emojiReactionWidget: EmojiReactionWidget!
+class EmojiReactionView: SRWidgetView {
+    let story: SRStory
+    let emojiReactionWidget: EmojiReactionWidget
     
+    weak var delegate: EmojiReactionViewDelegate?
     private var emojiViews = [UIImageView]()
-    
-    private lazy var stackView: UIStackView = {
+    private let stackView: UIStackView = {
         let sv = UIStackView()
         sv.translatesAutoresizingMaskIntoConstraints = false
         sv.axis = .horizontal
         sv.distribution = .equalSpacing
         sv.alignment = .center
-
         return sv
     }()
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-        
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
 
-    convenience init(frame: CGRect, story: Story, data: WidgetData, emojiReactionWidget: EmojiReactionWidget, scale: CGFloat) {
-        self.init(frame: frame)
+    init(story: SRStory, data: SRWidget, emojiReactionWidget: EmojiReactionWidget, scale: CGFloat) {
         self.story = story
-        self.data = data
         self.emojiReactionWidget = emojiReactionWidget
-        self.transform = CGAffineTransform.identity.rotated(by: data.position.rotate * .pi / 180)
+        super.init(data: data)
+        prepareUI(scale: scale)
+    }
+    
+    override func setupView() {
+        super.setupView()
         isUserInteractionEnabled = true
-        backgroundColor = .clear
-        layer.cornerRadius = frame.height / 2
-        clipsToBounds = false
+    }
+    
+    override func setupContentLayer(_ layer: CALayer) {
+        layer.masksToBounds = false
         layer.shadowColor = black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero
         layer.shadowRadius = 4
-        prepareUI(scale: scale)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        contentView.layer.cornerRadius = contentView.frame.height / 2
     }
     
     private func prepareUI(scale: CGFloat) {
-        if emojiReactionWidget.color == "purple" {
-            let colors = [purpleStart, purpleFinish]
-            let points = [CGPoint(x: 0.02, y: 0), CGPoint(x: 0.96, y: 0)]
-            let l = Utils.getGradient(frame: bounds, colors: colors, points: points)
-            l.cornerRadius = 10
-            layer.insertSublayer(l, at: 0)
-        } else {
-            backgroundColor = Utils.getSolidColor(emojiReactionWidget.color)
-        }
+        contentView.backgroundColor = emojiReactionWidget.color.color
         
-        addSubview(stackView)
+        contentView.addSubview(stackView)
         NSLayoutConstraint.activate([
             stackView.leftAnchor.constraint(equalTo: leftAnchor, constant: 22 * xScaleFactor),
             stackView.rightAnchor.constraint(equalTo: rightAnchor, constant: -22 * xScaleFactor),
@@ -100,7 +75,6 @@ class EmojiReactionView: UIView {
                     stackView.addArrangedSubview(iv)
                 }
             }
-
         }
     }
     
@@ -120,18 +94,16 @@ class EmojiReactionView: UIView {
         emoji.image = ev.image
         insertSubview(emoji, belowSubview: stackView)
         setNeedsLayout()
-        UIView.animate(withDuration: 0.5, animations: {
-            emoji.transform = CGAffineTransform.identity.scaledBy(x: 1.5, y: 1.5).translatedBy(x: 0, y: -self.frame.height / 2)
-            emoji.alpha = 0
-        }, completion: {_ in
-            emoji.removeFromSuperview()
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: sendStatisticNotificationName), object: nil, userInfo: [
-                widgetTypeParam: statisticClickParam,
-                groupIdParam: self.story.groupId,
-                storyIdParam: self.story.id,
-                widgetIdParam: self.data.id,
-                widgetValueParam: self.emojiReactionWidget.emoji[number].unicode,
-            ])
-        })
+        delegate?.didChooseEmojiReaction(self, emoji: emojiReactionWidget.emoji[number].unicode)
+        UIView.animate(
+            withDuration: 0.5,
+            animations: {
+                emoji.transform = CGAffineTransform.identity
+                    .scaledBy(x: 1.5, y: 1.5)
+                    .translatedBy(x: 0, y: -self.frame.height / 2)
+                emoji.alpha = 0
+            },
+            completion: { _ in emoji.removeFromSuperview() }
+        )
     }
 }

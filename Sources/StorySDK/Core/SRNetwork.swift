@@ -33,7 +33,7 @@ extension StorySDK {
 // MARK: - Network for Stories
 
 extension StorySDK {
-    public func getStories(_ group: StoryGroup, statistic: Bool? = nil, completion: @escaping (Result<[Story], Error>) -> Void) {
+    public func getStories(_ group: StoryGroup, statistic: Bool? = nil, completion: @escaping (Result<[SRStory], Error>) -> Void) {
         network.getStories(groupId: group.id, statistic: statistic, completion: completion)
     }
 }
@@ -41,7 +41,10 @@ extension StorySDK {
 // MARK: - Statistic
 
 extension StorySDK {
-    func sendStatistic(_ reaction: Data, completion: @escaping (Result<[String: Any], Error>) -> Void) {
+    func sendStatistic(_ reaction: SRStatistic, completion: @escaping (Result<Bool, Error>) -> Void) {
+        var reaction = reaction
+        reaction.locale = configuration.fetchCurrentLanguage()
+        reaction.userId = configuration.userId
         network.sendStatistic(reaction: reaction, completion: completion)
     }
 }

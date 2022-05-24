@@ -7,137 +7,140 @@
 
 import UIKit
 
-class SliderView: UIView {
-    private var story: Story!
-    private var data: WidgetData!
-    private var sliderWidget: SliderWidget!
+protocol SliderViewDelegate: AnyObject {
+    func didChooseSliderValue(_ widget: SliderView, value: Float)
+}
+
+class SliderView: SRWidgetView {
+    let story: SRStory
+    let sliderWidget: SliderWidget
+    weak var delegate: SliderViewDelegate?
     
-    private lazy var centerView: UIView = {
+    private let gradientLayer: CAGradientLayer = {
+        let l = CAGradientLayer()
+        l.startPoint = CGPoint(x: 0.0, y: 0.5)
+        l.endPoint = CGPoint(x: 1.0, y: 0.5)
+        l.masksToBounds = true
+        return l
+    }()
+    
+    private let centerView: UIView = {
         let v = UIView()
-        v.translatesAutoresizingMaskIntoConstraints = false
         v.backgroundColor = .clear
+        v.layer.masksToBounds = true
         return v
     }()
     
-    private lazy var slider: GradientSliderView = {
+    private let titleLabel: UILabel = {
+        let lb = UILabel()
+        lb.font = UIFont.getFont(name: "Inter-Bold", size: 16)
+        lb.adjustsFontSizeToFitWidth = true
+        lb.minimumScaleFactor = 0.5
+        lb.textAlignment = .center
+        lb.textColor = .white
+        lb.numberOfLines = 0
+        return lb
+    }()
+    
+    private let slider: GradientSliderView = {
         let slider = GradientSliderView()
-        slider.translatesAutoresizingMaskIntoConstraints = false
         return slider
     }()
     
-    private lazy var emoji: UIImageView = {
+    private let emoji: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isHidden = true
         return iv
     }()
 
     private var emojiWidth: CGFloat = 34
     private var sliderPosY: CGFloat = 0
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-        
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-
-    override func setNeedsLayout() {
-        super.setNeedsLayout()
-        DispatchQueue.main.async {
-            self.slider.value = 0
-            self.slider.animateValue(to: Float(self.sliderWidget.value) / 100, duration: 0.5)
-            self.sliderPosY = self.slider.frame.origin.y
-            self.changeEmojiFrame(for: CGFloat(self.sliderWidget.value / 100.0))
-        }
-    }
-    
-    convenience init(frame: CGRect, story: Story, data: WidgetData, sliderWidget: SliderWidget) {
-        self.init(frame: frame)
+    init(story: SRStory, data: SRWidget, sliderWidget: SliderWidget) {
         self.story = story
-        self.data = data
         self.sliderWidget = sliderWidget
-        self.transform = CGAffineTransform.identity.rotated(by: data.position.rotate * .pi / 180)
-        prepareUI()
+        super.init(data: data)
     }
     
-    private func prepareUI() {
-        backgroundColor = .clear
+    override func addSubviews() {
+        super.addSubviews()
+        contentView.layer.addSublayer(gradientLayer)
+        [centerView, titleLabel, emoji, slider].forEach(contentView.addSubview)
+    }
+    
+    override func setupView() {
+        super.setupView()
+        gradientLayer.colors = sliderWidget.color.gradient.map(\.cgColor)
+        slider.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
+        slider.addTarget(self, action: #selector(sliderBeginChange(_:)), for: .editingDidBegin)
+        slider.addTarget(self, action: #selector(sliderEndChange(_:)), for: .editingDidEnd)
+        updateImage()
+        titleLabel.text = sliderWidget.text
+        if case .white = sliderWidget.color { titleLabel.textColor = black }
+    }
+    
+    func updateImage() {
+        guard let result = UInt32(sliderWidget.emoji.unicode, radix: 16) else { return }
+        guard let scalar = UnicodeScalar(result) else { return }
+        let str = String(scalar)
+        guard let image = str.imageFromEmoji(width: emojiWidth) else { return }
+        slider.thumbImage = image
+        emoji.image = image
+    }
+    
+    override func setupContentLayer(_ layer: CALayer) {
         layer.cornerRadius = 10
         layer.shadowColor = black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero
         layer.shadowRadius = 4
-        var scaleFactor: CGFloat = 1 // xScaleFactor
-        if let minWidth = data.positionLimits.minWidth {
-            scaleFactor *= frame.width / CGFloat(minWidth)
-        }
-        emojiWidth *= scaleFactor
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        gradientLayer.frame = contentView.bounds
+        gradientLayer.cornerRadius = contentView.layer.cornerRadius
         
-        if sliderWidget.color == "purple" {
-            let colors = [purpleStart, purpleFinish]
-            let points = [CGPoint(x: 0.02, y: 0), CGPoint(x: 0.96, y: 0)]
-            let l = Utils.getGradient(frame: bounds, colors: colors, points: points)
-            l.cornerRadius = 10
-            layer.insertSublayer(l, at: 0)
-        } else {
-            backgroundColor = Utils.getSolidColor(sliderWidget.color)
-        }
-
-        addSubview(centerView)
-        NSLayoutConstraint.activate([
-            centerView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            centerView.rightAnchor.constraint(equalTo: rightAnchor, constant: -20),
-            centerView.leftAnchor.constraint(equalTo: leftAnchor, constant: 20),
-        ])
+        let yScale = data.positionLimits.minHeight.map { bounds.height / CGFloat($0) } ?? 1
+        updateFontSize(16 * yScale)
         
-        centerView.addSubview(emoji)
-        emoji.isHidden = true
-
-        centerView.addSubview(slider)
-        NSLayoutConstraint.activate([
-            slider.heightAnchor.constraint(equalToConstant: emojiWidth),
-            slider.rightAnchor.constraint(equalTo: centerView.rightAnchor),
-            slider.leftAnchor.constraint(equalTo: centerView.leftAnchor),
-            slider.bottomAnchor.constraint(equalTo: centerView.bottomAnchor),
-        ])
+        let centerViewHeight: CGFloat = 11 * yScale
+        let newEmojiWidth = centerViewHeight + 24
+        let needUpdateEmoji = abs(emojiWidth - newEmojiWidth) > .ulpOfOne
+        emojiWidth = newEmojiWidth
+        if needUpdateEmoji { updateImage() }
         
-        slider.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
-        slider.addTarget(self, action: #selector(sliderBeginChange(_:)), for: .editingDidBegin)
-        slider.addTarget(self, action: #selector(sliderEndChange(_:)), for: .editingDidEnd)
-        if let result = UInt32(sliderWidget.emoji.unicode, radix: 16), let scalar = UnicodeScalar(result) {
-            let str = String(scalar)
-            if let image = str.imageFromEmoji(width: emojiWidth) {
-                slider.thumbImage = image
-                emoji.image = image
-            }
-        }
-        slider.trackHeight *= scaleFactor
         
-        if let text = sliderWidget.text {
-            let label = UILabel()
-            label.translatesAutoresizingMaskIntoConstraints = false
-            label.font = UIFont.getFont(name: "Inter-Bold", size: 16 * scaleFactor)
-            label.text = text
-            label.textAlignment = .center
-            if sliderWidget.color == "white" {
-                label.textColor = black
-            } else {
-                label.textColor = .white
-            }
-            centerView.insertSubview(label, belowSubview: emoji)
-            NSLayoutConstraint.activate([
-                label.rightAnchor.constraint(equalTo: centerView.rightAnchor),
-                label.leftAnchor.constraint(equalTo: centerView.leftAnchor),
-                label.topAnchor.constraint(equalTo: centerView.topAnchor),
-                label.bottomAnchor.constraint(equalTo: slider.topAnchor, constant: -15),
-            ])
+        let padding: CGFloat = 20
+        let spacing: CGFloat = 15
+        var contentHeight: CGFloat = centerViewHeight
+        var y = (bounds.height - contentHeight) / 2
+        let width: CGFloat = max(0, bounds.width - padding * 2)
+        if titleLabel.text != nil {
+            let availableHeight: CGFloat = max(0, bounds.height - padding * 2 - centerViewHeight - spacing)
+            let size = titleLabel.sizeThatFits(.init(width: width, height: availableHeight))
+            let textHeight = min(size.height, availableHeight)
+            contentHeight += spacing + textHeight
+            y = (bounds.height - contentHeight) / 2
+            titleLabel.frame = .init(x: padding, y: y, width: width, height: textHeight)
+            y += textHeight + spacing
         }
+        
+        centerView.frame = .init(x: padding, y: y, width: width, height: centerViewHeight)
+        centerView.layer.cornerRadius = centerView.bounds.height / 2
+        slider.frame = centerView.frame.insetBy(dx: 0, dy: -12)
+        
+        slider.value = 0
+        slider.animateValue(to: Float(sliderWidget.value) / 100, duration: 0.5)
+        sliderPosY = slider.frame.origin.y
+        changeEmojiFrame(for: CGFloat(sliderWidget.value / 100.0))
     }
     
     @objc func sliderBeginChange(_ sender: GradientSliderView) {
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: disableSwipeNotificanionName), object: nil)
         emoji.isHidden = false
+        changeEmojiFrame(for: CGFloat(sender.value))
     }
     
     @objc func sliderChanged(_ sender: GradientSliderView) {
@@ -148,6 +151,10 @@ class SliderView: UIView {
         sender.isUserInteractionEnabled = false
         hideEmoji()
     }
+    
+    private func updateFontSize(_ size: CGFloat) {
+        titleLabel.font = UIFont.getFont(name: "Inter-Bold", size: size)
+    }
 }
 
 // MARK: Big emoji
@@ -155,24 +162,20 @@ extension SliderView {
     private func changeEmojiFrame(for value: CGFloat) {
         let scale: CGFloat = 1 + value
         let width = emojiWidth * (1 + value)
-        let x = centerView.frame.width * value - emojiWidth * (value - 0.5)
+        let x = slider.frame.minX + slider.trackPosition
         let y = sliderPosY - 5 - width / 2
         emoji.center = CGPoint(x: x, y: y)
         emoji.transform = CGAffineTransform.identity.scaledBy(x: scale, y: scale)
     }
     
     private func hideEmoji() {
-        UIView.animate(withDuration: 0.5, animations: {
-            self.emoji.transform = CGAffineTransform.identity.scaledBy(x: 2.5, y: 2.5)
-            self.emoji.alpha = 0
-        }, completion: {_ in
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: sendStatisticNotificationName), object: nil, userInfo: [
-                widgetTypeParam: statisticAnswerParam,
-                groupIdParam: self.story.groupId,
-                storyIdParam: self.story.id,
-                widgetIdParam: self.data.id,
-                widgetValueParam: "\(Int(self.slider.value * 100))%",
-            ])
-        })
+        delegate?.didChooseSliderValue(self, value: slider.value)
+        UIView.animate(
+            withDuration: 0.5,
+            animations: { [weak emoji] in
+                emoji?.transform = CGAffineTransform.identity.scaledBy(x: 2.5, y: 2.5)
+                emoji?.alpha = 0
+            }
+        )
     }
 }

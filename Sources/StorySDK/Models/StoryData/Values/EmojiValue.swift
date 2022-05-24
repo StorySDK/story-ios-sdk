@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct EmojiValue {
+public struct EmojiValue: Decodable {
     public let name: String
     public let unicode: String
     

@@ -19,7 +19,7 @@ let package = Package(
         .target(
             name: "StorySDK",
             resources: [
-                .copy("Resources/Images"),
+                .copy("Resources/Images/confetti.png"),
                 .copy("Resources/Fonts"),
             ]),
     ]

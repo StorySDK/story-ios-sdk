@@ -31,9 +31,7 @@ final class GradientSliderView: UIControl {
     }
 
     var trackHeight: CGFloat = 10 {
-        didSet {
-            updateLayerFrames()
-        }
+        didSet { updateLayerFrames() }
     }
 
     var trackHighlightStartTintColor = sliderStart {
@@ -56,6 +54,8 @@ final class GradientSliderView: UIControl {
             trackLayer.setNeedsDisplay()
         }
     }
+    
+    var trackPosition: CGFloat { thumbImageView.frame.midX }
     
     private let thumbImageView = UIImageView()
     private let trackLayer = SliderTrackerLayer()
@@ -96,8 +96,12 @@ final class GradientSliderView: UIControl {
     func updateLayerFrames() {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-
-        trackLayer.frame = CGRect(origin: CGPoint(x: 0, y: (bounds.size.height - trackHeight) / 2), size: CGSize(width: bounds.size.width, height: trackHeight))
+        trackLayer.frame = CGRect(
+            x: 0,
+            y: (bounds.size.height - trackHeight) / 2,
+            width: bounds.size.width,
+            height: trackHeight
+        )
         trackLayer.setNeedsDisplay()
         thumbImageView.frame = CGRect(origin: thumbOriginForValue(CGFloat(value)),
                                       size: thumbImage.size)

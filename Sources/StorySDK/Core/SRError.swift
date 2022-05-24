@@ -15,6 +15,10 @@ public enum SRError: Error, LocalizedError {
     case unknownError
     case missingDocumentsDirectory
     
+    // MARK: - Parser errors
+    case unknownColor(String)
+    case unknownType
+    
     public var errorDescription: String? {
         switch self {
         case .noAppsToDisplay:
@@ -29,6 +33,10 @@ public enum SRError: Error, LocalizedError {
             return "Unknown error"
         case .missingDocumentsDirectory:
             return "Can't find documents directory"
+        case .unknownColor(let color):
+            return "Unknown color format (\(color))"
+        case .unknownType:
+            return "Unknown response format"
         }
     }
 }

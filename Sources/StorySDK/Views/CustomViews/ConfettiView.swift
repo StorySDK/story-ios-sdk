@@ -10,11 +10,6 @@ import QuartzCore
 
 public class ConfettiView: UIView {
 
-    public enum ConfettiType {
-        case confetti, triangle, star, diamond
-        case image(UIImage)
-    }
-
     var emitter: CAEmitterLayer = CAEmitterLayer()
     public var colors: [UIColor] = [
         UIColor(red: 0.95, green: 0.40, blue: 0.27, alpha: 1.0),
@@ -24,7 +19,6 @@ public class ConfettiView: UIView {
         UIColor(red: 0.58, green: 0.39, blue: 0.55, alpha: 1.0),
     ]
     public var intensity: Float = 0.5
-    public var type: ConfettiType = .diamond
     public private(set) var isActive: Bool = false
 
     required public init?(coder aDecoder: NSCoder) {
@@ -62,17 +56,11 @@ public class ConfettiView: UIView {
         emitter.birthRate = 0
         isActive = false
     }
-
-    func imageForType(type: ConfettiType) -> UIImage? {
-        let fileName: String
-        switch type {
-        case .confetti: fileName = "confetti"
-        case .triangle: fileName = "triangle"
-        case .star: fileName = "star"
-        case .diamond: fileName = "diamond"
-        case .image(let customImage): return customImage
-        }
-        return  UIImage(named: fileName, in: Bundle(for: ConfettiView.self), compatibleWith: nil)
+    
+    func loadImage() -> UIImage? {
+        guard let url = Bundle.module.url(forResource: "confetti", withExtension: "png") else { return nil }
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return UIImage(data: data)
     }
 
     func confettiWithColor(color: UIColor) -> CAEmitterCell {
@@ -89,7 +77,7 @@ public class ConfettiView: UIView {
         confetti.spinRange = CGFloat(4.0 * intensity)
         confetti.scaleRange = CGFloat(intensity)
         confetti.scaleSpeed = CGFloat(-0.1 * intensity)
-        confetti.contents = imageForType(type: type)!.cgImage
+        confetti.contents = loadImage()?.cgImage
         return confetti
     }
 }

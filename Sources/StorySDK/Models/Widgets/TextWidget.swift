@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct TextWidget {
+public struct TextWidget: Decodable {
     var text: String
     var fontSize: Double
     var fontFamily: String

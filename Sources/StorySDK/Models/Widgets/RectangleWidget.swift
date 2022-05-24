@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct RectangleWidget {
+public struct RectangleWidget: Decodable {
     var fillColor: SRColor?
     var fillBorderRadius: Double
     var fillOpacity: Double

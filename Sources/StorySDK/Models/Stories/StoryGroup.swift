@@ -15,7 +15,6 @@ public struct StoryGroup: Codable {
     public let imageUrl: URL?
     public let startTime: String
     public let endTime: String
-    public let statistic: StoreGroupStatistic?
     public let active: Bool
     public let createdAt: Date
     public let updatedAt: Date

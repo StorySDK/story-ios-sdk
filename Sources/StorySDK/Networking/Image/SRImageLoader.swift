@@ -14,7 +14,8 @@ public class SRImageLoader {
     private let session = URLSession(configuration: .default,
                                      delegate: nil,
                                      delegateQueue: .main)
-    
+    private let gifQueue = DispatchQueue(label: "\(packageBundleId).gifQueue",
+                                         qos: .background)
     public init() {}
     
     @discardableResult
@@ -53,6 +54,48 @@ public class SRImageLoader {
         task.resume()
         return task
     }
+    
+    @discardableResult
+    func loadGif(_ url: URL,
+                 size: CGSize,
+                 completion: @escaping (Result<([UIImage], TimeInterval), Error>) -> Void) -> Cancellable? {
+        let task = session.dataTask(with: url) { data, _, error in
+            if let data = data {
+                DispatchQueue.global().async {
+                    guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+                        DispatchQueue.main.async {
+                            completion(.failure(SRError.unknownError))
+                        }
+                        return
+                    }
+                    var images = [UIImage]()
+                    let imageCount = CGImageSourceGetCount(source)
+                    let maxDimensionsInPixels = max(size.width, size.height) * UIScreen.main.scale
+                    let downOptions = [
+                        kCGImageSourceCreateThumbnailFromImageAlways: true,
+                        kCGImageSourceShouldCacheImmediately: true,
+                        kCGImageSourceCreateThumbnailWithTransform: true,
+                        kCGImageSourceThumbnailMaxPixelSize: maxDimensionsInPixels,
+                    ] as CFDictionary
+                    var totalDuration: TimeInterval = 0
+                    for i in 0..<imageCount {
+                        guard let image = CGImageSourceCreateImageAtIndex(source, i, downOptions) else { continue }
+                        images.append(UIImage(cgImage: image))
+                        totalDuration += source.delay(for: i)
+                    }
+                    DispatchQueue.main.async {
+                        completion(.success((images, totalDuration)))
+                    }
+                }
+            } else if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.failure(SRError.unknownError))
+            }
+        }
+        task.resume()
+        return task
+    }
 }
 
 class BlankCancellable: Cancellable {
@@ -60,3 +103,37 @@ class BlankCancellable: Cancellable {
 }
 
 extension URLSessionDataTask: Cancellable {}
+
+private extension CGImageSource {
+    func delay(for index: Int) -> TimeInterval {
+        var delay: TimeInterval = 0.1
+        // Get dictionaries
+        let cfProperties = CGImageSourceCopyPropertiesAtIndex(self, index, nil)
+        let gifPropertiesPointer = UnsafeMutablePointer<UnsafeRawPointer?>.allocate(capacity: 0)
+        if CFDictionaryGetValueIfPresent(cfProperties, Unmanaged.passUnretained(kCGImagePropertyGIFDictionary).toOpaque(), gifPropertiesPointer) == false {
+            return delay
+        }
+        
+        let gifProperties: CFDictionary = unsafeBitCast(gifPropertiesPointer.pointee, to: CFDictionary.self)
+        
+        // Get delay time
+        var delayObject = unsafeBitCast(
+            CFDictionaryGetValue(
+                gifProperties,
+                Unmanaged.passUnretained(kCGImagePropertyGIFUnclampedDelayTime).toOpaque()
+            ),
+            to: AnyObject.self
+        )
+        if delayObject.doubleValue == 0 {
+            delayObject = unsafeBitCast(
+                CFDictionaryGetValue(
+                    gifProperties,
+                    Unmanaged.passUnretained(kCGImagePropertyGIFDelayTime).toOpaque()),
+                to: AnyObject.self
+            )
+        }
+        
+        delay = delayObject as? TimeInterval ?? 0
+        return max(0.1, delay)
+    }
+}

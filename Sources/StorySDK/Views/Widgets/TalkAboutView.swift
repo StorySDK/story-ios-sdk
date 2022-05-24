@@ -8,87 +8,77 @@
 import UIKit
 
 protocol TalkAboutViewDelegate: AnyObject {
-    func needShowKeyboard(_ widgetView: TalkAboutView)
-    func needHideKeyboard(_ widgetView: TalkAboutView)
+    func needShowKeyboard(_ widget: TalkAboutView)
+    func needHideKeyboard(_ widget: TalkAboutView)
+    func didSentTextAbout(_ widget: TalkAboutView, text: String?)
 }
 
-class TalkAboutView: UIView {
-    private var story: Story!
-    private var data: WidgetData!
-    var talkAboutWidget: TalkAboutWidget!
-    
-    weak var delegate: TalkAboutViewDelegate?
-    
+class TalkAboutView: SRWidgetView {
+    var story: SRStory
+    var talkAboutWidget: TalkAboutWidget
     var scaleFactor: CGFloat = 1
     var isTextFieldActive = false
     
-    private lazy var mainView: UIView = {
+    weak var delegate: TalkAboutViewDelegate?
+    
+    private let mainView: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
     
-    private lazy var addView: UIView = {
+    private let addView: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
     
-    private lazy var sendView: UIView = {
+    private let sendView: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
         v.backgroundColor = .white
         return v
     }()
     
-    private lazy var sendButton: UIButton = {
+    private let sendButton: UIButton = {
         let b = UIButton()
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
     }()
 
-    private lazy var logo: UIImageView = {
+    private let logo: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFit
         return iv
     }()
     
-    private lazy var label: UILabel = {
+    private let label: UILabel = {
         let l = UILabel()
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
     }()
     
-    private lazy var textField: UITextField = {
+    private let textField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
 
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-        
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-
-    convenience init(frame: CGRect, story: Story, data: WidgetData, talkAboutWidget: TalkAboutWidget, scale: CGFloat) {
-        self.init(frame: frame)
+    init(story: SRStory, data: SRWidget, talkAboutWidget: TalkAboutWidget, scale: CGFloat) {
         self.story = story
-        self.data = data
         self.talkAboutWidget = talkAboutWidget
         self.scaleFactor = scale
-        self.transform = CGAffineTransform.identity.rotated(by: data.position.rotate * .pi / 180)
-
-        prepareUI()
+        super.init(data: data)
     }
     
-    private func prepareUI() {
-        backgroundColor = .clear
-        addSubview(mainView)
-        addSubview(logo)
+    override func addSubviews() {
+        super.addSubviews()
+        [mainView, logo].forEach(contentView.addSubview)
+    }
+    
+    override func setupView() {
+        super.setupView()
         mainView.clipsToBounds = false
         NSLayoutConstraint.activate([
             mainView.topAnchor.constraint(equalTo: topAnchor, constant: 18 * scaleFactor),
@@ -257,17 +247,7 @@ class TalkAboutView: UIView {
 // MARK: - Actions
 extension TalkAboutView {
     @objc func sendTapped(_ sender: UIButton) {
-        var txt = ""
-        if let text = textField.text {
-            txt = text
-        }
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: sendStatisticNotificationName), object: nil, userInfo: [
-            widgetTypeParam: statisticAnswerParam,
-            groupIdParam: self.story.groupId,
-            storyIdParam: self.story.id,
-            widgetIdParam: self.data.id,
-            widgetValueParam: txt,
-        ])
+        delegate?.didSentTextAbout(self, text: textField.text)
         sendButton.setTitleColor(green, for: [])
         sendButton.setTitle("SENT!", for: [])
         isUserInteractionEnabled = false
@@ -279,8 +259,9 @@ extension TalkAboutView: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: disableSwipeNotificanionName), object: nil)
         isTextFieldActive = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            self.delegate?.needShowKeyboard(self)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+            guard let wSelf = self else { return }
+            wSelf.delegate?.needShowKeyboard(wSelf)
         }
         sendView.isHidden = true
         addView.isHidden = true

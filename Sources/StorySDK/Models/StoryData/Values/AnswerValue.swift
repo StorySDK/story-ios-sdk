@@ -7,17 +7,7 @@
 
 import UIKit
 
-public struct AnswerValue {
+public struct AnswerValue: Decodable {
     let id: String
     let title: String
-    
-    public init() {
-        self.id = ""
-        self.title = ""
-    }
-    
-    public init(from dict: Json) {
-        self.id = dict["id"] as? String ?? ""
-        self.title = dict["title"] as? String ?? ""
-    }
 }

@@ -46,23 +46,3 @@ let disableSwipeNotificanionName = "DisableSwipe"
 let enableSwipeNotificanionName = "EnableSwipe"
 let sendStatisticNotificationName = "SendStatistic"
 let startConfettiNotificationName = "StartConfetti"
-
-let groupIdParam = "group_id"
-let storyIdParam = "story_id"
-let widgetIdParam = "widget_id"
-let widgetValueParam = "value"
-let widgetTypeParam = "type"
-
-let statisticActionsParam = "actions"
-
-let statisticClickParam = "click"
-let statisticDurationParam = "duration"
-let statisticImpressionParam = "impression"
-let statisticAnswerParam = "answer"
-
-let statisticBackParam = "back"
-let statisticNextParam = "next"
-let statisticOpenParam = "open"
-let statisticCloseParam = "close"
-let statisticInteractionsParam = "interactions"
-let statisticViewsParam = "views"

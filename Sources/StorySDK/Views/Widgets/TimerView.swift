@@ -7,61 +7,23 @@
 
 import UIKit
 
-class TimerView: UIView {
-    /*
-     const calculateTime = (time: number) => {
-       const days = Math.floor(time / (1000 * 60 * 60 * 24));
-       const hours = Math.floor((time / (1000 * 60 * 60)) % 24);
-       const minutes = Math.floor((time / 1000 / 60) % 60);
-
-       return {
-         days: days < 10 ? `0${days > 0 ? days : 0}` : `${days}`,
-         hours: hours < 10 ? `0${hours > 0 ? hours : 0}` : `${hours}`,
-         minutes: minutes < 10 ? `0${minutes > 0 ? minutes : 0}` : `${minutes}`
-       };
-     };
-
-     const INIT_ELEMENT_STYLES = {
-       widget: {
-         borderRadius: 10,
-         padding: 15
-       },
-       text: {
-         fontSize: 16,
-         marginBottom: 8
-       },
-       digit: {
-         width: 22,
-         height: 36,
-         fontSize: 16,
-         borderRadius: 4
-       },
-       caption: {
-         marginTop: 2,
-         fontSize: 6
-       }
-     };
-
-     */
-    private var story: Story!
-    private var data: WidgetData!
-    private var timerWidget: TimerWidget!
+class TimerView: SRWidgetView {
+    private let story: SRStory
+    private let timerWidget: TimerWidget
     
-    private lazy var centerView: UIStackView = {
+    private let centerView: UIStackView = {
         let sv = UIStackView()
         sv.translatesAutoresizingMaskIntoConstraints = false
         sv.axis = .horizontal
         sv.spacing = 16
-        
         return sv
     }()
     
-    private lazy var captionView: UIStackView = {
+    private let captionView: UIStackView = {
         let sv = UIStackView()
         sv.translatesAutoresizingMaskIntoConstraints = false
         sv.axis = .horizontal
         sv.spacing = 16
-
         return sv
     }()
 
@@ -76,39 +38,15 @@ class TimerView: UIView {
     private var timeDelta: TimeInterval = 60
     private var dateIsChecked = false
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-        
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-
-    convenience init(frame: CGRect, story: Story, data: WidgetData, timerWidget: TimerWidget) {
-        self.init(frame: frame)
+    init(story: SRStory, data: SRWidget, timerWidget: TimerWidget) {
         self.story = story
-        self.data = data
         self.timerWidget = timerWidget
-        self.transform = CGAffineTransform.identity.rotated(by: data.position.rotate * .pi / 180)
-
-        prepareUI()
+        super.init(data: data)
     }
-
-    override func setNeedsLayout() {
-        super.setNeedsLayout()
-        DispatchQueue.main.async {
-            self.checkDate()
-        }
-    }
-
-    private func prepareUI() {
-        backgroundColor = .clear
-        layer.cornerRadius = 10
-        layer.shadowColor = black.withAlphaComponent(0.15).cgColor
-        layer.shadowOpacity = 1
-        layer.shadowOffset = .zero
-        layer.shadowRadius = 4
-        clipsToBounds = true
+    
+    override func setupView() {
+        super.setupView()
+        
         var viewColor: UIColor = white
         var textColor: UIColor = white
         if timerWidget.color == "purple" {
@@ -193,6 +131,20 @@ class TimerView: UIView {
             captionView.addArrangedSubview(cl)
             centerView.addArrangedSubview(sv)
         }
+    }
+    
+    override func setupContentLayer(_ layer: CALayer) {
+        layer.cornerRadius = 10
+        layer.shadowColor = black.withAlphaComponent(0.15).cgColor
+        layer.shadowOpacity = 1
+        layer.shadowOffset = .zero
+        layer.shadowRadius = 4
+        layer.masksToBounds = true
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        checkDate()
     }
 }
 

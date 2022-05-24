@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct EllipseWidget {
+public struct EllipseWidget: Decodable {
     var fillColor: SRColor?
     var fillOpacity: Double
     var strokeThickness: Double

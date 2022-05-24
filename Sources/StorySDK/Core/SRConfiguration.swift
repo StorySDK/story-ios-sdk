@@ -25,7 +25,7 @@ public struct SRConfiguration {
     /// Try to load all if it's empty
     public private(set) var languages: Set<String> = .init()
     /// Default language choosed for the app
-    public private(set) var defaultLangiage: String = "en"
+    public private(set) var defaultLanguage: String = "en"
     
     public init(language: String = "en",
                 sdkId: String? = nil,
@@ -33,7 +33,7 @@ public struct SRConfiguration {
                 storyDuration: TimeInterval = 6.0,
                 needShowTitle: Bool = false,
                 needFullScreen: Bool = true,
-                progressColor: UIColor = .blue
+                progressColor: UIColor = .white
     ) {
         self.language = language
         self.sdkId = sdkId
@@ -46,10 +46,10 @@ public struct SRConfiguration {
     
     mutating func update(localization: AppLocalization) {
         languages = .init(localization.languages)
-        defaultLangiage = localization.defaultLocale
+        defaultLanguage = localization.defaultLocale
     }
     
     func fetchCurrentLanguage() -> String {
-        languages.contains(language) ? language : defaultLangiage
+        languages.contains(language) ? language : defaultLanguage
     }
 }

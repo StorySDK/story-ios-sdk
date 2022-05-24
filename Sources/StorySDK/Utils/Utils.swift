@@ -9,16 +9,6 @@ import UIKit
 import AVFoundation
 
 class Utils: NSObject {
-    static func getColor(_ stringValue: String) -> UIColor {
-        if stringValue.contains("#") {
-            return UIColor(hexString: stringValue)
-        } else if stringValue.contains("rgb") {
-            return UIColor(rgbString: stringValue)
-        } else {
-            return .white
-        }
-    }
-    
     static func getGradient(frame: CGRect, colors: [UIColor], points: [CGPoint]) -> CAGradientLayer {
         let l = CAGradientLayer()
         l.frame = frame

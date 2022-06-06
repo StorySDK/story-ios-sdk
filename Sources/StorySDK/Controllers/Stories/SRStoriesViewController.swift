@@ -131,7 +131,11 @@ extension SRStoriesViewController: UICollectionViewDelegateFlowLayout {
         viewModel.willBeginDragging()
     }
     
-    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        viewModel.didScroll(
+            offset: Float(scrollView.contentOffset.x),
+            contentWidth: Float(scrollView.contentSize.width)
+        )
         viewModel.didEndDragging()
     }
 }

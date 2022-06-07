@@ -58,6 +58,8 @@ class SliderView: SRInteractiveWidgetView {
     init(story: SRStory, data: SRWidget, sliderWidget: SRSliderWidget) {
         self.sliderWidget = sliderWidget
         super.init(story: story, data: data)
+        
+        slider.value = Float(sliderWidget.value) / 100
     }
     
     override func addSubviews() {
@@ -128,10 +130,9 @@ class SliderView: SRInteractiveWidgetView {
         centerView.layer.cornerRadius = centerView.bounds.height / 2
         slider.frame = centerView.frame.insetBy(dx: 0, dy: -12)
         
-        slider.value = 0
-        slider.animateValue(to: Float(sliderWidget.value) / 100, duration: 0.5)
+        slider.animateValue(to: slider.value, duration: 0.5)
         sliderPosY = slider.frame.origin.y
-        changeEmojiFrame(for: CGFloat(sliderWidget.value / 100.0))
+        changeEmojiFrame(for: CGFloat(slider.value))
     }
     
     @objc func sliderBeginChange(_ sender: GradientSliderView) {
@@ -147,6 +148,16 @@ class SliderView: SRInteractiveWidgetView {
     @objc func sliderEndChange(_ sender: GradientSliderView) {
         sender.isUserInteractionEnabled = false
         hideEmoji()
+    }
+    
+    override func setupWidget(reaction: String) {
+        guard reaction.hasSuffix("%") else { return }
+        guard var value = Float(reaction.dropLast()) else { return }
+        value /= 100
+        slider.isUserInteractionEnabled = false
+        slider.value = value
+        slider.animateValue(to: value, duration: 0)
+        changeEmojiFrame(for: CGFloat(value))
     }
     
     private func updateFontSize(_ size: CGFloat) {

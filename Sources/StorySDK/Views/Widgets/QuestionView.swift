@@ -127,4 +127,15 @@ class QuestionView: SRInteractiveWidgetView {
         grayView.isHidden = true
         UIView.animate(withDuration: 0.5, animations: { b.isHidden = true })
     }
+    
+    override func setupWidget(reaction: String) {
+        isUserInteractionEnabled = false
+        let isTrue = true.questionWidgetString == reaction
+        grayView.isHidden = true
+        (isTrue ? noButton : yesButton).isHidden = true
+    }
+}
+
+extension Bool {
+    var questionWidgetString: String { self ? "confirm" : "decline" }
 }

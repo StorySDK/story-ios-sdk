@@ -10,6 +10,7 @@ import UIKit
 final class GradientSliderView: UIControl {
     var value: Float = 0.0 {
         didSet {
+            print("!!!", value)
             if value < 0 { value = 0 }
             updateLayerFrames()
         }

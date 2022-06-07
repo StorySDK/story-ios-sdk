@@ -174,6 +174,12 @@ class TalkAboutView: SRInteractiveWidgetView {
         gradientLayer.frame = mainView.bounds
         gradientLayer.cornerRadius = mainView.layer.cornerRadius
     }
+    
+    override func setupWidget(reaction: String) {
+        guard !reaction.isEmpty else { return }
+        textField.text = reaction
+        isUserInteractionEnabled = false
+    }
 }
 
 // MARK: - TextField

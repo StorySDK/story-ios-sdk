@@ -51,6 +51,9 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         for widget in data.widgets {
             let view = SRWidgetConstructor.makeWidget(widget, story: story, sdk: storySdk)
+            storySdk.userDefaults
+                .reaction(widgetId: widget.id)
+                .map { view.setupWidget(reaction: $0) }
             (view as? SRInteractiveWidgetView)?.delegate = widgetResponder
             let position = SRWidgetConstructor.calcWidgetPosition(widget, story: story)
             cell.appendWidget(view, position: position)

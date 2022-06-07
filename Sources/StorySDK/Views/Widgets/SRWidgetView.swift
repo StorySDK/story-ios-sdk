@@ -36,6 +36,8 @@ public class SRWidgetView: UIView {
     
     func setupContentLayer(_ layer: CALayer) {}
     
+    func setupWidget(reaction: String) {}
+    
     public override func sizeThatFits(_ size: CGSize) -> CGSize {
         return size
     }

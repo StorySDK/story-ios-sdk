@@ -82,6 +82,10 @@ class EmojiReactionView: SRInteractiveWidgetView {
         }
     }
     
+    override func setupWidget(reaction: String) {
+        isUserInteractionEnabled = false
+    }
+    
     private func hideEmoji(number: Int) {
         let ev = emojiViews[number]
         let rect = self.convert(ev.frame, from: stackView)

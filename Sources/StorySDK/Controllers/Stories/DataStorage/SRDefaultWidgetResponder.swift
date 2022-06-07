@@ -96,7 +96,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     // MARK: - QuestionViewDelegate
     
     func didChooseQuestionAnswer(_ widget: QuestionView, isYes: Bool) {
-        let request = SRStatistic(type: .answer, value: isYes ? "confirm" : "decline")
+        let request = SRStatistic(type: .answer, value: isYes.questionWidgetString)
         analytics?.sendWidgetReaction(request, widget: widget)
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
     }

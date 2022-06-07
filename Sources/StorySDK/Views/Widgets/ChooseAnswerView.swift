@@ -109,12 +109,14 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
     }
     
     func selectAnswer(_ id: String) {
-        isUserInteractionEnabled = false
+        var hasValue = false
         for view in answerViews {
             let currentId = view.answer.id
             view.wasSelected = currentId == id
             view.status = currentId == chooseAnswerWidget.correct ? .valid : .invalid
+            hasValue = hasValue || view.wasSelected
         }
+        isUserInteractionEnabled = !hasValue
     }
     
     @objc func answerClicked(_ sender: AnswerView) {
@@ -136,6 +138,10 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
         height += CGFloat(max(0, answerViews.count - 1)) * spacing
         height += CGFloat(answerViews.count) * 34
         return CGSize(width: size.width, height: min(height, size.height))
+    }
+    
+    override func setupWidget(reaction: String) {
+        selectAnswer(reaction)
     }
 }
 

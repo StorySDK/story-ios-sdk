@@ -58,7 +58,7 @@ public class SRImageWidgetView: SRInteractiveWidgetView {
             case .failure(let error):
                 self?.contentView.isHidden = false
                 self?.imageView.isHidden = true
-                print("StorySDK.WidgetView > Error:", error.localizedDescription)
+                logError(error.localizedDescription, logger: .widgets)
             }
         }
     }

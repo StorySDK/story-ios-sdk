@@ -17,11 +17,7 @@ public final class SRStoriesViewController: UIViewController {
         let dataStorage = SRDefaultStoriesDataStorage(sdk: sdk)
         let progressController = SRDefaultProgressController()
         let widgetResponder = SRDefaultWidgetResponder(sdk: sdk)
-        #if DEBUG
-        let analyticsController = SRDebugAnalyticsProxyController(sdk: sdk)
-        #else
         let analyticsController = SRDefaultAnalyticsController(sdk: sdk)
-        #endif
         self.viewModel = .init(
             dataStorage: dataStorage,
             progress: progressController,
@@ -73,7 +69,7 @@ public final class SRStoriesViewController: UIViewController {
             viewModel?.reportGroupOpen()
         }
         viewModel.onErrorReceived = { error in
-            print("StorySDK.StoriesVC > Error:", error.localizedDescription)
+            logError(error.localizedDescription, logger: .stories)
         }
         viewModel.onUpdateTransformNeeded = { [weak storiesView] ty in
             UIView.animate(

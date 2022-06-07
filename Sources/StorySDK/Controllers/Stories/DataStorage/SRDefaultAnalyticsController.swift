@@ -7,7 +7,7 @@
 
 import Foundation
 
-class SRDefaultAnalyticsController: SRAnalyticsController {
+final class SRDefaultAnalyticsController: SRAnalyticsController {
     struct StoryInfo {
         var index: Int
         var id: String
@@ -22,12 +22,19 @@ class SRDefaultAnalyticsController: SRAnalyticsController {
         storySdk = sdk
     }
     
-    private func sendReaction(_ reaction: SRStatistic, completion: ((Result<Bool, Error>) -> Void)? = nil) {
+    func sendReaction(_ reaction: SRStatistic, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         var reaction = reaction
         reaction.groupId = group?.id
-        storySdk.sendStatistic(reaction) {  result in
-            if case .failure(let error) = result {
-                print("StorySDK.StoriesVC > Error:", error.localizedDescription)
+        storySdk.sendStatistic(reaction) { result in
+            switch result {
+            case .success:
+                #if DEBUG
+                debug("\(reaction)", logger: .stories)
+                #else
+                break
+                #endif
+            case .failure(let error):
+                logError(error.localizedDescription, logger: .stories)
             }
             completion?(result)
         }
@@ -94,46 +101,5 @@ class SRDefaultAnalyticsController: SRAnalyticsController {
     
     func reportViewDuration(_ storyId: String, duration: TimeInterval) {
         sendReaction(.init(type: .duration, storyId: storyId, value: "\(duration)"))
-    }
-}
-
-final class SRDebugAnalyticsProxyController: SRDefaultAnalyticsController {
-    override func sendWidgetReaction(_ reaction: SRStatistic, widget: SRInteractiveWidgetView) {
-        debug("widgetReaction", "\(reaction)", widget.data.id)
-        super.sendWidgetReaction(reaction, widget: widget)
-    }
-    
-    override func reportGroupOpen() {
-        debug("groupOpen")
-        super.reportGroupOpen()
-    }
-    
-    override func reportGroupClose() {
-        debug("groupClose")
-        super.reportGroupClose()
-    }
-    
-    override func reportSwipeForward(_ storyId: String) {
-        debug("swipeForward", storyId)
-        super.reportSwipeForward(storyId)
-    }
-    
-    override func reportSwipeBackward(_ storyId: String) {
-        debug("swipeBackward", storyId)
-        super.reportSwipeBackward(storyId)
-    }
-    
-    override func reportImpression(_ storyId: String) {
-        debug("impression", storyId)
-        super.reportImpression(storyId)
-    }
-    
-    override func reportViewDuration(_ storyId: String, duration: TimeInterval) {
-        debug("viewDuration", storyId, "\(duration)", "sec")
-        super.reportViewDuration(storyId, duration: duration)
-    }
-    
-    private func debug(_ event: String...) {
-        print("StorySDK.StoriesVC > Debug:", event.joined(separator: " "))
     }
 }

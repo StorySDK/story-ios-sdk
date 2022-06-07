@@ -27,7 +27,7 @@ final class DiskImageCache: ImageCache {
             let data = try Data(contentsOf: url)
             return UIImage(data: data)
         } catch {
-            print("StorySDK.DiskImageCache > Error:", error.localizedDescription)
+            logError(error.localizedDescription, logger: .imageCache)
             return nil
         }
     }
@@ -38,7 +38,7 @@ final class DiskImageCache: ImageCache {
             do {
                 try image.pngData()?.write(to: url)
             } catch {
-                print("StorySDK.DiskImageCache > Error:", error.localizedDescription)
+                logError(error.localizedDescription, logger: .imageCache)
             }
         }
     }
@@ -49,7 +49,7 @@ final class DiskImageCache: ImageCache {
             do {
                 try FileManager.default.removeItem(at: url)
             } catch {
-                print("StorySDK.DiskImageCache > Error:", error.localizedDescription)
+                logError(error.localizedDescription, logger: .imageCache)
             }
         }
     }
@@ -62,7 +62,7 @@ final class DiskImageCache: ImageCache {
                 do {
                     try FileManager.default.removeItem(at: url)
                 } catch {
-                    print("StorySDK.DiskImageCache > Error:", error.localizedDescription)
+                    logError(error.localizedDescription, logger: .imageCache)
                 }
             }
         }

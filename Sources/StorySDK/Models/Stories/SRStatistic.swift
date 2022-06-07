@@ -17,6 +17,21 @@ public struct SRStatistic: Encodable {
     public var locale: String?
 }
 
+extension SRStatistic: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        var dict = [String: String]()
+        dict["type"] = type.rawValue
+        dict["storyId"] = storyId
+        dict["widgetId"] = widgetId
+        dict["userId"] = userId
+        dict["groupId"] = groupId
+        dict["value"] = value.map { "\"\($0)\"" }
+        dict["locale"] = locale
+        let string = dict.map { "\($0.0): \($0.1)" }.joined(separator: "; ")
+        return "[\(string)]"
+    }
+}
+
 public enum SRStatisticAction: String, Encodable {
     /// Click on widget
     case click

@@ -27,7 +27,7 @@ public class SRDiskUserDefaults: SRMemoryUserDefaults {
         do {
             try load()
         } catch {
-            print("StorySDK.DiskUserDefaults > Error:", error.localizedDescription)
+            logError(error.localizedDescription, logger: .userDefaults)
             model = .init()
             saveModel()
         }
@@ -69,7 +69,7 @@ public class SRDiskUserDefaults: SRMemoryUserDefaults {
         do {
             try save()
         } catch {
-            print("StorySDK.DiskUserDefaults > Error:", error.localizedDescription)
+            logError(error.localizedDescription, logger: .userDefaults)
         }
     }
 }

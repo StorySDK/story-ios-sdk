@@ -8,6 +8,7 @@
 import UIKit
 
 final class SRDefaultProgressController: SRProgressController {
+    var analytics: SRAnalyticsController?
     var isDragging: Bool = false
     var isInteracted: Bool = false
     var timerPeriod: TimeInterval = 0.5
@@ -59,12 +60,10 @@ final class SRDefaultProgressController: SRProgressController {
     }
     
     public func didScroll(offset: Float, contentWidth: Float) {
+        let index = Int(offset / (contentWidth / Float(numberOfItems)))
+        analytics?.storyDidChanged(to: index, byUser: isDragging)
         guard isDragging else { return }
         progress = min(1, max(0, offset / contentWidth))
-    }
-    
-    public func didInteract() {
-        
     }
     
     public func setupProgress(_ component: SRProgressComponent) {

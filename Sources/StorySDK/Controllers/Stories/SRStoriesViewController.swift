@@ -17,10 +17,16 @@ public final class SRStoriesViewController: UIViewController {
         let dataStorage = SRDefaultStoriesDataStorage(sdk: sdk)
         let progressController = SRDefaultProgressController()
         let widgetResponder = SRDefaultWidgetResponder(sdk: sdk)
+        #if DEBUG
+        let analyticsController = SRDebugAnalyticsProxyController(sdk: sdk)
+        #else
+        let analyticsController = SRDefaultAnalyticsController(sdk: sdk)
+        #endif
         self.viewModel = .init(
             dataStorage: dataStorage,
             progress: progressController,
-            widgetResponder: widgetResponder
+            widgetResponder: widgetResponder,
+            analytics: analyticsController
         )
         super.init(nibName: nil, bundle: nil)
         if dataStorage.configuration.needFullScreen {
@@ -47,12 +53,12 @@ public final class SRStoriesViewController: UIViewController {
     
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        viewModel.startAutoscrolling()
     }
     
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         viewModel.pauseAutoscrolling()
+        viewModel.reportGroupClose()
     }
     
     private func bindView() {
@@ -63,6 +69,8 @@ public final class SRStoriesViewController: UIViewController {
             storiesView?.stopLoading()
             storiesView?.reloadData()
             storiesView.map { viewModel?.setupProgress($0.progressView) }
+            viewModel?.startAutoscrolling()
+            viewModel?.reportGroupOpen()
         }
         viewModel.onErrorReceived = { error in
             print("StorySDK.StoriesVC > Error:", error.localizedDescription)

@@ -22,16 +22,16 @@ public enum SRStatisticAction: String, Encodable {
     case click
     /// Time of displaying of a story
     case duration
-    ///  When user looks on story more then 2 seconds
+    /// When a user looks on story more then 2 seconds
     case impression
     /// Talk about message
     case answer
-    /// When user slides story back
+    /// When a user slides a story forward
     case next
-    /// When user opens group
+    /// When a user slides a story backward
     case back
-    /// When user slides story forward
+    /// When a user opens  a group
     case open
-    /// When user closes group
+    /// When a user closes a group
     case close
 }

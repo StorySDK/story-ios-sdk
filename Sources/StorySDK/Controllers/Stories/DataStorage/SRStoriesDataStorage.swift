@@ -10,10 +10,14 @@ import Combine
 import UIKit
 
 protocol SRStoriesDataStorage: AnyObject {
+    /// Current Story group
+    var group: StoryGroup? { get }
     /// Story conguration
     var configuration: SRConfiguration { get }
     /// Progress controller which take care about progress bar state
-    var progressController: SRProgressController? { get set }
+    var progress: SRProgressController? { get set }
+    /// To report about analytics events
+    var analytics: SRAnalyticsController? { get set }
     /// Taking care about  widget actions
     var widgetResponder: SRWidgetResponder? { get set }
     /// Number of stories in the group
@@ -26,6 +30,8 @@ protocol SRStoriesDataStorage: AnyObject {
     func loadStories(group: StoryGroup)
     /// Configures cell with a story with index
     func setupCell(_ cell: SRStoryCell, index: Int)
+    /// Returns id of the story at index
+    func storyId(atIndex index: Int) -> String?
 }
 
 protocol SRStoryCell: AnyObject {
@@ -46,6 +52,8 @@ protocol SRProgressComponent: AnyObject {
 }
 
 protocol SRProgressController: AnyObject {
+    /// To report about analytics events
+    var analytics: SRAnalyticsController? { get set }
     /// Number of components
     var numberOfItems: Int { get set }
     /// Progress bar tint color
@@ -62,8 +70,6 @@ protocol SRProgressController: AnyObject {
     func didEndDragging()
     /// When user scrolled
     func didScroll(offset: Float, contentWidth: Float)
-    /// When user tapped on a widget and we need to pause autoscrolling for a while
-    func didInteract()
     /// Updates progress component
     func setupProgress(_ component: SRProgressComponent)
     /// Starts scrolling timer
@@ -79,14 +85,26 @@ protocol SRProgressController: AnyObject {
 public typealias SRRect = CGRect
 
 protocol SRWidgetResponderStorage: AnyObject {
-    /// Current Story group
-    var group: StoryGroup? { get set }
     /// View controller frame in absulute coordinates
     var containerFrame: SRRect { get set }
     /// Needs to lift up the view when the keyboard has appeared
     var onUpdateTransformNeeded: ((Float) -> Void)? { get set }
     /// Progress controller which take care about progress bar state
-    var progressController: SRProgressController? { get set }
+    var progress: SRProgressController? { get set }
+    /// To report about analytics events
+    var analytics: SRAnalyticsController? { get set }
+}
+
+protocol SRAnalyticsController: AnyObject {
+    var dataStorage: SRStoriesDataStorage? { get set }
+    /// Sends information about interaction with the widget
+    func sendWidgetReaction(_ reaction: SRStatistic, widget: SRInteractiveWidgetView)
+    /// Currently displayed story did changed
+    func storyDidChanged(to index: Int, byUser: Bool)
+    /// When a user opens the group
+    func reportGroupOpen()
+    /// When a user closes the group
+    func reportGroupClose()
 }
 
 typealias SRWidgetResponder = SRWidgetResponderStorage & SRIneractiveWidgetDelegate

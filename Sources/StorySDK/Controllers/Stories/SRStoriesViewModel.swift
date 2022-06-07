@@ -11,16 +11,23 @@ final class SRStoriesViewModel {
     let dataStorage: SRStoriesDataStorage
     let progress: SRProgressController
     let widgetResponder: SRWidgetResponder
+    let analytics: SRAnalyticsController
     
     init(dataStorage: SRStoriesDataStorage,
          progress: SRProgressController,
-         widgetResponder: SRWidgetResponder) {
+         widgetResponder: SRWidgetResponder,
+         analytics: SRAnalyticsController) {
         self.dataStorage = dataStorage
         self.progress = progress
         self.widgetResponder = widgetResponder
-        dataStorage.progressController = progress
+        self.analytics = analytics
+        dataStorage.progress = progress
+        dataStorage.analytics = analytics
         dataStorage.widgetResponder = widgetResponder
-        widgetResponder.progressController = progress
+        widgetResponder.progress = progress
+        widgetResponder.analytics = analytics
+        progress.analytics = analytics
+        analytics.dataStorage = dataStorage
     }
     
     // MARK: - Data Storage
@@ -79,10 +86,6 @@ final class SRStoriesViewModel {
         progress.didScroll(offset: offset, contentWidth: contentWidth)
     }
     
-    func didInteract() {
-        progress.didInteract()
-    }
-    
     func setupProgress(_ component: SRProgressComponent) {
         progress.setupProgress(component)
     }
@@ -93,5 +96,13 @@ final class SRStoriesViewModel {
     
     func pauseAutoscrolling() {
         progress.pauseAutoscrolling()
+    }
+    
+    func reportGroupOpen() {
+        analytics.reportGroupOpen()
+    }
+    
+    func reportGroupClose() {
+        analytics.reportGroupClose()
     }
 }

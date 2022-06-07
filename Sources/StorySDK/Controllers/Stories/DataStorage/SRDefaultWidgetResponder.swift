@@ -10,9 +10,10 @@ import UIKit
 final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     let storySdk: StorySDK
     var containerFrame: SRRect = .zero
-    var group: StoryGroup?
     var onUpdateTransformNeeded: ((Float) -> Void)?
-    weak var progressController: SRProgressController?
+    var pauseInterval: DispatchTimeInterval = .seconds(3)
+    weak var progress: SRProgressController?
+    weak var analytics: SRAnalyticsController?
     private var keyboardHeight: Float = 0
     
     init(sdk: StorySDK = .shared) {
@@ -49,23 +50,6 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         keyboardHeight = 0
     }
     
-    private func sendReaction(_ reaction: SRStatistic, widget: SRInteractiveWidgetView) {
-        let widgetId = widget.data.id
-        var reaction = reaction
-        reaction.storyId = widget.story.id
-        reaction.widgetId = widgetId
-        reaction.groupId = group?.id
-        
-        storySdk.sendStatistic(reaction) { [weak storySdk] result in
-            switch result {
-            case .success:
-                storySdk?.userDefaults.setReaction(widgetId: widgetId, value: reaction.value)
-            case .failure(let error):
-                print("StorySDK.StoriesVC > Error:", error.localizedDescription)
-            }
-        }
-    }
-    
     // MARK: - TalkAboutViewDelegate
     
     func needShowKeyboard(_ widget: TalkAboutView) {
@@ -74,27 +58,27 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         bottom -= widget.convert(widget.bounds, to: nil).maxY
         bottom -= 50 // Space between widget and keyboard
         let delta = keyboardHeight - Float(bottom)
-        progressController?.pauseAutoscrolling()
+        progress?.pauseAutoscrolling()
         guard delta > 0 else { return }
         onUpdateTransformNeeded?(-delta)
     }
     
     func needHideKeyboard(_ widget: TalkAboutView) {
         onUpdateTransformNeeded?(0)
-        progressController?.startAutoscrollingAfter(.now() + .seconds(3))
+        progress?.startAutoscrollingAfter(.now() + pauseInterval)
     }
     
     func didSentTextAbout(_ widget: TalkAboutView, text: String?) {
         let request = SRStatistic(type: .answer, value: text)
-        sendReaction(request, widget: widget)
+        analytics?.sendWidgetReaction(request, widget: widget)
     }
     
     // MARK: - ChooseAnswerViewDelegate
     
     func didChooseAnswer(_ widget: ChooseAnswerView, answer: String) {
         let request = SRStatistic(type: .answer, value: answer)
-        sendReaction(request, widget: widget)
-        progressController?.pauseAutoscrollingUntil(.now() + .seconds(3))
+        analytics?.sendWidgetReaction(request, widget: widget)
+        progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
         
         guard answer == widget.chooseAnswerWidget.correct else { return }
         guard let canvas = widget.superview?.superview as? SRStoryCanvasView else { return }
@@ -105,35 +89,35 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     
     func didChooseEmojiReaction(_ widget: EmojiReactionView, emoji: String) {
         let request = SRStatistic(type: .answer, value: emoji )
-        sendReaction(request, widget: widget)
-        progressController?.pauseAutoscrollingUntil(.now() + .seconds(3))
+        analytics?.sendWidgetReaction(request, widget: widget)
+        progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
     }
     
     // MARK: - QuestionViewDelegate
     
     func didChooseQuestionAnswer(_ widget: QuestionView, isYes: Bool) {
         let request = SRStatistic(type: .answer, value: isYes ? "confirm" : "decline")
-        sendReaction(request, widget: widget)
-        progressController?.pauseAutoscrollingUntil(.now() + .seconds(3))
+        analytics?.sendWidgetReaction(request, widget: widget)
+        progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
     }
     
     // MARK: - SliderViewDelegate
     
     func didChooseSliderValue(_ widget: SliderView, value: Float) {
         let request = SRStatistic(type: .answer, value: "\(Int(value * 100))%")
-        sendReaction(request, widget: widget)
-        progressController?.pauseAutoscrollingUntil(.now() + .seconds(3))
+        analytics?.sendWidgetReaction(request, widget: widget)
+        progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
     }
     
     // MARK: - SRClickMeViewDelegate
     
     func didClickedButton(_ widget: SRClickMeView) {
         let request = SRStatistic(type: .click, value: widget.clickMeWidget.url)
-        sendReaction(request, widget: widget)
+        analytics?.sendWidgetReaction(request, widget: widget)
         
         guard let url = URL(string: widget.clickMeWidget.url) else { return }
         guard UIApplication.shared.canOpenURL(url) else { return }
-        progressController?.pauseAutoscrolling()
+        progress?.pauseAutoscrolling()
         UIApplication.shared.open(url)
     }
     
@@ -141,11 +125,11 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     
     func didSwipeUp(_ widget: SRSwipeUpView) {
         let request = SRStatistic(type: .click, value: widget.swipeUpWidget.url)
-        sendReaction(request, widget: widget)
+        analytics?.sendWidgetReaction(request, widget: widget)
         
         guard let url = URL(string: widget.swipeUpWidget.url) else { return }
         guard UIApplication.shared.canOpenURL(url) else { return }
-        progressController?.pauseAutoscrolling()
+        progress?.pauseAutoscrolling()
         UIApplication.shared.open(url)
     }
 }

@@ -16,9 +16,11 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     var numberOfItems: Int { stories.count }
     var onReloadData: (() -> Void)?
     var onErrorReceived: ((Error) -> Void)?
-    weak var progressController: SRProgressController? {
-        didSet { progressController?.activeColor = configuration.progressColor }
+    private(set) var group: StoryGroup?
+    weak var progress: SRProgressController? {
+        didSet { progress?.activeColor = configuration.progressColor }
     }
+    weak var analytics: SRAnalyticsController?
     weak var widgetResponder: SRWidgetResponder?
     
     init(sdk: StorySDK = .shared) {
@@ -26,7 +28,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     }
     
     func loadStories(group: StoryGroup) {
-        widgetResponder?.group = group
+        self.group = group
         storySdk.getStories(group) { [weak self] result in
             switch result {
             case .success(let stories):
@@ -55,6 +57,10 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         }
     }
     
+    func storyId(atIndex index: Int) -> String? {
+        index < stories.count ? stories[index].id : nil
+    }
+    
     private func setupBackground(_ cell: SRStoryCell, background: SRColor) {
         switch background {
         case .color(let color):
@@ -79,7 +85,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         self.stories = stories
             .filter { $0.storyData != nil }
             .sorted(by: { $0.position < $1.position })
-        progressController?.numberOfItems = numberOfItems
+        progress?.numberOfItems = numberOfItems
         onReloadData?()
     }
 }

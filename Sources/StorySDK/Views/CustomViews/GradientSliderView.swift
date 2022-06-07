@@ -34,21 +34,21 @@ final class GradientSliderView: UIControl {
         didSet { updateLayerFrames() }
     }
 
-    var trackHighlightStartTintColor = sliderStart {
+    var trackHighlightStartTintColor = UIColor.sliderStart {
         didSet {
             trackLayer.startTintColor = trackHighlightStartTintColor.cgColor
             trackLayer.setNeedsDisplay()
         }
     }
 
-    var trackHighlightFinishTintColor = sliderFinish {
+    var trackHighlightFinishTintColor = UIColor.sliderFinish {
         didSet {
             trackLayer.finishTintColor = trackHighlightFinishTintColor.cgColor
             trackLayer.setNeedsDisplay()
         }
     }
 
-    var trackTintColor =  sliderTint {
+    var trackTintColor = UIColor.sliderTint {
         didSet {
             trackLayer.tintColor = trackTintColor.cgColor
             trackLayer.setNeedsDisplay()
@@ -173,9 +173,9 @@ class SliderTrackerLayer: CALayer {
     let gradient = CAGradientLayer()
     let shapeMask = CAShapeLayer()
     
-    var tintColor: CGColor =  sliderTint.cgColor
-    var startTintColor: CGColor =  sliderStart.cgColor
-    var finishTintColor: CGColor =  sliderFinish.cgColor
+    var tintColor: CGColor = UIColor.sliderTint.cgColor
+    var startTintColor: CGColor = UIColor.sliderStart.cgColor
+    var finishTintColor: CGColor = UIColor.sliderFinish.cgColor
 
     override func draw(in ctx: CGContext) {
         guard let slider = slider else { return }

@@ -11,11 +11,8 @@ protocol EmojiReactionViewDelegate: AnyObject {
     func didChooseEmojiReaction(_ widget: EmojiReactionView, emoji: String)
 }
 
-class EmojiReactionView: SRWidgetView {
-    let story: SRStory
+class EmojiReactionView: SRInteractiveWidgetView {
     let emojiReactionWidget: EmojiReactionWidget
-    
-    weak var delegate: EmojiReactionViewDelegate?
     private var emojiViews = [UIImageView]()
     private let stackView: UIStackView = {
         let sv = UIStackView()
@@ -27,9 +24,8 @@ class EmojiReactionView: SRWidgetView {
     }()
 
     init(story: SRStory, data: SRWidget, emojiReactionWidget: EmojiReactionWidget, scale: CGFloat) {
-        self.story = story
         self.emojiReactionWidget = emojiReactionWidget
-        super.init(data: data)
+        super.init(story: story, data: data)
         prepareUI(scale: scale)
     }
     
@@ -40,7 +36,7 @@ class EmojiReactionView: SRWidgetView {
     
     override func setupContentLayer(_ layer: CALayer) {
         layer.masksToBounds = false
-        layer.shadowColor = black.withAlphaComponent(0.15).cgColor
+        layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero
         layer.shadowRadius = 4
@@ -80,7 +76,7 @@ class EmojiReactionView: SRWidgetView {
     
     @objc private func emojiClicked(_ sender: UITapGestureRecognizer) {
         isUserInteractionEnabled = false
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: disableSwipeNotificanionName), object: nil)
+        NotificationCenter.default.post(name: .disableSwipe, object: nil)
         if let v = sender.view as? UIImageView {
             hideEmoji(number: v.tag)
         }

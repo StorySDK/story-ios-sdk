@@ -16,15 +16,15 @@ class SRTextView: SRImageWidgetView {
         return l
     }()
     
-    init(data: SRWidget, textWidget: TextWidget, imageUrl: URL?, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, textWidget: TextWidget, imageUrl: URL?, loader: SRImageLoader) {
         self.textWidget = textWidget
-        super.init(data: data, url: imageUrl, loader: loader)
+        super.init(story: story, data: data, url: imageUrl, loader: loader)
     }
     
     override func setupContentLayer(_ layer: CALayer) {
         layer.masksToBounds = true
         layer.cornerRadius = 8 * xScaleFactor
-        layer.shadowColor = black.withAlphaComponent(0.15).cgColor
+        layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero
         layer.shadowRadius = 4

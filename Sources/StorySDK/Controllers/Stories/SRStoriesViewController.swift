@@ -69,7 +69,7 @@ public final class SRStoriesViewController: UIViewController {
         }
         viewModel.onUpdateTransformNeeded = { [weak storiesView] ty in
             UIView.animate(
-                withDuration: animationsDuration,
+                withDuration: .animationsDuration,
                 animations: { storiesView?.transform.ty = CGFloat(ty) }
             )
         }

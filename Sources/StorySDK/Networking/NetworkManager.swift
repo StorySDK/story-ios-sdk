@@ -144,24 +144,6 @@ extension NetworkManager {
         return result
     }
     
-    private static func decodeData(from data: Data?, response: URLResponse?, error: Error?) throws -> Any {
-        if let error = error { throw error }
-        guard let data = data, let statusCode = (response as? HTTPURLResponse)?.statusCode else {
-            throw SRError.emptyResponse
-        }
-        let jsonObject = try JSONSerialization.jsonObject(with: data)
-        guard let json = jsonObject as? Json else {
-            throw SRError.wrongFormat
-        }
-        guard statusCode == 200 else {
-            throw SRError.serverError(json["error"] as? String)
-        }
-        guard let appData = json["data"] else {
-            throw SRError.emptyResponse
-        }
-        return appData
-    }
-    
     private static func makeRequest(_ path: String, method: HTTPMethod, statistic: Bool? = nil) -> URLRequest? {
         var urlString = "\(baseUrl)\(path)"
         statistic.map { urlString += "?statistic=\($0)" }

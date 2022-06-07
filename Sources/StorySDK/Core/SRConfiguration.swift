@@ -10,7 +10,6 @@ import UIKit
 public struct SRConfiguration {
     public var language = "en"
     public var sdkId: String?
-    public var userId: String?
     
     /// Duration in seconds for each story in a group
     public var storyDuration: TimeInterval
@@ -29,15 +28,13 @@ public struct SRConfiguration {
     
     public init(language: String = "en",
                 sdkId: String? = nil,
-                userId: String? = nil,
                 storyDuration: TimeInterval = 6.0,
                 needShowTitle: Bool = false,
                 needFullScreen: Bool = true,
-                progressColor: UIColor = .white
+                progressColor: UIColor = .init(white: 1, alpha: 1)
     ) {
         self.language = language
         self.sdkId = sdkId
-        self.userId = userId
         self.storyDuration = storyDuration
         self.needShowTitle = needShowTitle
         self.needFullScreen = needFullScreen

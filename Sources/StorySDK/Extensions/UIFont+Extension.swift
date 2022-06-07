@@ -45,12 +45,20 @@ extension UIFont {
     private static var fontsRegistered: Bool = false
 
     static func registerFontsIfNeeded() {
-        let frameworkBundle = Bundle(for: StorySDK.self)
-//        let frameworkBundle = Bundle.main
-        guard !fontsRegistered, let fontURLs = frameworkBundle.urls(forResourcesWithExtension: "ttf", subdirectory: nil)
+        guard !fontsRegistered, let fontURLs = Bundle.module.urls(forResourcesWithExtension: "ttf", subdirectory: nil)
         else { return }
 
         fontURLs.forEach({ CTFontManagerRegisterFontsForURL($0 as CFURL, .process, nil) })
         fontsRegistered = true
+    }
+    
+    static func regular(ofSize size: CGFloat) -> UIFont {
+        getFont(name: "Inter-Regular", size: size)
+    }
+    static func semibold(ofSize size: CGFloat) -> UIFont {
+        getFont(name: "Inter-SemiBold", size: size)
+    }
+    static func bold(ofSize size: CGFloat) -> UIFont {
+        getFont(name: "Inter-Bold", size: size)
     }
 }

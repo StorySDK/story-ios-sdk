@@ -49,15 +49,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         for widget in data.widgets {
             let view = SRWidgetConstructor.makeWidget(widget, story: story, sdk: storySdk)
-            switch view {
-            case let talk as TalkAboutView: talk.delegate = widgetResponder
-            case let answer as ChooseAnswerView: answer.delegate = widgetResponder
-            case let emoji as EmojiReactionView: emoji.delegate = widgetResponder
-            case let question as QuestionView: question.delegate = widgetResponder
-            case let click as SRClickMeView: click.delegate = widgetResponder
-            case let swipe as SRSwipeUpView: swipe.delegate = widgetResponder
-            default: break
-            }
+            (view as? SRInteractiveWidgetView)?.delegate = widgetResponder
             let position = SRWidgetConstructor.calcWidgetPosition(widget, story: story)
             cell.appendWidget(view, position: position)
         }

@@ -54,34 +54,10 @@ storySdk.configuration.sdkId = "[YOUR_SDK_ID]"
 
 #### Optional
 
-To track users you need to declare unique user id. And keep it between the app runtimes. You can save it to UserDefaults for example.
-
-```swift
-let userId: String
-if let id = UserDefaults.standard.string(forKey: "[YOUR_USER_ID_KEY]") {
-    userId = id
-} else {
-    let id = UUID().uuidString
-    UserDefaults.standard.set(id, forKey: "[YOUR_USER_ID_KEY]")
-    userId = id
-}
-```
-
-```swift
-storySdk.configuration.userId = userId
-```
-
-Also you can define language for the stories. 
+You can define language for the stories. 
 
 ```swift
 storySdk.configuration.language = "en"
-```
-
-#### TLDR
-
-```swift
-StorySDK.shared.configuration.sdkId = "[YOUR_SDK_ID]"
-StorySDK.shared.configuration.userId = "[YOUR_USER_ID]"
 ```
 
 ### UI Integration

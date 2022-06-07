@@ -14,14 +14,4 @@ import UIKit
 public struct ColorValue {
     let type: String
     let value: String
-    
-    public init() {
-        self.type = ""
-        self.value = ""
-    }
-    
-    public init(from dict: Json) {
-        self.type = dict["type"] as? String ?? ""
-        self.value = dict["value"] as? String ?? ""
-    }
 }

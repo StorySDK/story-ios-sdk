@@ -11,10 +11,8 @@ protocol SliderViewDelegate: AnyObject {
     func didChooseSliderValue(_ widget: SliderView, value: Float)
 }
 
-class SliderView: SRWidgetView {
-    let story: SRStory
+class SliderView: SRInteractiveWidgetView {
     let sliderWidget: SliderWidget
-    weak var delegate: SliderViewDelegate?
     
     private let gradientLayer: CAGradientLayer = {
         let l = CAGradientLayer()
@@ -33,7 +31,7 @@ class SliderView: SRWidgetView {
     
     private let titleLabel: UILabel = {
         let lb = UILabel()
-        lb.font = UIFont.getFont(name: "Inter-Bold", size: 16)
+        lb.font = .bold(ofSize: 16)
         lb.adjustsFontSizeToFitWidth = true
         lb.minimumScaleFactor = 0.5
         lb.textAlignment = .center
@@ -58,9 +56,8 @@ class SliderView: SRWidgetView {
     private var sliderPosY: CGFloat = 0
     
     init(story: SRStory, data: SRWidget, sliderWidget: SliderWidget) {
-        self.story = story
         self.sliderWidget = sliderWidget
-        super.init(data: data)
+        super.init(story: story, data: data)
     }
     
     override func addSubviews() {
@@ -77,7 +74,7 @@ class SliderView: SRWidgetView {
         slider.addTarget(self, action: #selector(sliderEndChange(_:)), for: .editingDidEnd)
         updateImage()
         titleLabel.text = sliderWidget.text
-        if case .white = sliderWidget.color { titleLabel.textColor = black }
+        if case .white = sliderWidget.color { titleLabel.textColor = .black }
     }
     
     func updateImage() {
@@ -91,7 +88,7 @@ class SliderView: SRWidgetView {
     
     override func setupContentLayer(_ layer: CALayer) {
         layer.cornerRadius = 10
-        layer.shadowColor = black.withAlphaComponent(0.15).cgColor
+        layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero
         layer.shadowRadius = 4
@@ -138,7 +135,7 @@ class SliderView: SRWidgetView {
     }
     
     @objc func sliderBeginChange(_ sender: GradientSliderView) {
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: disableSwipeNotificanionName), object: nil)
+        NotificationCenter.default.post(name: .disableSwipe, object: nil)
         emoji.isHidden = false
         changeEmojiFrame(for: CGFloat(sender.value))
     }
@@ -153,7 +150,7 @@ class SliderView: SRWidgetView {
     }
     
     private func updateFontSize(_ size: CGFloat) {
-        titleLabel.font = UIFont.getFont(name: "Inter-Bold", size: size)
+        titleLabel.font = .bold(ofSize: size)
     }
 }
 

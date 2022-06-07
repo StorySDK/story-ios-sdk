@@ -12,9 +12,7 @@ protocol SRSwipeUpViewDelegate: AnyObject {
 }
 
 class SRSwipeUpView: SRImageWidgetView {
-    let story: SRStory
     let swipeUpWidget: SwipeUpWidget
-    weak var delegate: SRSwipeUpViewDelegate?
     
     private let iconView: UIImageView = {
         let v = UIImageView(image: UIImage(systemName: "chevron.up.circle"))
@@ -31,9 +29,8 @@ class SRSwipeUpView: SRImageWidgetView {
     }()
 
     init(story: SRStory, data: SRWidget, swipeUpWidget: SwipeUpWidget, imageUrl: URL?, loader: SRImageLoader) {
-        self.story = story
         self.swipeUpWidget = swipeUpWidget
-        super.init(data: data, url: imageUrl, loader: loader)
+        super.init(story: story, data: data, url: imageUrl, loader: loader)
     }
     
     override func addSubviews() {
@@ -46,7 +43,7 @@ class SRSwipeUpView: SRImageWidgetView {
         
         alpha = swipeUpWidget.opacity / 100
         titleLabel.text = swipeUpWidget.text
-        titleLabel.font = .systemFont(ofSize: swipeUpWidget.fontSize)
+        titleLabel.font = .regular(ofSize: swipeUpWidget.fontSize)
         if let name = swipeUpWidget.icon.systemIconName {
             iconView.image = UIImage(systemName: name)
         }

@@ -23,12 +23,4 @@ extension String {
     func toHexEncodedString(uppercase: Bool = true, prefix: String = "", separator: String = "") -> String {
         return unicodeScalars.map { prefix + .init($0.value, radix: 16, uppercase: uppercase) } .joined(separator: separator)
     }
-
-    func localize() -> String {
-        let bundle = Bundle(for: SRStoriesViewController.self)
-        let string = bundle.localizedString(forKey: self, value: nil, table: "Localizable")
-//        let locale = Locale.current.identifier
-        return string
-//        return NSLocalizedString(self, bundle: Bundle(for: StoriesViewController.self), comment: "")
-    }
 }

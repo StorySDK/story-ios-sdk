@@ -19,7 +19,7 @@ public indirect enum SRWidgetContent: Decodable {
     case question(QuestionWidget)
     case talkAbout(TalkAboutWidget)
     case giphy(GiphyWidget)
-    case timer(TimerWidget)
+   // case timer(TimerWidget)
     case image(URL, SRWidgetContent)
     
     public init(from decoder: Decoder) throws {
@@ -62,9 +62,9 @@ public indirect enum SRWidgetContent: Decodable {
         case .emojiReaction:
             let params = try container.decode(EmojiReactionWidget.self, forKey: .params)
             return .emoji(params)
-        case .timer:
-            let params = try container.decode(TimerWidget.self, forKey: .params)
-            return .timer(params)
+//        case .timer:
+//            let params = try container.decode(TimerWidget.self, forKey: .params)
+//            return .timer(params)
         case .chooseAnswer:
             let params = try container.decode(ChooseAnswerWidget.self, forKey: .params)
             return .chooseAnswer(params)
@@ -91,7 +91,7 @@ public enum WidgetTypes: String, Decodable {
     case clickMe = "click_me"
     case talkAbout = "talk_about"
     case emojiReaction = "emoji_reaction"
-    case timer = "timer"
+    // case timer = "timer"
     case chooseAnswer = "choose_answer"
     case giphy = "giphy"
 }

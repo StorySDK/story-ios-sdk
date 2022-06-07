@@ -44,7 +44,7 @@ extension StorySDK {
     func sendStatistic(_ reaction: SRStatistic, completion: @escaping (Result<Bool, Error>) -> Void) {
         var reaction = reaction
         reaction.locale = configuration.fetchCurrentLanguage()
-        reaction.userId = configuration.userId
+        reaction.userId = userDefaults.userId
         network.sendStatistic(reaction: reaction, completion: completion)
     }
 }

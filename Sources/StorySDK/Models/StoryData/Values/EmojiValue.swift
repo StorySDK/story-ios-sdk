@@ -10,14 +10,4 @@ import UIKit
 public struct EmojiValue: Decodable {
     public let name: String
     public let unicode: String
-    
-    public init() {
-        self.name = ""
-        self.unicode = ""
-    }
-    
-    public init(from dict: Json) {
-        self.name = dict["name"] as? String ?? ""
-        self.unicode = dict["unicode"] as? String ?? ""
-    }
 }

@@ -89,4 +89,4 @@ protocol SRWidgetResponderStorage: AnyObject {
     var progressController: SRProgressController? { get set }
 }
 
-typealias SRWidgetResponder = SRWidgetResponderStorage & TalkAboutViewDelegate & ChooseAnswerViewDelegate & EmojiReactionViewDelegate & QuestionViewDelegate & SliderViewDelegate & SRClickMeViewDelegate & SRSwipeUpViewDelegate
+typealias SRWidgetResponder = SRWidgetResponderStorage & SRIneractiveWidgetDelegate

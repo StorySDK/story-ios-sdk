@@ -55,6 +55,7 @@ final class SRWidgetConstructor {
             )
         case .text(let textWidget):
             return SRTextView(
+                story: story,
                 data: widget,
                 textWidget: textWidget,
                 imageUrl: imageUrl,
@@ -93,19 +94,14 @@ final class SRWidgetConstructor {
                 story: story,
                 data: widget,
                 talkAboutWidget: talkAboutWidget,
-                scale: scale
+                scale: scale,
+                loader: sdk.imageLoader
             )
         case .giphy(let giphyWidget): // !!!
             return GiphyView(
                 data: widget,
                 giphyWidget: giphyWidget,
                 loader: sdk.imageLoader
-            )
-        case .timer(let timerWidget):
-            return TimerView(
-                story: story,
-                data: widget,
-                timerWidget: timerWidget
             )
         case .image:
             fatalError("Unexpected widget type")
@@ -114,15 +110,23 @@ final class SRWidgetConstructor {
     
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
         let defaultStorySize = CGSize(width: 390, height: 694)
-        let pos = widget.position
+        let position = widget.position
+        let x: Double
+        let y: Double
         var realHeight: Double = 0.0
         var realWidth: Double = 0.0
-        let x = pos.x * xScaleFactor
-        let y = pos.y * yScaleFactor
-        if let width = pos.realWidth, width > 0 { realWidth = width }
-        if let height = pos.realHeight, height > 0 { realHeight = height }
+        if let width = position.realWidth, width > 0 { realWidth = width }
+        if let height = position.realHeight, height > 0 { realHeight = height }
         realWidth *= xScaleFactor
         realHeight *= yScaleFactor
+        
+        if let center = position.center {
+            x = center.x * xScaleFactor - realWidth / 2
+            y = center.y * yScaleFactor - realHeight / 2
+        } else {
+            x = position.x * xScaleFactor
+            y = position.y * yScaleFactor
+        }
         return CGRect(
             x: x / defaultStorySize.width,
             y: y / defaultStorySize.height,

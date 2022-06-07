@@ -11,10 +11,8 @@ protocol QuestionViewDelegate: AnyObject {
     func didChooseQuestionAnswer(_ widget: QuestionView, isYes: Bool)
 }
 
-class QuestionView: SRWidgetView {
-    let story: SRStory
+class QuestionView: SRInteractiveWidgetView {
     let questionWidget: QuestionWidget
-    weak var delegate: QuestionViewDelegate?
     
     private let buttonsView: UIStackView = {
         let sv = UIStackView()
@@ -27,7 +25,7 @@ class QuestionView: SRWidgetView {
     private let grayView: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
-        v.backgroundColor = gray
+        v.backgroundColor = UIColor.gray
         return v
     }()
 
@@ -44,7 +42,7 @@ class QuestionView: SRWidgetView {
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
     }()
-
+    
     private let titleLabel: UILabel = {
         let l = UILabel()
         l.translatesAutoresizingMaskIntoConstraints = false
@@ -54,9 +52,8 @@ class QuestionView: SRWidgetView {
     }()
     
     init(story: SRStory, data: SRWidget, questionWidget: QuestionWidget) {
-        self.story = story
         self.questionWidget = questionWidget
-        super.init(data: data)
+        super.init(story: story, data: data)
     }
     
     override func setupView() {
@@ -80,7 +77,6 @@ class QuestionView: SRWidgetView {
 
         buttonsView.layer.cornerRadius = 10 * xScaleFactor
         
-      //  let color = UIColor.parse(rawValue: questionWidget.color) ?? .white
         buttonsView.backgroundColor = .white
         titleLabel.textColor = .white
         
@@ -93,12 +89,12 @@ class QuestionView: SRWidgetView {
         titleLabel.text = questionWidget.question
         
         yesButton.setTitle(questionWidget.confirm.uppercased(), for: [])
-        yesButton.setTitleColor(green, for: [])
+        yesButton.setTitleColor(UIColor.green, for: [])
         yesButton.addTarget(self, action: #selector(answerTapped(_:)), for: .touchUpInside)
         buttonsView.addArrangedSubview(yesButton)
         
         noButton.setTitle(questionWidget.decline.uppercased(), for: [])
-        noButton.setTitleColor(orangeRed, for: [])
+        noButton.setTitleColor(UIColor.orangeRed, for: [])
         noButton.addTarget(self, action: #selector(answerTapped(_:)), for: .touchUpInside)
         buttonsView.addArrangedSubview(noButton)
     }
@@ -111,7 +107,7 @@ class QuestionView: SRWidgetView {
     }
     
     override func setupContentLayer(_ layer: CALayer) {
-        layer.shadowColor = black.withAlphaComponent(0.15).cgColor
+        layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero
         layer.shadowRadius = 4

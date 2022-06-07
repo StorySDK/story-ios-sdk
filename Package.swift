@@ -20,7 +20,10 @@ let package = Package(
             name: "StorySDK",
             resources: [
                 .copy("Resources/Images/confetti.png"),
-                .copy("Resources/Fonts"),
+                .copy("Resources/Images/logo.png"),
+                .copy("Resources/Fonts/Inter/Inter-Bold.ttf"),
+                .copy("Resources/Fonts/Inter/Inter-Regular.ttf"),
+                .copy("Resources/Fonts/Inter/Inter-SemiBold.ttf"),
             ]),
     ]
 )

@@ -11,14 +11,12 @@ protocol ChooseAnswerViewDelegate: AnyObject {
     func didChooseAnswer(_ widget: ChooseAnswerView, answer: String)
 }
 
-final class ChooseAnswerView: SRWidgetView {
-    let story: SRStory
+final class ChooseAnswerView: SRInteractiveWidgetView {
     let chooseAnswerWidget: ChooseAnswerWidget
-    weak var delegate: ChooseAnswerViewDelegate?
     
     private let headerLabel: UILabel = {
         let lb = UILabel()
-        lb.font = .systemFont(ofSize: 12, weight: .medium)
+        lb.font = .bold(ofSize: 12)
         lb.textAlignment = .center
         return lb
     }()
@@ -28,19 +26,26 @@ final class ChooseAnswerView: SRWidgetView {
         v.backgroundColor = .white
         return v
     }()
+    
+    private let gradientLayer: CAGradientLayer = {
+        let l = CAGradientLayer()
+        l.startPoint = CGPoint(x: 0.0, y: 0.5)
+        l.endPoint = CGPoint(x: 1.0, y: 0.5)
+        l.masksToBounds = true
+        return l
+    }()
+
 
     private var answerViews = [AnswerView]()
     
-    
     init(story: SRStory, data: SRWidget, chooseAnswerWidget: ChooseAnswerWidget) {
-        self.story = story
         self.chooseAnswerWidget = chooseAnswerWidget
-        super.init(data: data)
+        super.init(story: story, data: data)
     }
     
     override func setupContentLayer(_ layer: CALayer) {
         layer.cornerRadius = 10
-        layer.shadowColor = black.withAlphaComponent(0.15).cgColor
+        layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero
         layer.shadowRadius = 4
@@ -49,6 +54,8 @@ final class ChooseAnswerView: SRWidgetView {
     
     override func addSubviews() {
         super.addSubviews()
+        
+        [gradientLayer].forEach(contentView.layer.addSublayer)
         [headerLabel, answersView].forEach(contentView.addSubview)
         answerViews = chooseAnswerWidget.answers
             .enumerated()
@@ -63,7 +70,7 @@ final class ChooseAnswerView: SRWidgetView {
     override func setupView() {
         super.setupView()
         let theme = chooseAnswerWidget.color ?? .white
-        headerLabel.backgroundColor = theme.color
+        gradientLayer.colors = theme.gradient.map(\.cgColor)
         if case .white = theme {
             headerLabel.textColor = SRThemeColor.black.color
         } else {
@@ -80,6 +87,7 @@ final class ChooseAnswerView: SRWidgetView {
     override func layoutSubviews() {
         super.layoutSubviews()
         headerLabel.frame = .init(x: 0, y: 0, width: bounds.width, height: 41)
+        gradientLayer.frame = headerLabel.frame
         answersView.frame = .init(x: 0, y: headerLabel.frame.maxY, width: bounds.width, height: max(0, bounds.height - headerLabel.frame.maxY))
         var frame = answersView.bounds
         let padding: CGFloat = 12
@@ -112,7 +120,7 @@ final class ChooseAnswerView: SRWidgetView {
     @objc func answerClicked(_ sender: AnswerView) {
         let id = sender.answer.id
         selectAnswer(id)
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: disableSwipeNotificanionName), object: nil)
+        NotificationCenter.default.post(name: .disableSwipe, object: nil)
         if id == chooseAnswerWidget.correct {
             animateCorrectView(id: id)
         } else {
@@ -134,10 +142,10 @@ final class ChooseAnswerView: SRWidgetView {
 // MARK: - Animations
 extension ChooseAnswerView {
     private func animateCorrectView(id: String) {
-        UIView.animate(withDuration: animationsDuration,
+        UIView.animate(withDuration: .animationsDuration,
                        animations: { [weak self] in self?.transform = CGAffineTransform(scaleX: 1.3, y: 1.3) },
                        completion: { [weak self] _ in
-            UIView.animate(withDuration: animationsDuration,
+            UIView.animate(withDuration: .animationsDuration,
                            animations: { self?.transform = CGAffineTransform.identity },
                            completion: { _ in self?.sendMessage(id: id) })
         })
@@ -176,7 +184,7 @@ final class AnswerView: UIControl {
     }()
     private let idLabel: UILabel = {
         let l = UILabel()
-        l.font = .systemFont(ofSize: 10)
+        l.font = .regular(ofSize: 10)
         l.textAlignment = .center
         l.textColor = SRThemeColor.black.color
         return l
@@ -184,7 +192,7 @@ final class AnswerView: UIControl {
     
     private let titleLabel: UILabel = {
         let l = UILabel()
-        l.font = .systemFont(ofSize: 10)
+        l.font = .regular(ofSize: 10)
         l.textAlignment = .left
         return l
     }()

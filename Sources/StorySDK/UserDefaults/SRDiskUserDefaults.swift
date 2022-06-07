@@ -11,6 +11,9 @@ public class SRDiskUserDefaults: SRMemoryUserDefaults {
     private let manager = FileManager.default
     private let fileUrl: URL
     let key: String
+    public override var userId: String {
+        didSet { saveModel() }
+    }
     
     init(key: String) throws {
         guard var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
@@ -21,7 +24,13 @@ public class SRDiskUserDefaults: SRMemoryUserDefaults {
         self.fileUrl = url.appendingPathComponent(key).appendingPathExtension("plist")
         super.init()
         try prepareDirectory(baseUrl: url)
-        try load()
+        do {
+            try load()
+        } catch {
+            print("StorySDK.DiskUserDefaults > Error:", error.localizedDescription)
+            model = .init()
+            saveModel()
+        }
     }
     
     private func prepareDirectory(baseUrl: URL) throws {
@@ -48,6 +57,15 @@ public class SRDiskUserDefaults: SRMemoryUserDefaults {
     
     public override func didPresent(group: String) {
         super.didPresent(group: group)
+        saveModel()
+    }
+    
+    public override func setReaction(widgetId: String, value: String?) {
+        super.setReaction(widgetId: widgetId, value: value)
+        saveModel()
+    }
+    
+    private func saveModel() {
         do {
             try save()
         } catch {

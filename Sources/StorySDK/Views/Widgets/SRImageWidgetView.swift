@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-class SRImageWidgetView: SRWidgetView {
+public class SRImageWidgetView: SRInteractiveWidgetView {
     let imageView: UIImageView = {
         let v = UIImageView(frame: .zero)
         v.contentMode = .scaleAspectFit
@@ -22,10 +22,10 @@ class SRImageWidgetView: SRWidgetView {
         didSet { oldValue?.cancel() }
     }
     
-    init(data: SRWidget, url: URL?, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, url: URL?, loader: SRImageLoader) {
         self.url = url
         self.loader = loader
-        super.init(data: data)
+        super.init(story: story, data: data)
         addSubviews()
     }
     
@@ -34,7 +34,7 @@ class SRImageWidgetView: SRWidgetView {
         [imageView].forEach(addSubview)
     }
     
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         imageView.frame = bounds
         updateImage()

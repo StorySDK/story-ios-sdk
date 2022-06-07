@@ -12,18 +12,15 @@ protocol SRClickMeViewDelegate: AnyObject {
 }
 
 class SRClickMeView: SRImageWidgetView {
-    let story: SRStory
     let clickMeWidget: ClickMeWidget
-    weak var delegate: SRClickMeViewDelegate?
     
     init(story: SRStory, data: SRWidget, clickMeWidget: ClickMeWidget, imageUrl: URL?, loader: SRImageLoader) {
-        self.story = story
         self.clickMeWidget = clickMeWidget
-        super.init(data: data, url: imageUrl, loader: loader)
+        super.init(story: story, data: data, url: imageUrl, loader: loader)
     }
     
     override func setupContentLayer(_ layer: CALayer) {
-        layer.shadowColor = black.withAlphaComponent(0.15).cgColor
+        layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero
         layer.shadowRadius = 4
@@ -43,13 +40,13 @@ class SRClickMeView: SRImageWidgetView {
     private func animateView() {
         delegate?.didClickedButton(self)
         UIView.animate(
-            withDuration: animationsDuration,
+            withDuration: .animationsDuration,
             animations: { [weak self] in
                 self?.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
             },
             completion: { [weak self] _ in
                 UIView.animate(
-                    withDuration: animationsDuration,
+                    withDuration: .animationsDuration,
                     animations: { self?.transform = .identity }
                 )
             }

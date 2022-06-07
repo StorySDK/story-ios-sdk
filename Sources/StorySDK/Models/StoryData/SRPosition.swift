@@ -15,4 +15,10 @@ public struct SRPosition: Decodable {
     public var realWidth: Double?
     public var realHeight: Double?
     public var rotate: Double
+    public var center: SRPoint?
+}
+
+public struct SRPoint: Decodable {
+    public var x: Double
+    public var y: Double
 }

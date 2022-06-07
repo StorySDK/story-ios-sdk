@@ -12,7 +12,7 @@ protocol SliderViewDelegate: AnyObject {
 }
 
 class SliderView: SRInteractiveWidgetView {
-    let sliderWidget: SliderWidget
+    let sliderWidget: SRSliderWidget
     
     private let gradientLayer: CAGradientLayer = {
         let l = CAGradientLayer()
@@ -55,7 +55,7 @@ class SliderView: SRInteractiveWidgetView {
     private var emojiWidth: CGFloat = 34
     private var sliderPosY: CGFloat = 0
     
-    init(story: SRStory, data: SRWidget, sliderWidget: SliderWidget) {
+    init(story: SRStory, data: SRWidget, sliderWidget: SRSliderWidget) {
         self.sliderWidget = sliderWidget
         super.init(story: story, data: data)
     }

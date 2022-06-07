@@ -8,11 +8,9 @@
 import UIKit
 
 extension UIFont {
-
     class func getFont(name: String, size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
         registerFontsIfNeeded()
         if let font = UIFont(name: name, size: size) {
-            
             if let weight = weight {
                 return font.withWeight(weight)
             } else {
@@ -43,11 +41,9 @@ extension UIFont {
     }
 
     private static var fontsRegistered: Bool = false
-
     static func registerFontsIfNeeded() {
-        guard !fontsRegistered, let fontURLs = Bundle.module.urls(forResourcesWithExtension: "ttf", subdirectory: nil)
-        else { return }
-
+        guard !fontsRegistered else { return }
+        guard let fontURLs = Bundle.module.urls(forResourcesWithExtension: "ttf", subdirectory: nil) else { return }
         fontURLs.forEach({ CTFontManagerRegisterFontsForURL($0 as CFURL, .process, nil) })
         fontsRegistered = true
     }

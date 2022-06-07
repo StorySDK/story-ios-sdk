@@ -12,9 +12,9 @@ protocol SRClickMeViewDelegate: AnyObject {
 }
 
 class SRClickMeView: SRImageWidgetView {
-    let clickMeWidget: ClickMeWidget
+    let clickMeWidget: SRClickMeWidget
     
-    init(story: SRStory, data: SRWidget, clickMeWidget: ClickMeWidget, imageUrl: URL?, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, clickMeWidget: SRClickMeWidget, imageUrl: URL?, loader: SRImageLoader) {
         self.clickMeWidget = clickMeWidget
         super.init(story: story, data: data, url: imageUrl, loader: loader)
     }

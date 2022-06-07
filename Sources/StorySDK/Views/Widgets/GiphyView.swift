@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 class GiphyView: SRWidgetView {
-    let giphyWidget: GiphyWidget
+    let giphyWidget: SRGiphyWidget
     
     private let indicator: UIActivityIndicatorView = {
         let aiv = UIActivityIndicatorView(style: .large)
@@ -25,7 +25,7 @@ class GiphyView: SRWidgetView {
         didSet { oldValue?.cancel() }
     }
     
-    init(data: SRWidget, giphyWidget: GiphyWidget, loader: SRImageLoader) {
+    init(data: SRWidget, giphyWidget: SRGiphyWidget, loader: SRImageLoader) {
         self.giphyWidget = giphyWidget
         super.init(data: data)
         load(loader)

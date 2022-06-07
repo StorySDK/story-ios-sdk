@@ -12,7 +12,7 @@ protocol EmojiReactionViewDelegate: AnyObject {
 }
 
 class EmojiReactionView: SRInteractiveWidgetView {
-    let emojiReactionWidget: EmojiReactionWidget
+    let emojiReactionWidget: SREmojiReactionWidget
     private var emojiViews = [UIImageView]()
     private let stackView: UIStackView = {
         let sv = UIStackView()
@@ -23,7 +23,7 @@ class EmojiReactionView: SRInteractiveWidgetView {
         return sv
     }()
 
-    init(story: SRStory, data: SRWidget, emojiReactionWidget: EmojiReactionWidget, scale: CGFloat) {
+    init(story: SRStory, data: SRWidget, emojiReactionWidget: SREmojiReactionWidget, scale: CGFloat) {
         self.emojiReactionWidget = emojiReactionWidget
         super.init(story: story, data: data)
         prepareUI(scale: scale)

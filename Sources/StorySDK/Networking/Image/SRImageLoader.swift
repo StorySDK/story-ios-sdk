@@ -59,9 +59,9 @@ public class SRImageLoader {
     func loadGif(_ url: URL,
                  size: CGSize,
                  completion: @escaping (Result<([UIImage], TimeInterval), Error>) -> Void) -> Cancellable? {
-        let task = session.dataTask(with: url) { data, _, error in
+        let task = session.dataTask(with: url) { [weak gifQueue] data, _, error in
             if let data = data {
-                DispatchQueue.global().async {
+                gifQueue?.async {
                     guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
                         DispatchQueue.main.async {
                             completion(.failure(SRError.unknownError))

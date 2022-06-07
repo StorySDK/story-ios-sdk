@@ -8,9 +8,9 @@
 import UIKit
 
 class RectangleView: SRWidgetView {
-    let rectangleWidget: RectangleWidget
+    let rectangleWidget: SRRectangleWidget
     
-    init(data: SRWidget, rectangleWidget: RectangleWidget) {
+    init(data: SRWidget, rectangleWidget: SRRectangleWidget) {
         self.rectangleWidget = rectangleWidget
         super.init(data: data)
     }

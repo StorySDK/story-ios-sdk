@@ -12,7 +12,7 @@ protocol ChooseAnswerViewDelegate: AnyObject {
 }
 
 final class ChooseAnswerView: SRInteractiveWidgetView {
-    let chooseAnswerWidget: ChooseAnswerWidget
+    let chooseAnswerWidget: SRChooseAnswerWidget
     
     private let headerLabel: UILabel = {
         let lb = UILabel()
@@ -38,7 +38,7 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
 
     private var answerViews = [AnswerView]()
     
-    init(story: SRStory, data: SRWidget, chooseAnswerWidget: ChooseAnswerWidget) {
+    init(story: SRStory, data: SRWidget, chooseAnswerWidget: SRChooseAnswerWidget) {
         self.chooseAnswerWidget = chooseAnswerWidget
         super.init(story: story, data: data)
     }
@@ -197,13 +197,13 @@ final class AnswerView: UIControl {
         return l
     }()
 
-    let answer: AnswerValue
+    let answer: SRAnswerValue
     var status: Status = .undefined {
         didSet { updateStatus() }
     }
     var wasSelected: Bool = false
 
-    init(answer: AnswerValue) {
+    init(answer: SRAnswerValue) {
         self.answer = answer
         super.init(frame: CGRect.zero)
         prepareUI()

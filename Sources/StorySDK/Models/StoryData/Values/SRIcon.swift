@@ -1,5 +1,5 @@
 //
-//  IconValue.swift
+//  SRIcon.swift
 //  StorySDK
 //
 //  Created by MeadowsPhone Team on 10.04.2022.
@@ -50,7 +50,7 @@ public enum SRIcon: Decodable {
         }
     }
     
-    var systemIconName: String? {
+    public var systemIconName: String? {
         switch self {
         case .arrowUpIcon: return "arrow.up"
         case .arrowheadUpOutlineIcon,

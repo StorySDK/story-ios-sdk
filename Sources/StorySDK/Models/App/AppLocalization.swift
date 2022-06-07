@@ -8,8 +8,8 @@
 import UIKit
 
 public struct AppLocalization: Codable {
-    public let defaultLocale: String
-    public let languages: [String]
+    public var defaultLocale: String
+    public var languages: [String]
     
     enum CodingKeys: String, CodingKey {
         case defaultLocale = "default"

@@ -15,7 +15,7 @@ protocol TalkAboutViewDelegate: AnyObject {
 }
 
 class TalkAboutView: SRInteractiveWidgetView {
-    var talkAboutWidget: TalkAboutWidget
+    var talkAboutWidget: SRTalkAboutWidget
     var scaleFactor: CGFloat = 1
     var isTextFieldActive = false
     let loader: SRImageLoader
@@ -67,7 +67,7 @@ class TalkAboutView: SRInteractiveWidgetView {
         return l
     }()
 
-    init(story: SRStory, data: SRWidget, talkAboutWidget: TalkAboutWidget, scale: CGFloat, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, talkAboutWidget: SRTalkAboutWidget, scale: CGFloat, loader: SRImageLoader) {
         self.talkAboutWidget = talkAboutWidget
         self.scaleFactor = scale
         self.loader = loader

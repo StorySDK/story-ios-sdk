@@ -8,14 +8,14 @@
 import Foundation
 
 public struct StoryGroup: Codable {
-    public let id: String
-    public let appId: String
-    public let userId: String
-    public let title: String
-    public let imageUrl: URL?
-    public let startTime: String
-    public let endTime: String
-    public let active: Bool
-    public let createdAt: Date
-    public let updatedAt: Date
+    public var id: String
+    public var appId: String
+    public var userId: String
+    public var title: String
+    public var imageUrl: URL?
+    public var startTime: String
+    public var endTime: String
+    public var active: Bool
+    public var createdAt: Date
+    public var updatedAt: Date
 }

@@ -12,7 +12,7 @@ protocol SRSwipeUpViewDelegate: AnyObject {
 }
 
 class SRSwipeUpView: SRImageWidgetView {
-    let swipeUpWidget: SwipeUpWidget
+    let swipeUpWidget: SRSwipeUpWidget
     
     private let iconView: UIImageView = {
         let v = UIImageView(image: UIImage(systemName: "chevron.up.circle"))
@@ -28,7 +28,7 @@ class SRSwipeUpView: SRImageWidgetView {
         return v
     }()
 
-    init(story: SRStory, data: SRWidget, swipeUpWidget: SwipeUpWidget, imageUrl: URL?, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, swipeUpWidget: SRSwipeUpWidget, imageUrl: URL?, loader: SRImageLoader) {
         self.swipeUpWidget = swipeUpWidget
         super.init(story: story, data: data, url: imageUrl, loader: loader)
     }

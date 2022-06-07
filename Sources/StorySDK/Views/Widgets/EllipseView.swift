@@ -8,9 +8,9 @@
 import UIKit
 
 class EllipseView: SRWidgetView {
-    let ellipseWidget: EllipseWidget
+    let ellipseWidget: SREllipseWidget
 
-    init(data: SRWidget, ellipseWidget: EllipseWidget) {
+    init(data: SRWidget, ellipseWidget: SREllipseWidget) {
         self.ellipseWidget = ellipseWidget
         super.init(data: data)
     }

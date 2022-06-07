@@ -12,7 +12,7 @@ protocol QuestionViewDelegate: AnyObject {
 }
 
 class QuestionView: SRInteractiveWidgetView {
-    let questionWidget: QuestionWidget
+    let questionWidget: SRQuestionWidget
     
     private let buttonsView: UIStackView = {
         let sv = UIStackView()
@@ -51,7 +51,7 @@ class QuestionView: SRInteractiveWidgetView {
         return l
     }()
     
-    init(story: SRStory, data: SRWidget, questionWidget: QuestionWidget) {
+    init(story: SRStory, data: SRWidget, questionWidget: SRQuestionWidget) {
         self.questionWidget = questionWidget
         super.init(story: story, data: data)
     }

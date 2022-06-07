@@ -8,23 +8,22 @@
 import Foundation
 
 public indirect enum SRWidgetContent: Decodable {
-    case rectangle(RectangleWidget)
-    case ellipse(EllipseWidget)
-    case emoji(EmojiReactionWidget)
-    case chooseAnswer(ChooseAnswerWidget)
-    case text(TextWidget)
-    case swipeUp(SwipeUpWidget)
-    case clickMe(ClickMeWidget)
-    case slider(SliderWidget)
-    case question(QuestionWidget)
-    case talkAbout(TalkAboutWidget)
-    case giphy(GiphyWidget)
-   // case timer(TimerWidget)
+    case rectangle(SRRectangleWidget)
+    case ellipse(SREllipseWidget)
+    case emoji(SREmojiReactionWidget)
+    case chooseAnswer(SRChooseAnswerWidget)
+    case text(SRTextWidget)
+    case swipeUp(SRSwipeUpWidget)
+    case clickMe(SRClickMeWidget)
+    case slider(SRSliderWidget)
+    case question(SRQuestionWidget)
+    case talkAbout(SRTalkAboutWidget)
+    case giphy(SRGiphyWidget)
     case image(URL, SRWidgetContent)
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(WidgetTypes.self, forKey: .type)
+        let type = try container.decode(SRWidgetTypes.self, forKey: .type)
         let content = try SRWidgetContent.decodeType(type, container: container)
         if let url = try? container.decode(URL.self, forKey: .widgetImage) {
             self = .image(url, content)
@@ -33,43 +32,40 @@ public indirect enum SRWidgetContent: Decodable {
         }
     }
     
-    private static func decodeType(_ type: WidgetTypes, container: KeyedDecodingContainer<CodingKeys>) throws -> SRWidgetContent {
+    private static func decodeType(_ type: SRWidgetTypes, container: KeyedDecodingContainer<CodingKeys>) throws -> SRWidgetContent {
         switch type {
         case .rectangle:
-            let params = try container.decode(RectangleWidget.self, forKey: .params)
+            let params = try container.decode(SRRectangleWidget.self, forKey: .params)
             return .rectangle(params)
         case .ellipse:
-            let params = try container.decode(EllipseWidget.self, forKey: .params)
+            let params = try container.decode(SREllipseWidget.self, forKey: .params)
             return .ellipse(params)
         case .text:
-            let params = try container.decode(TextWidget.self, forKey: .params)
+            let params = try container.decode(SRTextWidget.self, forKey: .params)
             return .text(params)
         case .swipeUp:
-            let params = try container.decode(SwipeUpWidget.self, forKey: .params)
+            let params = try container.decode(SRSwipeUpWidget.self, forKey: .params)
             return .swipeUp(params)
         case .slider:
-            let params = try container.decode(SliderWidget.self, forKey: .params)
+            let params = try container.decode(SRSliderWidget.self, forKey: .params)
             return .slider(params)
         case .question:
-            let params = try container.decode(QuestionWidget.self, forKey: .params)
+            let params = try container.decode(SRQuestionWidget.self, forKey: .params)
             return .question(params)
         case .clickMe:
-            let params = try container.decode(ClickMeWidget.self, forKey: .params)
+            let params = try container.decode(SRClickMeWidget.self, forKey: .params)
             return .clickMe(params)
         case .talkAbout:
-            let params = try container.decode(TalkAboutWidget.self, forKey: .params)
+            let params = try container.decode(SRTalkAboutWidget.self, forKey: .params)
             return .talkAbout(params)
         case .emojiReaction:
-            let params = try container.decode(EmojiReactionWidget.self, forKey: .params)
+            let params = try container.decode(SREmojiReactionWidget.self, forKey: .params)
             return .emoji(params)
-//        case .timer:
-//            let params = try container.decode(TimerWidget.self, forKey: .params)
-//            return .timer(params)
         case .chooseAnswer:
-            let params = try container.decode(ChooseAnswerWidget.self, forKey: .params)
+            let params = try container.decode(SRChooseAnswerWidget.self, forKey: .params)
             return .chooseAnswer(params)
         case .giphy:
-            let params = try container.decode(GiphyWidget.self, forKey: .params)
+            let params = try container.decode(SRGiphyWidget.self, forKey: .params)
             return .giphy(params)
         }
     }
@@ -81,7 +77,7 @@ extension SRWidgetContent {
     }
 }
 
-public enum WidgetTypes: String, Decodable {
+enum SRWidgetTypes: String, Decodable {
     case rectangle = "rectangle"
     case ellipse = "ellipse"
     case text = "text"

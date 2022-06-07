@@ -8,7 +8,7 @@
 import UIKit
 
 class SRTextView: SRImageWidgetView {
-    private let textWidget: TextWidget
+    private let textWidget: SRTextWidget
     
     private lazy var label: UILabel = {
         let l = UILabel()
@@ -16,7 +16,7 @@ class SRTextView: SRImageWidgetView {
         return l
     }()
     
-    init(story: SRStory, data: SRWidget, textWidget: TextWidget, imageUrl: URL?, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, textWidget: SRTextWidget, imageUrl: URL?, loader: SRImageLoader) {
         self.textWidget = textWidget
         super.init(story: story, data: data, url: imageUrl, loader: loader)
     }

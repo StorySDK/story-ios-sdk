@@ -8,17 +8,17 @@
 import Foundation
 
 public struct StoryApp: Codable {
-    public let id: String
-    public let userId: String
-    public let title: String
-    public let iosAppId: String
-    public let androidAppId: String
-    public let share: Bool
-    public let sdkToken: String
-    public let settings: AppSettings
-    public let localization: AppLocalization
-    public let createdAt: Date
-    public let updatedAt: Date
+    public var id: String
+    public var userId: String
+    public var title: String
+    public var iosAppId: String
+    public var androidAppId: String
+    public var share: Bool
+    public var sdkToken: String
+    public var settings: AppSettings
+    public var localization: AppLocalization
+    public var createdAt: Date
+    public var updatedAt: Date
 }
 
 public struct Instance: Codable {

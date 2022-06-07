@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum SRThemeColor: Decodable {
+public enum SRThemeColor: Decodable {
     case purple, blue, darkBlue, white, green, orange, orangeRed, yellow
     case black, red, grey, custom(String)
     
@@ -30,7 +30,7 @@ enum SRThemeColor: Decodable {
         }
     }
     
-    var color: UIColor {
+    public var color: UIColor {
         switch self {
         case .purple: // #ae13ab
             return UIColor(red: 0.68, green: 0.07, blue: 0.67, alpha: 1.00)
@@ -59,9 +59,9 @@ enum SRThemeColor: Decodable {
         }
     }
     
-    var cgColor: CGColor { color.cgColor }
+    public var cgColor: CGColor { color.cgColor }
     
-    var gradient: [UIColor] {
+    public var gradient: [UIColor] {
         switch self {
         case .purple:
             let from = UIColor(red: 0.68, green: 0.07, blue: 0.67, alpha: 1.00)

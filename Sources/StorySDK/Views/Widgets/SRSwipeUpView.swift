@@ -44,6 +44,12 @@ class SRSwipeUpView: SRImageWidgetView {
         alpha = swipeUpWidget.opacity / 100
         titleLabel.text = swipeUpWidget.text
         titleLabel.font = .regular(ofSize: swipeUpWidget.fontSize)
+        
+        if case .color(let color) = swipeUpWidget.color {
+            iconView.tintColor = color
+            titleLabel.textColor = color
+        }
+        
         if let name = swipeUpWidget.icon.systemIconName {
             iconView.image = UIImage(systemName: name)
         }
@@ -60,11 +66,13 @@ class SRSwipeUpView: SRImageWidgetView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        let scale = widgetScale
+        titleLabel.font = .regular(ofSize: swipeUpWidget.fontSize * scale)
         iconView.frame = .init(
             x: 0, y: 0,
             width: bounds.width,
-            height: swipeUpWidget.iconSize)
-        let y = iconView.frame.maxY + 6
+            height: swipeUpWidget.iconSize * scale)
+        let y = iconView.frame.maxY + 6 * scale
         titleLabel.frame = .init(
             x: 0, y: y,
             width: bounds.width,

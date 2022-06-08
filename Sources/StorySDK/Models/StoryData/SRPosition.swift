@@ -10,10 +10,8 @@ import Foundation
 public struct SRPosition: Decodable {
     public var x: Double
     public var y: Double
-    public var width: SRSizeType
-    public var height: SRSizeType
-    public var realWidth: Double?
-    public var realHeight: Double?
+    public var realWidth: Double
+    public var realHeight: Double
     public var rotate: Double
     public var center: SRPoint?
 }

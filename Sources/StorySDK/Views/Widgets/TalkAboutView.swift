@@ -16,7 +16,6 @@ protocol TalkAboutViewDelegate: AnyObject {
 
 class TalkAboutView: SRInteractiveWidgetView {
     var talkAboutWidget: SRTalkAboutWidget
-    var scaleFactor: CGFloat = 1
     var isTextFieldActive = false
     let loader: SRImageLoader
     
@@ -24,14 +23,12 @@ class TalkAboutView: SRInteractiveWidgetView {
     private let mainView: UIView = {
         let v = UIView()
         v.clipsToBounds = false
-        v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
 
     private let imageView: UIImageView = {
         let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFit
+        iv.contentMode = .scaleAspectFill
         iv.layer.masksToBounds = true
         iv.layer.borderWidth = 2
         return iv
@@ -41,7 +38,6 @@ class TalkAboutView: SRInteractiveWidgetView {
         let l = UILabel()
         l.textAlignment = .center
         l.numberOfLines = 0
-        l.translatesAutoresizingMaskIntoConstraints = false
         l.setContentCompressionResistancePriority(.required, for: .vertical)
         return l
     }()
@@ -56,8 +52,12 @@ class TalkAboutView: SRInteractiveWidgetView {
         tf.spellCheckingType = .no
         tf.keyboardAppearance = .dark
         tf.returnKeyType = .done
-        tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
+    }()
+    private let textFieldContainer: UIView = {
+        let v = UIView()
+        v.backgroundColor = SRThemeColor.black.color.withAlphaComponent(0.15)
+        return v
     }()
     private let gradientLayer: CAGradientLayer = {
         let l = CAGradientLayer()
@@ -67,9 +67,8 @@ class TalkAboutView: SRInteractiveWidgetView {
         return l
     }()
 
-    init(story: SRStory, data: SRWidget, talkAboutWidget: SRTalkAboutWidget, scale: CGFloat, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, talkAboutWidget: SRTalkAboutWidget, loader: SRImageLoader) {
         self.talkAboutWidget = talkAboutWidget
-        self.scaleFactor = scale
         self.loader = loader
         super.init(story: story, data: data)
     }
@@ -82,67 +81,70 @@ class TalkAboutView: SRInteractiveWidgetView {
         super.addSubviews()
         mainView.layer.addSublayer(gradientLayer)
         [mainView, imageView].forEach(contentView.addSubview)
-        [titleLabel].forEach(mainView.addSubview)
+        [titleLabel, textFieldContainer, textField].forEach(mainView.addSubview)
     }
     
     override func setupView() {
         super.setupView()
-        let imageSize = CGSize(width: 36 * scaleFactor, height: 36 * scaleFactor)
-        
-        NSLayoutConstraint.activate([
-            mainView.topAnchor.constraint(equalTo: topAnchor, constant: imageSize.height / 2),
-            mainView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            mainView.rightAnchor.constraint(equalTo: rightAnchor, constant: 0),
-            mainView.leftAnchor.constraint(equalTo: leftAnchor, constant: 0),
-        ])
 
         gradientLayer.colors = talkAboutWidget.color.gradient.map(\.cgColor)
         imageView.layer.borderColor = talkAboutWidget.color.cgColor
-        mainView.layer.cornerRadius = 10 * xScaleFactor
-        
         imageView.image = UIImage(named: "logo", in: Bundle.module, compatibleWith: nil)
         
         if let url = talkAboutWidget.image {
+            let scale = widgetScale
+            let imageSize = CGSize(width: 36 * scale, height: 36 * scale)
             imageLoadOperation = loader.load(url, size: imageSize, scale: UIScreen.main.scale) { [weak imageView] result in
                 guard case .success(let image) = result else { return }
                 imageView?.image = image
             }
         }
-        
-        NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: topAnchor),
-            imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            imageView.widthAnchor.constraint(equalToConstant: imageSize.width),
-            imageView.heightAnchor.constraint(equalToConstant: imageSize.height),
-        ])
 
-        let v = UIView()
-        v.translatesAutoresizingMaskIntoConstraints = false
-        v.backgroundColor = SRThemeColor.black.color.withAlphaComponent(0.15)
-        v.layer.cornerRadius = 8
-
-        mainView.addSubview(v)
 //        mainView.layer.shadowColor = black.withAlphaComponent(0.15).cgColor
 //        mainView.layer.shadowOpacity = 1
 //        mainView.layer.shadowOffset = .zero
 //        mainView.layer.shadowRadius = 4
         
-        NSLayoutConstraint.activate([
-            v.leftAnchor.constraint(equalTo: mainView.leftAnchor, constant: 11),
-            v.centerXAnchor.constraint(equalTo: mainView.centerXAnchor),
-            v.bottomAnchor.constraint(equalTo: mainView.bottomAnchor, constant: -11),
-        ])
+        textField.delegate = self
         
-        v.addSubview(textField)
-        NSLayoutConstraint.activate([
-            textField.leftAnchor.constraint(equalTo: v.leftAnchor, constant: 4),
-            textField.centerXAnchor.constraint(equalTo: v.centerXAnchor),
-            textField.topAnchor.constraint(equalTo: v.topAnchor, constant: 12 * xScaleFactor),
-            textField.bottomAnchor.constraint(equalTo: v.bottomAnchor, constant: -12 * xScaleFactor),
-        ])
-
-        let labelFont = UIFont.regular(ofSize: 14 * scaleFactor)
-        textField.font = .regular(ofSize: 16 * scaleFactor)
+        titleLabel.text = talkAboutWidget.text
+        if case .white = talkAboutWidget.color {
+            titleLabel.textColor = SRThemeColor.black.color
+        } else {
+            titleLabel.textColor = SRThemeColor.white.color
+        }
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let scale = widgetScale
+        let iconSize = 36 * scale
+        imageView.frame = .init(x: contentView.frame.midX - iconSize / 2,
+                                y: 0,
+                                width: iconSize,
+                                height: iconSize)
+        imageView.layer.cornerRadius = iconSize / 2
+        mainView.frame = .init(x: 0,
+                               y: iconSize / 2,
+                               width: contentView.frame.width,
+                               height: contentView.frame.height - iconSize / 2)
+        mainView.layer.cornerRadius = 10 * scale
+        gradientLayer.frame = mainView.bounds
+        gradientLayer.cornerRadius = mainView.layer.cornerRadius
+        
+        let labelFont = UIFont.regular(ofSize: 14 * scale)
+        titleLabel.font = labelFont
+        let padding = 12 * scale
+        let textFieldHeight = 34 * scale
+        textFieldContainer.frame = .init(x: padding,
+                                          y: mainView.frame.height - padding - textFieldHeight,
+                                          width: contentView.frame.width - padding * 2,
+                                          height: textFieldHeight)
+        textFieldContainer.layer.cornerRadius = 8 * scale
+        
+        textField.frame = textFieldContainer.frame.insetBy(dx: padding, dy: 4 * scale)
+        
+        textField.font = .regular(ofSize: 16 * scale)
         textField.attributedPlaceholder = NSAttributedString(
             string: "Type something...",
             attributes: [
@@ -150,29 +152,11 @@ class TalkAboutView: SRInteractiveWidgetView {
                 .font: labelFont,
             ]
         )
-        textField.delegate = self
-
-        titleLabel.font = labelFont
-        titleLabel.text = talkAboutWidget.text
-        if case .white = talkAboutWidget.color {
-            titleLabel.textColor = SRThemeColor.black.color
-        } else {
-            titleLabel.textColor = SRThemeColor.white.color
-        }
         
-        NSLayoutConstraint.activate([
-            titleLabel.leftAnchor.constraint(equalTo: mainView.leftAnchor, constant: 8),
-            titleLabel.centerXAnchor.constraint(equalTo: mainView.centerXAnchor),
-            titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: v.topAnchor),
-        ])
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        imageView.layer.cornerRadius = imageView.frame.height / 2
-        gradientLayer.frame = mainView.bounds
-        gradientLayer.cornerRadius = mainView.layer.cornerRadius
+        titleLabel.frame = .init(x: padding,
+                                 y: iconSize / 2,
+                                 width: mainView.frame.width - padding * 2,
+                                 height: textFieldContainer.frame.minY - iconSize / 2)
     }
     
     override func setupWidget(reaction: String) {

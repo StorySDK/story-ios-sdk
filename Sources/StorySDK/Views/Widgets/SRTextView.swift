@@ -23,7 +23,7 @@ class SRTextView: SRImageWidgetView {
     
     override func setupContentLayer(_ layer: CALayer) {
         layer.masksToBounds = true
-        layer.cornerRadius = 8 * xScaleFactor
+        layer.cornerRadius = 8 * widgetScale
         layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero

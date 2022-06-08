@@ -24,6 +24,7 @@ let package = Package(
                 .copy("Resources/Fonts/Inter/Inter-Bold.ttf"),
                 .copy("Resources/Fonts/Inter/Inter-Regular.ttf"),
                 .copy("Resources/Fonts/Inter/Inter-SemiBold.ttf"),
+                .copy("Resources/Fonts/Inter/Inter-Medium.ttf"),
             ]),
     ]
 )

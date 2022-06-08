@@ -69,7 +69,7 @@ public final class SRStoriesViewController: UIViewController {
             viewModel?.reportGroupOpen()
         }
         viewModel.onErrorReceived = { error in
-            logError(error.localizedDescription, logger: .stories)
+            logError(error.getDetails(), logger: .stories)
         }
         viewModel.onUpdateTransformNeeded = { [weak storiesView] ty in
             UIView.animate(
@@ -144,22 +144,22 @@ extension SRStoriesViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-//private extension Error {
-//    func getDetails() -> String {
-//        guard let error = self as? DecodingError else {
-//            return localizedDescription
-//        }
-//        switch error {
-//        case .typeMismatch(let key, let value):
-//            return "typeMismatch \(key), value \(value)"
-//        case .valueNotFound(let key, let value):
-//            return "valueNotFound \(key), value \(value)"
-//        case .keyNotFound(let key, let value):
-//            return "keyNotFound \(key), value \(value)"
-//        case .dataCorrupted(let key):
-//            return "dataCorrupted \(key)"
-//        default:
-//            return localizedDescription
-//        }
-//    }
-//}
+private extension Error {
+    func getDetails() -> String {
+        guard let error = self as? DecodingError else {
+            return localizedDescription
+        }
+        switch error {
+        case .typeMismatch(let key, let value):
+            return "typeMismatch \(key), value \(value)"
+        case .valueNotFound(let key, let value):
+            return "valueNotFound \(key), value \(value)"
+        case .keyNotFound(let key, let value):
+            return "keyNotFound \(key), value \(value)"
+        case .dataCorrupted(let key):
+            return "dataCorrupted \(key)"
+        default:
+            return localizedDescription
+        }
+    }
+}

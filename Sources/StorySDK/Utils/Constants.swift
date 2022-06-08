@@ -13,10 +13,6 @@ extension TimeInterval {
     static let animationsDuration: TimeInterval = 0.2
 }
 
-/// Коэффициент масштабирования по горизонтали. Вычисляется при показе виджетов
-var xScaleFactor: CGFloat = 1
-/// Коэффициент масштабирования по вертикали. Вычисляется при показе виджетов
-var yScaleFactor: CGFloat = 1
 /// Высота верхней вьюшки (где картинка и название Story)
 let topViewHeight: CGFloat = 64
 

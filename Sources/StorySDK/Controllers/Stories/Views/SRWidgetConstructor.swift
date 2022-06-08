@@ -9,20 +9,6 @@ import UIKit
 
 final class SRWidgetConstructor {
     static func makeWidget(_ widget: SRWidget, story: SRStory, sdk: StorySDK) -> SRWidgetView {
-        let height: Double
-        if case .double(let value) = widget.position.height {
-            height = value
-        } else {
-            height = 0
-        }
-        
-        let scale: CGFloat
-        if let minHeight = widget.positionLimits.minHeight {
-            scale = height / (minHeight * xScaleFactor)
-        } else {
-            scale = 1
-        }
-        
         var content = widget.content
         var imageUrl: URL?
         if case .image(let url, let newContent) = content {
@@ -30,12 +16,12 @@ final class SRWidgetConstructor {
             imageUrl = url
         }
         switch content {
-        case .rectangle(let rectangleWidget): // !!!
+        case .rectangle(let rectangleWidget):
             return RectangleView(
                 data: widget,
                 rectangleWidget: rectangleWidget
             )
-        case .ellipse(let ellipseWidget): // !!!
+        case .ellipse(let ellipseWidget):
             return EllipseView(
                 data: widget,
                 ellipseWidget: ellipseWidget
@@ -44,10 +30,9 @@ final class SRWidgetConstructor {
             return EmojiReactionView(
                 story: story,
                 data: widget,
-                emojiReactionWidget: emojiReactionWidget,
-                scale: scale
+                emojiReactionWidget: emojiReactionWidget
             )
-        case .chooseAnswer(let chooseAnswerWidget): // !!!
+        case .chooseAnswer(let chooseAnswerWidget):
             return ChooseAnswerView(
                 story: story,
                 data: widget,
@@ -69,7 +54,7 @@ final class SRWidgetConstructor {
                 imageUrl: imageUrl,
                 loader: sdk.imageLoader
             )
-        case .clickMe(let clickMeWidget): // !!!
+        case .clickMe(let clickMeWidget):
             return SRClickMeView(
                 story: story,
                 data: widget,
@@ -77,7 +62,7 @@ final class SRWidgetConstructor {
                 imageUrl: imageUrl,
                 loader: sdk.imageLoader
             )
-        case .slider(let sliderWidget): // !!?
+        case .slider(let sliderWidget):
             return SliderView(
                 story: story,
                 data: widget,
@@ -94,10 +79,9 @@ final class SRWidgetConstructor {
                 story: story,
                 data: widget,
                 talkAboutWidget: talkAboutWidget,
-                scale: scale,
                 loader: sdk.imageLoader
             )
-        case .giphy(let giphyWidget): // !!!
+        case .giphy(let giphyWidget):
             return GiphyView(
                 data: widget,
                 giphyWidget: giphyWidget,
@@ -111,27 +95,15 @@ final class SRWidgetConstructor {
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
         let defaultStorySize = CGSize(width: 390, height: 694)
         let position = widget.position
-        let x: Double
-        let y: Double
-        var realHeight: Double = 0.0
-        var realWidth: Double = 0.0
-        if let width = position.realWidth, width > 0 { realWidth = width }
-        if let height = position.realHeight, height > 0 { realHeight = height }
-        realWidth *= xScaleFactor
-        realHeight *= yScaleFactor
-        
-        if let center = position.center {
-            x = center.x * xScaleFactor - realWidth / 2
-            y = center.y * yScaleFactor - realHeight / 2
-        } else {
-            x = position.x * xScaleFactor
-            y = position.y * yScaleFactor
-        }
+        let x = position.x
+        let y = position.y
+        let height = position.realHeight
+        let width = position.realWidth
         return CGRect(
             x: x / defaultStorySize.width,
             y: y / defaultStorySize.height,
-            width: realWidth / defaultStorySize.height,
-            height: realHeight / defaultStorySize.height
+            width: width / defaultStorySize.height,
+            height: height / defaultStorySize.height
         )
     }
 }

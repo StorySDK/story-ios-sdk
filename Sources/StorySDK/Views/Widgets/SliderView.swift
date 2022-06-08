@@ -89,7 +89,7 @@ class SliderView: SRInteractiveWidgetView {
     }
     
     override func setupContentLayer(_ layer: CALayer) {
-        layer.cornerRadius = 10
+        layer.cornerRadius = 10 * widgetScale
         layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
         layer.shadowOpacity = 1
         layer.shadowOffset = .zero
@@ -101,25 +101,29 @@ class SliderView: SRInteractiveWidgetView {
         gradientLayer.frame = contentView.bounds
         gradientLayer.cornerRadius = contentView.layer.cornerRadius
         
-        let yScale = data.positionLimits.minHeight.map { bounds.height / CGFloat($0) } ?? 1
-        updateFontSize(16 * yScale)
+        let scale = widgetScale
+        titleLabel.font = .medium(ofSize: 16 * scale)
         
-        let centerViewHeight: CGFloat = 11 * yScale
-        let newEmojiWidth = centerViewHeight + 24
+        let centerViewHeight: CGFloat = 11 * scale
+        let newEmojiWidth = centerViewHeight + 24 * scale
         let needUpdateEmoji = abs(emojiWidth - newEmojiWidth) > .ulpOfOne
         emojiWidth = newEmojiWidth
         if needUpdateEmoji { updateImage() }
         
         
-        let padding: CGFloat = 20
-        let spacing: CGFloat = 15
+        let padding: CGFloat = 20 * scale
+        let spacing: CGFloat = 15 * scale
         var contentHeight: CGFloat = centerViewHeight
         var y = (bounds.height - contentHeight) / 2
         let width: CGFloat = max(0, bounds.width - padding * 2)
         if titleLabel.text != nil {
-            let availableHeight: CGFloat = max(0, bounds.height - padding * 2 - centerViewHeight - spacing)
-            let size = titleLabel.sizeThatFits(.init(width: width, height: availableHeight))
-            let textHeight = min(size.height, availableHeight)
+            var availableHeight: CGFloat = contentView.bounds.height
+            availableHeight -= padding * 2
+            availableHeight -= centerViewHeight
+            availableHeight -= spacing
+            availableHeight = max(0, availableHeight)
+            // let size = titleLabel.sizeThatFits(.init(width: width, height: availableHeight))
+            let textHeight = availableHeight // min(size.height, availableHeight)
             contentHeight += spacing + textHeight
             y = (bounds.height - contentHeight) / 2
             titleLabel.frame = .init(x: padding, y: y, width: width, height: textHeight)
@@ -128,7 +132,7 @@ class SliderView: SRInteractiveWidgetView {
         
         centerView.frame = .init(x: padding, y: y, width: width, height: centerViewHeight)
         centerView.layer.cornerRadius = centerView.bounds.height / 2
-        slider.frame = centerView.frame.insetBy(dx: 0, dy: -12)
+        slider.frame = centerView.frame.insetBy(dx: 0, dy: -12 * scale)
         
         slider.animateValue(to: slider.value, duration: 0.5)
         sliderPosY = slider.frame.origin.y
@@ -158,10 +162,6 @@ class SliderView: SRInteractiveWidgetView {
         slider.value = value
         slider.animateValue(to: value, duration: 0)
         changeEmojiFrame(for: CGFloat(value))
-    }
-    
-    private func updateFontSize(_ size: CGFloat) {
-        titleLabel.font = .bold(ofSize: size)
     }
 }
 

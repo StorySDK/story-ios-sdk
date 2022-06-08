@@ -31,20 +31,26 @@ class GiphyView: SRWidgetView {
         load(loader)
     }
     
+    deinit {
+        loadTask = nil
+    }
+    
     override func addSubviews() {
+        super.addSubviews()
         [indicator, imageView].forEach(contentView.addSubview)
     }
     
     override func setupView() {
         super.setupView()
         clipsToBounds = true
-        layer.cornerRadius = giphyWidget.borderRadius * xScaleFactor
+        layer.cornerRadius = giphyWidget.borderRadius
         alpha = giphyWidget.widgetOpacity / 100
     }
     
     private func load(_ loader: SRImageLoader) {
         startLoading()
-        loadTask = loader.loadGif(giphyWidget.gif, size: frame.size) { [weak self] result in
+        let size = CGSize(width: data.position.realWidth, height: data.position.realHeight)
+        loadTask = loader.loadGif(giphyWidget.gif, size: size) { [weak self] result in
             defer { self?.stopLoading() }
             guard case .success((let images, let duration)) = result else { return }
             self?.imageView.animationImages = images

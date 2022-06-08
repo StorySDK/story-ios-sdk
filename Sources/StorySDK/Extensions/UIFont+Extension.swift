@@ -57,4 +57,7 @@ extension UIFont {
     static func bold(ofSize size: CGFloat) -> UIFont {
         getFont(name: "Inter-Bold", size: size)
     }
+    static func medium(ofSize size: CGFloat) -> UIFont {
+        getFont(name: "Inter-Medium", size: size)
+    }
 }

@@ -86,12 +86,14 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        headerLabel.frame = .init(x: 0, y: 0, width: bounds.width, height: 41)
+        let scale = widgetScale
+        headerLabel.font = .bold(ofSize: 12 * scale)
+        headerLabel.frame = .init(x: 0, y: 0, width: bounds.width, height: 41 * scale)
         gradientLayer.frame = headerLabel.frame
         answersView.frame = .init(x: 0, y: headerLabel.frame.maxY, width: bounds.width, height: max(0, bounds.height - headerLabel.frame.maxY))
         var frame = answersView.bounds
-        let padding: CGFloat = 12
-        let spacing: CGFloat = 6
+        let padding: CGFloat = 12 * scale
+        let spacing: CGFloat = 6 * scale
         guard frame.height > padding * 2, !answerViews.isEmpty else { return }
         frame = frame.insetBy(dx: padding, dy: padding)
         var height = frame.height
@@ -99,6 +101,7 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
         height /= CGFloat(answerViews.count)
         guard height > 0 else { return }
         for i in 0..<answerViews.count {
+            answerViews[i].fontSize = 10 * scale
             answerViews[i].frame = .init(
                 x: frame.minX,
                 y: frame.minY + (height + spacing) * CGFloat(i),
@@ -131,12 +134,13 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
     }
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        var height: CGFloat = 41
-        let padding: CGFloat = 12
-        let spacing: CGFloat = 6
+        let scale = widgetScale
+        var height: CGFloat = 41 * scale
+        let padding: CGFloat = 12 * scale
+        let spacing: CGFloat = 6 * scale
         height += padding * 2
         height += CGFloat(max(0, answerViews.count - 1)) * spacing
-        height += CGFloat(answerViews.count) * 34
+        height += CGFloat(answerViews.count) * 34 * scale
         return CGSize(width: size.width, height: min(height, size.height))
     }
     
@@ -202,6 +206,13 @@ final class AnswerView: UIControl {
         l.textAlignment = .left
         return l
     }()
+    
+    var fontSize: CGFloat = 10 {
+        didSet {
+            idLabel.font = .regular(ofSize: fontSize)
+            titleLabel.font = .regular(ofSize: fontSize)
+        }
+    }
 
     let answer: SRAnswerValue
     var status: Status = .undefined {

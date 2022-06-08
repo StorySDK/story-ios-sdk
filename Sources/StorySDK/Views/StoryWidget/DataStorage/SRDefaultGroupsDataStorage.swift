@@ -31,7 +31,7 @@ public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     public func load() {
         groups = []
         loadApp { [weak self] app in
-            self?.storySdk.getGroups { result in
+            self?.storySdk.getGroups(statistic: true) { result in
                 switch result {
                 case .success(let groups):
                     self?.groups = groups

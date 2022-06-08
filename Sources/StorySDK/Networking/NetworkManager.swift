@@ -119,7 +119,6 @@ extension NetworkManager {
             completion(.failure(error))
             return
         }
-        let session = URLSession.shared
         session.dataTask(with: request) { (_, _, error) in
             if let error = error {
                 completion(.failure(error))

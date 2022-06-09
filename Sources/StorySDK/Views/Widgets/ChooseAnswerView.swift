@@ -35,7 +35,6 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
         return l
     }()
 
-
     private var answerViews = [AnswerView]()
     
     init(story: SRStory, data: SRWidget, chooseAnswerWidget: SRChooseAnswerWidget) {

@@ -44,7 +44,7 @@ public class SRDiskUserDefaults: SRMemoryUserDefaults {
     func load() throws {
         guard manager.fileExists(atPath: fileUrl.path) else { return }
         let decoder = PropertyListDecoder()
-        let data = try Data.init(contentsOf: fileUrl)
+        let data = try Data(contentsOf: fileUrl)
         model = try decoder.decode(SRUserDefaultsModel.self, from: data)
     }
     

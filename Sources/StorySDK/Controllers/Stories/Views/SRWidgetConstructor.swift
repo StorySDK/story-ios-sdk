@@ -15,78 +15,30 @@ final class SRWidgetConstructor {
             content = newContent
             imageUrl = url
         }
+        let loader = sdk.imageLoader
         switch content {
         case .rectangle(let rectangleWidget):
-            return RectangleView(
-                data: widget,
-                rectangleWidget: rectangleWidget
-            )
+            return RectangleView(data: widget, rectangleWidget: rectangleWidget)
         case .ellipse(let ellipseWidget):
-            return EllipseView(
-                data: widget,
-                ellipseWidget: ellipseWidget
-            )
-        case .emoji(let emojiReactionWidget):
-            return EmojiReactionView(
-                story: story,
-                data: widget,
-                emojiReactionWidget: emojiReactionWidget
-            )
-        case .chooseAnswer(let chooseAnswerWidget):
-            return ChooseAnswerView(
-                story: story,
-                data: widget,
-                chooseAnswerWidget: chooseAnswerWidget
-            )
+            return EllipseView(data: widget, ellipseWidget: ellipseWidget)
+        case .emoji(let emojiWidget):
+            return EmojiReactionView(story: story, data: widget, emojiReactionWidget: emojiWidget)
+        case .chooseAnswer(let answerWidget):
+            return ChooseAnswerView(story: story, data: widget, chooseAnswerWidget: answerWidget)
         case .text(let textWidget):
-            return SRTextView(
-                story: story,
-                data: widget,
-                textWidget: textWidget,
-                imageUrl: imageUrl,
-                loader: sdk.imageLoader
-            )
+            return SRTextView(story: story, data: widget, textWidget: textWidget, imageUrl: imageUrl, loader: loader)
         case .swipeUp(let swipeUpWidget):
-            return SRSwipeUpView(
-                story: story,
-                data: widget,
-                swipeUpWidget: swipeUpWidget,
-                imageUrl: imageUrl,
-                loader: sdk.imageLoader
-            )
+            return SRSwipeUpView(story: story, data: widget, swipeUpWidget: swipeUpWidget, imageUrl: imageUrl, loader: loader)
         case .clickMe(let clickMeWidget):
-            return SRClickMeView(
-                story: story,
-                data: widget,
-                clickMeWidget: clickMeWidget,
-                imageUrl: imageUrl,
-                loader: sdk.imageLoader
-            )
+            return SRClickMeView(story: story, data: widget, clickMeWidget: clickMeWidget, imageUrl: imageUrl, loader: loader)
         case .slider(let sliderWidget):
-            return SliderView(
-                story: story,
-                data: widget,
-                sliderWidget: sliderWidget
-            )
+            return SliderView( story: story, data: widget, sliderWidget: sliderWidget)
         case .question(let questionWidget):
-            return QuestionView(
-                story: story,
-                data: widget,
-                questionWidget: questionWidget
-            )
+            return QuestionView(story: story, data: widget, questionWidget: questionWidget)
         case .talkAbout(let talkAboutWidget):
-            return TalkAboutView(
-                story: story,
-                data: widget,
-                talkAboutWidget: talkAboutWidget,
-                loader: sdk.imageLoader
-            )
+            return TalkAboutView(story: story, data: widget, talkAboutWidget: talkAboutWidget, loader: loader)
         case .giphy(let giphyWidget):
-            return GiphyView(
-                data: widget,
-                giphyWidget: giphyWidget,
-                loader: sdk.imageLoader
-            )
+            return GiphyView(data: widget, giphyWidget: giphyWidget, loader: loader)
         case .image:
             fatalError("Unexpected widget type")
         }

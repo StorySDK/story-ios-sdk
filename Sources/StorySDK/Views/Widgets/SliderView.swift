@@ -109,7 +109,6 @@ class SliderView: SRInteractiveWidgetView {
         emojiWidth = newEmojiWidth
         if needUpdateEmoji { updateImage() }
         
-        
         let padding: CGFloat = 20 * scale
         let spacing: CGFloat = 15 * scale
         var contentHeight: CGFloat = centerViewHeight

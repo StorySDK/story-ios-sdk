@@ -14,4 +14,3 @@ public struct SRChooseAnswerWidget: Decodable {
     public var answers: [SRAnswerValue]
     public var correct: String
 }
-

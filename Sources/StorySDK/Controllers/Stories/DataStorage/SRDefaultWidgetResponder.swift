@@ -40,8 +40,9 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     // MARK: - Keyboard events
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        let userInfo: NSDictionary = (notification as NSNotification).userInfo! as NSDictionary
-        let keyboardFrame: NSValue = userInfo.value(forKey: UIResponder.keyboardFrameEndUserInfoKey) as! NSValue
+        guard let userInfo = notification.userInfo as? NSDictionary,
+              let keyboardFrame = userInfo.value(forKey: UIResponder.keyboardFrameEndUserInfoKey) as? NSValue
+        else { return }
         let keyboardRectangle = keyboardFrame.cgRectValue
         keyboardHeight = Float(keyboardRectangle.height)
     }

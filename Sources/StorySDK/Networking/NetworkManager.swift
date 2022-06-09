@@ -128,7 +128,7 @@ extension NetworkManager {
         }.resume()
     }
     
-    private static func decode<T>(_ type: T.Type, from data: Data?, response: URLResponse?, error: Error?) throws -> T where T : Decodable {
+    private static func decode<T>(_ type: T.Type, from data: Data?, response: URLResponse?, error: Error?) throws -> T where T: Decodable {
         if let error = error { throw error }
         guard let data = data, let statusCode = (response as? HTTPURLResponse)?.statusCode else {
             throw SRError.emptyResponse

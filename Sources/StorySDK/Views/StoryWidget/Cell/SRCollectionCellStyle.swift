@@ -25,7 +25,6 @@ public struct SRCollectionCellStyle {
     /// TODO: Maybe we need to cut border layer to avoid this declaration
     public var backgroundColor: UIColor = .systemBackground
     
-    
     public init(
         newBorderColors: [UIColor] = [
             UIColor(red: 1.0, green: 0.0, blue: 0.6, alpha: 1.0), // #FF0198

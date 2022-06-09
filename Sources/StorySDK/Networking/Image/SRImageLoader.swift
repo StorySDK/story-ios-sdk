@@ -38,7 +38,7 @@ public class SRImageLoader {
         ) {
             return cancelable
         }
-        let task = session.dataTask(with: url) { [weak cache] data, response, error in
+        let task = session.dataTask(with: url) { [weak cache] data, _, error in
             if let data = data, let image = UIImage(data: data) {
                 cache?.saveImage(cacheKey, image: image)
                 let result = image.scale(to: size, scale: scale, mode: contentMode)
@@ -76,4 +76,3 @@ class BlankCancellable: Cancellable {
 }
 
 extension URLSessionDataTask: Cancellable {}
-

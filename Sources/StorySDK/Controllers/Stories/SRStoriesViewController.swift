@@ -80,6 +80,12 @@ public final class SRStoriesViewController: UIViewController {
         viewModel.onProgressUpdated = { [weak self] progress in
             self?.storiesView.progress = progress
         }
+        viewModel.onUpdateHeader = { [weak storiesView] info in
+            storiesView?.groupName = info.title
+            storiesView?.groupDuration = info.duration
+            storiesView?.groupImage = info.icon
+            storiesView?.isHeaderHidden = info.isHidden
+        }
         viewModel.onScrollToStory = { [weak storiesView] index in
             guard let v = storiesView else { return }
             let x = v.frame.width * CGFloat(index)

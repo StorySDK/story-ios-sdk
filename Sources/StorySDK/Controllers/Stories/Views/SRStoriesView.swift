@@ -20,6 +20,22 @@ final class SRStoriesView: UIView {
         get { progressView.progress }
         set { progressView.progress = newValue }
     }
+    var groupImage: UIImage? {
+        get { headerView.image }
+        set { headerView.image = newValue }
+    }
+    var groupName: String? {
+        get { headerView.title }
+        set { headerView.title = newValue }
+    }
+    var groupDuration: String? {
+        get { headerView.duration }
+        set { headerView.duration = newValue }
+    }
+    var isHeaderHidden: Bool {
+        get { headerView.isHidden }
+        set { headerView.isHidden = newValue }
+    }
     
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let collectionView: UICollectionView = {
@@ -49,6 +65,7 @@ final class SRStoriesView: UIView {
         bt.tintColor = .white
         return bt
     }()
+    private let headerView = SRGroupHeaderView()
     let progressView = SRProgressView()
     
     init() {
@@ -64,15 +81,19 @@ final class SRStoriesView: UIView {
     private func setupView() {
         backgroundColor = .systemBackground
         addSubview(collectionView)
-        for v: UIView in [progressView, closeButton] {
+        for v: UIView in [progressView, headerView, closeButton] {
             v.translatesAutoresizingMaskIntoConstraints = false
             addSubview(v)
         }
         
         NSLayoutConstraint.activate([
-            progressView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
-            progressView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 24),
+            progressView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            progressView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 12),
             progressView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            
+            headerView.leadingAnchor.constraint(equalTo: progressView.leadingAnchor),
+            headerView.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 8),
+            headerView.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor),
             
             closeButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             closeButton.topAnchor.constraint(equalTo: progressView.bottomAnchor),

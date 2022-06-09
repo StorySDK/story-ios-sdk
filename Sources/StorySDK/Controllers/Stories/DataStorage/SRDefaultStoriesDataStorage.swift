@@ -11,11 +11,17 @@ import UIKit
 final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     let storySdk: StorySDK
     var stories: [SRStory] = []
+    var groupInfo: HeaderInfo {
+        didSet { onUpdateHeader?(groupInfo) }
+    }
     
     var configuration: SRConfiguration { storySdk.configuration }
     var numberOfItems: Int { stories.count }
     var onReloadData: (() -> Void)?
     var onErrorReceived: ((Error) -> Void)?
+    var onUpdateHeader: ((HeaderInfo) -> Void)? {
+        didSet { onUpdateHeader?(groupInfo) }
+    }
     private(set) var group: StoryGroup?
     weak var progress: SRProgressController? {
         didSet { progress?.activeColor = configuration.progressColor }
@@ -25,10 +31,22 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     
     init(sdk: StorySDK = .shared) {
         self.storySdk = sdk
+        self.groupInfo = .init(isHidden: !sdk.configuration.needShowTitle)
     }
     
     func loadStories(group: StoryGroup) {
         self.group = group
+        groupInfo.title = group.title
+        if let url = group.imageUrl {
+            let height = SRGroupHeaderView.Size.image
+            storySdk.imageLoader.load(
+                url,
+                size: CGSize(width: height, height: height)
+            ) { [weak self] result in
+                guard case .success(let image) = result else { return }
+                self?.groupInfo.icon = image
+            }
+        }
         storySdk.getStories(group, statistic: true) { [weak self] result in
             switch result {
             case .success(let stories):
@@ -90,5 +108,17 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             .sorted(by: { $0.position < $1.position })
         progress?.numberOfItems = numberOfItems
         onReloadData?()
+        updateStoryDuration()
     }
+    
+    private func updateStoryDuration() {
+        let duration = TimeInterval(numberOfItems) * storySdk.configuration.storyDuration
+        groupInfo.duration = Self.durationFormatter.string(from: duration)
+    }
+    
+    private static let durationFormatter: DateComponentsFormatter = {
+        let f = DateComponentsFormatter()
+        f.unitsStyle = .abbreviated
+        return f
+    }()
 }

@@ -26,6 +26,8 @@ protocol SRStoriesDataStorage: AnyObject {
     var onReloadData: (() -> Void)? { get set }
     /// An error has been received
     var onErrorReceived: ((Error) -> Void)? { get set }
+    /// Updates header view
+    var onUpdateHeader: ((HeaderInfo) -> Void)? { get set }
     /// Load stories for the group
     func loadStories(group: StoryGroup)
     /// Configures cell with a story with index
@@ -108,3 +110,10 @@ protocol SRAnalyticsController: AnyObject {
 }
 
 typealias SRWidgetResponder = SRWidgetResponderStorage & SRIneractiveWidgetDelegate
+
+struct HeaderInfo {
+    var title: String?
+    var duration: String?
+    var icon: UIImage?
+    var isHidden: Bool
+}

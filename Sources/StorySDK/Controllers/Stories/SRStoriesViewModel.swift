@@ -41,6 +41,10 @@ final class SRStoriesViewModel {
         get { dataStorage.onErrorReceived }
         set { dataStorage.onErrorReceived = newValue }
     }
+    var onUpdateHeader: ((HeaderInfo) -> Void)? {
+        get { dataStorage.onUpdateHeader }
+        set { dataStorage.onUpdateHeader = newValue }
+    }
     var onUpdateTransformNeeded: ((Float) -> Void)? {
         get { widgetResponder.onUpdateTransformNeeded }
         set { widgetResponder.onUpdateTransformNeeded = newValue }

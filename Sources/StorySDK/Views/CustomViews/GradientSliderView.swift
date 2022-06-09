@@ -8,17 +8,11 @@
 import UIKit
 
 final class GradientSliderView: UIControl {
-    var value: Float = 0.0 {
-        didSet {
-            if value < 0 { value = 0 }
-            updateLayerFrames()
-        }
-    }
-    
-    var maxValue: Float = 1.0 {
-        didSet {
-            if maxValue < 0 { maxValue = 0 }
-            if maxValue > 1 { maxValue = 1 }
+    private var innerValue: CGFloat = 0
+    var value: CGFloat {
+        get { innerValue }
+        set {
+            innerValue = max(0, min(1, newValue))
             updateLayerFrames()
         }
     }
@@ -33,32 +27,24 @@ final class GradientSliderView: UIControl {
     var trackHeight: CGFloat = 10 {
         didSet { updateLayerFrames() }
     }
-
-    var trackHighlightStartTintColor = UIColor.sliderStart {
-        didSet {
-            trackLayer.startTintColor = trackHighlightStartTintColor.cgColor
-            trackLayer.setNeedsDisplay()
-        }
-    }
-
-    var trackHighlightFinishTintColor = UIColor.sliderFinish {
-        didSet {
-            trackLayer.finishTintColor = trackHighlightFinishTintColor.cgColor
-            trackLayer.setNeedsDisplay()
-        }
-    }
-
-    var trackTintColor = UIColor.sliderTint {
-        didSet {
-            trackLayer.tintColor = trackTintColor.cgColor
-            trackLayer.setNeedsDisplay()
-        }
-    }
     
     var trackPosition: CGFloat { thumbImageView.frame.midX }
     
     private let thumbImageView = UIImageView()
-    private let trackLayer = SliderTrackerLayer()
+    private let gradientLayer: CAGradientLayer = {
+        let l = CAGradientLayer()
+        l.startPoint = CGPoint(x: 0.0, y: 0.5)
+        l.endPoint = CGPoint(x: 1.0, y: 0.5)
+        l.masksToBounds = true
+        l.colors = SRThemeColor.purple.gradient.map(\.cgColor)
+        return l
+    }()
+    private let backgroundLayer: CALayer = {
+        let l = CALayer()
+        l.backgroundColor = SRThemeColor.black.cgColor
+        l.opacity = 0.15
+        return l
+    }()
     private var previousLocation = CGPoint()
 
     override init(frame: CGRect) {
@@ -66,59 +52,72 @@ final class GradientSliderView: UIControl {
         self.prepare()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        
-        self.prepare()
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func prepare() {
         backgroundColor = .clear
-        trackLayer.slider = self
-        trackLayer.contentsScale = UIScreen.main.scale
-        trackLayer.cornerRadius = trackHeight / 2
-        layer.addSublayer(trackLayer)
+        [backgroundLayer, gradientLayer].forEach(layer.addSublayer)
         thumbImageView.image = thumbImage
         addSubview(thumbImageView)
         layoutIfNeeded()
         isUserInteractionEnabled = true
     }
     
-    func animateValue(to newValue: Float, duration: TimeInterval) {
-        let origin = self.thumbOriginForValue(CGFloat(newValue))
-        UIView.animate(withDuration: duration, animations: {
-            self.thumbImageView.frame.origin = origin
-        }, completion: {_ in
-            self.value = newValue
-        })
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        backgroundLayer.frame = CGRect(
+            x: 0,
+            y: (bounds.height - trackHeight) / 2,
+            width: bounds.width,
+            height: trackHeight
+        )
+        gradientLayer.frame = CGRect(
+            x: backgroundLayer.frame.minX,
+            y: backgroundLayer.frame.minY,
+            width: backgroundLayer.frame.width * innerValue,
+            height: backgroundLayer.frame.height
+        )
+        backgroundLayer.cornerRadius = trackHeight / 2
+        gradientLayer.cornerRadius = backgroundLayer.cornerRadius
+    }
+    
+    func animateValue(to newValue: CGFloat, duration: TimeInterval) {
+        let origin = self.thumbOriginForValue()
+        if duration > .ulpOfOne {
+            UIView.animate(withDuration: duration, animations: {
+                self.thumbImageView.frame.origin = origin
+            }, completion: { _ in
+                self.value = newValue
+            })
+        } else {
+            thumbImageView.frame.origin = origin
+            value = newValue
+        }
     }
     
     func updateLayerFrames() {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        trackLayer.frame = CGRect(
-            x: 0,
-            y: (bounds.size.height - trackHeight) / 2,
-            width: bounds.size.width,
-            height: trackHeight
+        thumbImageView.frame = CGRect(
+            origin: thumbOriginForValue(),
+            size: thumbImage.size
         )
-        trackLayer.setNeedsDisplay()
-        thumbImageView.frame = CGRect(origin: thumbOriginForValue(CGFloat(value)),
-                                      size: thumbImage.size)
+        gradientLayer.frame = CGRect(
+            x: backgroundLayer.frame.minX,
+            y: backgroundLayer.frame.minY,
+            width: backgroundLayer.frame.width * innerValue,
+            height: backgroundLayer.frame.height
+        )
         CATransaction.commit()
     }
     
-    func positionForValue(_ value: CGFloat) -> CGFloat {
-        if maxValue == 0 { return 0 }
-        let divider = maxValue
-        return bounds.width * value / CGFloat(divider)
+    private func thumbOriginForValue() -> CGPoint {
+        let x = bounds.width * innerValue - thumbImage.size.width / 2
+        return CGPoint(x: x, y: (bounds.height - thumbImage.size.height) / 2.0)
     }
-    
-    private func thumbOriginForValue(_ value: CGFloat) -> CGPoint {
-        let x = positionForValue(value) - thumbImage.size.width * value
-        return CGPoint(x: x, y: (bounds.height - thumbImage.size.height * 1.06) / 2.0)
-    }
-
 }
 
 extension GradientSliderView {
@@ -131,22 +130,17 @@ extension GradientSliderView {
         size.width += deltaX
         let tmpFrame = CGRect(origin: origin, size: size)
         let success = tmpFrame.contains(previousLocation)
-                
         sendActions(for: .editingDidBegin)
-        
         return success
     }
     
     override func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
         let location = touch.location(in: self)
         let deltaLocation = location.x - previousLocation.x
-        let deltaValue = CGFloat(maxValue) * deltaLocation / bounds.width
-
+        let deltaValue = deltaLocation / bounds.width
         previousLocation = location
-        value += Float(deltaValue)
-        value = boundValue(value, toLowerValue: 0, upperValue: maxValue)
+        value += deltaValue
         sendActions(for: .valueChanged)
-
         return true
     }
     
@@ -154,54 +148,10 @@ extension GradientSliderView {
         guard let touch = touch else { return }
         let location = touch.location(in: self)
         let deltaLocation = location.x - previousLocation.x
-        let deltaValue = CGFloat(maxValue) * deltaLocation / bounds.width
-
+        let deltaValue = deltaLocation / bounds.width
         previousLocation = location
-        value += Float(deltaValue)
-        value = boundValue(value, toLowerValue: 0, upperValue: maxValue)
+        value += deltaValue
         sendActions(for: .valueChanged)
         sendActions(for: .editingDidEnd)
-    }
-
-    private func boundValue(_ value: Float, toLowerValue lowerValue: Float, upperValue: Float) -> Float {
-        return min(max(value, lowerValue), upperValue)
-    }
-}
-
-class SliderTrackerLayer: CALayer {
-    weak var slider: GradientSliderView?
-    let gradient = CAGradientLayer()
-    let shapeMask = CAShapeLayer()
-    
-    var tintColor: CGColor = UIColor.sliderTint.cgColor
-    var startTintColor: CGColor = UIColor.sliderStart.cgColor
-    var finishTintColor: CGColor = UIColor.sliderFinish.cgColor
-
-    override func draw(in ctx: CGContext) {
-        guard let slider = slider else { return }
-
-        let path = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius)
-        ctx.addPath(path.cgPath)
-
-        ctx.setFillColor(tintColor)
-        ctx.fillPath()
-
-        let value = CGFloat(slider.value)
-        let width = slider.positionForValue(value)
-        let rect = CGRect(x: 0, y: 0, width: width, height: bounds.height)
-
-        ctx.setFillColor(startTintColor)
-        
-        let tintedPath = UIBezierPath(roundedRect: rect, cornerRadius: cornerRadius)
-        shapeMask.path = tintedPath.cgPath
-        
-        let colors = [startTintColor, finishTintColor]
-        let cgColors = colors.map({ $0 })
-        gradient.frame = self.bounds
-        gradient.startPoint = CGPoint.zero
-        gradient.endPoint = CGPoint(x: width / frame.width, y: 0)
-        gradient.colors = cgColors
-        gradient.mask = shapeMask
-        self.addSublayer(gradient)
     }
 }

@@ -132,8 +132,7 @@ class TalkAboutView: SRInteractiveWidgetView {
         gradientLayer.frame = mainView.bounds
         gradientLayer.cornerRadius = mainView.layer.cornerRadius
         
-        let labelFont = UIFont.regular(ofSize: 14 * scale)
-        titleLabel.font = labelFont
+        titleLabel.font = .regular(ofSize: 14 * scale)
         let padding = 12 * scale
         let textFieldHeight = 34 * scale
         textFieldContainer.frame = .init(x: padding,
@@ -148,8 +147,8 @@ class TalkAboutView: SRInteractiveWidgetView {
         textField.attributedPlaceholder = NSAttributedString(
             string: "Type something...",
             attributes: [
-                .foregroundColor: SRThemeColor.black.color.withAlphaComponent(0.4),
-                .font: labelFont,
+                .foregroundColor: titleLabel.textColor.withAlphaComponent(0.4),
+                .font: UIFont.regular(ofSize: 10 * scale),
             ]
         )
         
@@ -169,7 +168,6 @@ class TalkAboutView: SRInteractiveWidgetView {
 // MARK: - TextField
 extension TalkAboutView: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        NotificationCenter.default.post(name: .disableSwipe, object: nil)
         isTextFieldActive = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let wSelf = self else { return }

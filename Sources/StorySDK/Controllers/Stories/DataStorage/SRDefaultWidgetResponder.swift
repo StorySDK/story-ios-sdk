@@ -11,7 +11,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     let storySdk: StorySDK
     var containerFrame: SRRect = .zero
     var onUpdateTransformNeeded: ((Float) -> Void)?
-    var pauseInterval: DispatchTimeInterval = .seconds(3)
+    var pauseInterval: DispatchTimeInterval = .seconds(1)
     weak var progress: SRProgressController?
     weak var analytics: SRAnalyticsController?
     private var keyboardHeight: Float = 0
@@ -106,6 +106,13 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     func didChooseSliderValue(_ widget: SliderView, value: Float) {
         let request = SRStatistic(type: .answer, value: "\(Int(value * 100))%")
         analytics?.sendWidgetReaction(request, widget: widget)
+    }
+    
+    func didStartSlide() {
+        progress?.pauseAutoscrolling()
+    }
+    
+    func didFinishSlide() {
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
     }
     

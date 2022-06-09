@@ -8,16 +8,15 @@
 import UIKit
 
 extension String {
-    func imageFromEmoji(width: CGFloat = 34) -> UIImage? {
-        let size = CGSize(width: width, height: width * 1.1)
-        UIGraphicsBeginImageContextWithOptions(size, false, 0)
-        UIColor.clear.set()
-        let rect = CGRect(origin: .zero, size: size)
-        UIRectFill(CGRect(origin: .zero, size: size))
-        (self as AnyObject).draw(in: rect, withAttributes: [.font: UIFont.systemFont(ofSize: width)])
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return image
+    func imageFromEmoji(fontSize: CGFloat = 34) -> UIImage? {
+        let font = UIFont.systemFont(ofSize: fontSize)
+        let attributes = [NSAttributedString.Key.font: font]
+        let string = NSAttributedString(string: self, attributes: attributes)
+        let imageSize = string.size()
+        let render = UIGraphicsImageRenderer(size: imageSize)
+        return render.image { _ in
+            string.draw(in: .init(origin: .zero, size: imageSize))
+        }
     }
     
     func toHexEncodedString(uppercase: Bool = true, prefix: String = "", separator: String = "") -> String {

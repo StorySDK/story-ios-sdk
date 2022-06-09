@@ -125,7 +125,6 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
     @objc func answerClicked(_ sender: AnswerView) {
         let id = sender.answer.id
         selectAnswer(id)
-        NotificationCenter.default.post(name: .disableSwipe, object: nil)
         if id == chooseAnswerWidget.correct {
             animateCorrectView(id: id)
         } else {

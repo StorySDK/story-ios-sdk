@@ -24,7 +24,7 @@ final class SRStoryCanvasView: UIView {
     
     var keyboardHeight: CGFloat = 0
     var needShowTitle: Bool = false {
-        didSet { topOffset.constant = needShowTitle ? topViewHeight : 0 }
+        didSet { topOffset.constant = needShowTitle ? 64 : 0 }
     }
     
     init(needShowTitle: Bool = false) {

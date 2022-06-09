@@ -14,11 +14,23 @@ protocol EmojiReactionViewDelegate: AnyObject {
 class EmojiReactionView: SRInteractiveWidgetView {
     let emojiReactionWidget: SREmojiReactionWidget
     private var emojiViews = [UIImageView]()
+    private let gradientLayer: CAGradientLayer = {
+        let l = CAGradientLayer()
+        l.startPoint = CGPoint(x: 0.0, y: 0.5)
+        l.endPoint = CGPoint(x: 1.0, y: 0.5)
+        l.masksToBounds = true
+        return l
+    }()
     
     init(story: SRStory, data: SRWidget, emojiReactionWidget: SREmojiReactionWidget) {
         self.emojiReactionWidget = emojiReactionWidget
         super.init(story: story, data: data)
         prepareUI(scale: widgetScale)
+    }
+    
+    override func addSubviews() {
+        super.addSubviews()
+        contentView.layer.addSublayer(gradientLayer)
     }
     
     override func setupView() {
@@ -37,6 +49,8 @@ class EmojiReactionView: SRInteractiveWidgetView {
     override func layoutSubviews() {
         super.layoutSubviews()
         contentView.layer.cornerRadius = contentView.frame.height / 2
+        gradientLayer.frame = contentView.bounds
+        gradientLayer.cornerRadius = contentView.layer.cornerRadius
         let emojiWidth: CGFloat = 34 * widgetScale
         let padding = contentView.layer.cornerRadius - emojiWidth / 2
         let contentWidth = contentView.frame.width - padding * 2
@@ -53,13 +67,13 @@ class EmojiReactionView: SRInteractiveWidgetView {
     }
     
     private func prepareUI(scale: CGFloat) {
-        contentView.backgroundColor = emojiReactionWidget.color.color
+        gradientLayer.colors = emojiReactionWidget.color.gradient.map(\.cgColor)
         
         let emojiWidth: CGFloat = 34 * scale
         for i in 0 ..< emojiReactionWidget.emoji.count {
             guard let result = UInt32(emojiReactionWidget.emoji[i].unicode, radix: 16),
                   let str = UnicodeScalar(result).map({ String($0) }),
-                  let image = str.imageFromEmoji(width: emojiWidth) else { continue }
+                  let image = str.imageFromEmoji(fontSize: emojiWidth) else { continue }
             let iv = UIImageView(image: image)
             iv.tag = i
             let tapgesture = UITapGestureRecognizer(target: self, action: #selector(emojiClicked(_:)))
@@ -72,7 +86,6 @@ class EmojiReactionView: SRInteractiveWidgetView {
     
     @objc private func emojiClicked(_ sender: UITapGestureRecognizer) {
         isUserInteractionEnabled = false
-        NotificationCenter.default.post(name: .disableSwipe, object: nil)
         (sender.view as? UIImageView).map { hideEmoji(number: $0.tag) }
     }
     

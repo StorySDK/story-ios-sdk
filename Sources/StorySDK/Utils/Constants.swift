@@ -12,10 +12,3 @@ import UIKit
 extension TimeInterval {
     static let animationsDuration: TimeInterval = 0.2
 }
-
-/// Высота верхней вьюшки (где картинка и название Story)
-let topViewHeight: CGFloat = 64
-
-extension NSNotification.Name {
-    static let disableSwipe = NSNotification.Name(rawValue: "DisableSwipe")
-}

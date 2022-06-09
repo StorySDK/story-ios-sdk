@@ -9,6 +9,8 @@ import UIKit
 
 protocol SliderViewDelegate: AnyObject {
     func didChooseSliderValue(_ widget: SliderView, value: Float)
+    func didStartSlide()
+    func didFinishSlide()
 }
 
 class SliderView: SRInteractiveWidgetView {
@@ -40,10 +42,7 @@ class SliderView: SRInteractiveWidgetView {
         return lb
     }()
     
-    private let slider: GradientSliderView = {
-        let slider = GradientSliderView()
-        return slider
-    }()
+    private let slider = GradientSliderView()
     
     private let emoji: UIImageView = {
         let iv = UIImageView()
@@ -59,7 +58,7 @@ class SliderView: SRInteractiveWidgetView {
         self.sliderWidget = sliderWidget
         super.init(story: story, data: data)
         
-        slider.value = Float(sliderWidget.value) / 100
+        slider.value = CGFloat(sliderWidget.value) / 100
     }
     
     override func addSubviews() {
@@ -83,7 +82,7 @@ class SliderView: SRInteractiveWidgetView {
         guard let result = UInt32(sliderWidget.emoji.unicode, radix: 16) else { return }
         guard let scalar = UnicodeScalar(result) else { return }
         let str = String(scalar)
-        guard let image = str.imageFromEmoji(width: emojiWidth) else { return }
+        guard let image = str.imageFromEmoji(fontSize: emojiWidth) else { return }
         slider.thumbImage = image
         emoji.image = image
     }
@@ -136,28 +135,29 @@ class SliderView: SRInteractiveWidgetView {
         
         slider.animateValue(to: slider.value, duration: 0.5)
         sliderPosY = slider.frame.origin.y
-        changeEmojiFrame(for: CGFloat(slider.value))
+        changeEmojiFrame(for: slider.value)
     }
     
     @objc func sliderBeginChange(_ sender: GradientSliderView) {
-        NotificationCenter.default.post(name: .disableSwipe, object: nil)
+        delegate?.didStartSlide()
         emoji.isHidden = false
-        changeEmojiFrame(for: CGFloat(sender.value))
+        changeEmojiFrame(for: sender.value)
     }
     
     @objc func sliderChanged(_ sender: GradientSliderView) {
-        changeEmojiFrame(for: CGFloat(sender.value))
+        changeEmojiFrame(for: sender.value)
     }
     
     @objc func sliderEndChange(_ sender: GradientSliderView) {
+        delegate?.didFinishSlide()
         sender.isUserInteractionEnabled = false
         hideEmoji()
     }
     
     override func setupWidget(reaction: String) {
         guard reaction.hasSuffix("%") else { return }
-        guard var value = Float(reaction.dropLast()) else { return }
-        value /= 100
+        guard let percents = Float(reaction.dropLast()) else { return }
+        let value = CGFloat(percents) / 100
         slider.isUserInteractionEnabled = false
         slider.value = value
         slider.animateValue(to: value, duration: 0)
@@ -177,7 +177,7 @@ extension SliderView {
     }
     
     private func hideEmoji() {
-        delegate?.didChooseSliderValue(self, value: slider.value)
+        delegate?.didChooseSliderValue(self, value: Float(slider.value))
         UIView.animate(
             withDuration: 0.5,
             animations: { [weak emoji] in

@@ -67,16 +67,6 @@ extension UIColor {
             alpha: parts.count > 3 ? parts[3] / 0xff : 1
         )
     }
-    
-    
-    // MARK: - TODO: Remove it
-    
-    static let sliderTint = #colorLiteral(red: 0.3921568627, green: 0.3921568627, blue: 0.3921568627, alpha: 0.250212585)  // #646464 with alpha = 0.25
-    static let sliderStart = #colorLiteral(red: 0.8078431373, green: 0.1450980392, blue: 0.7921568627, alpha: 1)  // #CE25CA
-    static let sliderFinish = #colorLiteral(red: 0.9176470588, green: 0.05490196078, blue: 0.3058823529, alpha: 1)  // #EA0E4E
-    static let orangeRed = #colorLiteral(red: 1, green: 0.2980392157, blue: 0.1450980392, alpha: 1)  // #FF4C25
-    static let white = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)  // #FFFFFF
-    static let black = #colorLiteral(red: 0.01960784314, green: 0.01960784314, blue: 0.1137254902, alpha: 1)  // #05051D
 }
 
 #endif

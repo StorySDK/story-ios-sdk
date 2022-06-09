@@ -15,7 +15,7 @@ public class SRImageLoader {
                                      delegate: nil,
                                      delegateQueue: .main)
     private let gifQueue = DispatchQueue(label: "\(packageBundleId).gifQueue",
-                                         qos: .background)
+                                         qos: .userInitiated)
     public init() {}
     
     @discardableResult
@@ -58,34 +58,28 @@ public class SRImageLoader {
     @discardableResult
     func loadGif(_ url: URL,
                  size: CGSize,
-                 completion: @escaping (Result<([UIImage], TimeInterval), Error>) -> Void) -> Cancellable? {
+                 completion: @escaping (Result<UIImage, Error>) -> Void) -> Cancellable? {
         let task = session.dataTask(with: url) { [weak gifQueue] data, _, error in
-            if let data = data {
-                gifQueue?.async {
-                    guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
-                        DispatchQueue.main.async {
-                            completion(.failure(SRError.unknownError))
-                        }
+            if let data = data, let queue = gifQueue {
+                queue.async {
+                    let options = [String(kCGImageSourceShouldCache): kCFBooleanFalse] as CFDictionary
+                    guard let source = CGImageSourceCreateWithData(data as CFData, options) else {
+                        DispatchQueue.main.async { completion(.failure(SRError.unknownError)) }
                         return
                     }
                     var images = [UIImage]()
                     let imageCount = CGImageSourceGetCount(source)
-                    let maxDimensionsInPixels = max(size.width, size.height) * UIScreen.main.scale
-                    let downOptions = [
-                        kCGImageSourceCreateThumbnailFromImageAlways: true,
-                        kCGImageSourceShouldCacheImmediately: true,
-                        kCGImageSourceCreateThumbnailWithTransform: true,
-                        kCGImageSourceThumbnailMaxPixelSize: maxDimensionsInPixels,
-                    ] as CFDictionary
                     var totalDuration: TimeInterval = 0
                     for i in 0..<imageCount {
-                        guard let image = CGImageSourceCreateImageAtIndex(source, i, downOptions) else { continue }
+                        guard let image = CGImageSourceCreateImageAtIndex(source, i, options) else { continue }
                         images.append(UIImage(cgImage: image))
                         totalDuration += source.delay(for: i)
                     }
-                    DispatchQueue.main.async {
-                        completion(.success((images, totalDuration)))
+                    guard let image = UIImage.animatedImage(with: images, duration: totalDuration) else {
+                        DispatchQueue.main.async { completion(.failure(SRError.unknownError)) }
+                        return
                     }
+                    DispatchQueue.main.async { completion(.success(image)) }
                 }
             } else if let error = error {
                 completion(.failure(error))

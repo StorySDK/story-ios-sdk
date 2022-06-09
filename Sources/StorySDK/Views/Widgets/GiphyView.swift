@@ -10,16 +10,14 @@ import Combine
 
 class GiphyView: SRWidgetView {
     let giphyWidget: SRGiphyWidget
+    let loader: SRImageLoader
     
     private let indicator: UIActivityIndicatorView = {
         let aiv = UIActivityIndicatorView(style: .large)
         aiv.tintColor = .lightGray
         return aiv
     }()
-    private let imageView: UIImageView = {
-        let v = UIImageView(frame: .zero)
-        return v
-    }()
+    private let imageView = UIImageView(frame: .zero)
     
     private var loadTask: Cancellable? {
         didSet { oldValue?.cancel() }
@@ -27,8 +25,8 @@ class GiphyView: SRWidgetView {
     
     init(data: SRWidget, giphyWidget: SRGiphyWidget, loader: SRImageLoader) {
         self.giphyWidget = giphyWidget
+        self.loader = loader
         super.init(data: data)
-        load(loader)
     }
     
     deinit {
@@ -47,14 +45,24 @@ class GiphyView: SRWidgetView {
         alpha = giphyWidget.widgetOpacity / 100
     }
     
+    override func removeFromSuperview() {
+        super.removeFromSuperview()
+        loadTask = nil
+    }
+    
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        load(loader)
+    }
+    
     private func load(_ loader: SRImageLoader) {
         startLoading()
         let size = CGSize(width: data.position.realWidth, height: data.position.realHeight)
         loadTask = loader.loadGif(giphyWidget.gif, size: size) { [weak self] result in
             defer { self?.stopLoading() }
-            guard case .success((let images, let duration)) = result else { return }
-            self?.imageView.animationImages = images
-            self?.imageView.animationDuration = duration
+            guard case .success(let image) = result else { return }
+            self?.imageView.animationImages = image.images
+            self?.imageView.animationDuration = image.duration
             self?.imageView.startAnimating()
         }
     }

@@ -6,8 +6,10 @@
 //
 
 import Foundation
-import Combine
 import UIKit
+import Combine
+
+public typealias SRImageLoaderTask = Task<UIImage, Error>
 
 public class SRImageLoader {
     private let cache = DefaultImageCache()
@@ -21,36 +23,43 @@ public class SRImageLoader {
                      size: CGSize,
                      scale: CGFloat = 1,
                      contentMode: UIView.ContentMode = .scaleAspectFill,
-                     completion: @escaping (Result<UIImage, Error>) -> Void) -> Cancellable? {
+                     completion: @escaping (Result<UIImage, Error>) -> Void) -> Cancellable {
+        Task {
+            do {
+                let image = try await load(url, size: size, scale: scale, contentMode: contentMode)
+                DispatchQueue.main.async { completion(.success(image)) }
+            } catch {
+                DispatchQueue.main.async { completion(.failure(error)) }
+            }
+        }
+    }
+    
+    public func load(_ url: URL,
+                     size: CGSize,
+                     scale: CGFloat = 1,
+                     contentMode: UIView.ContentMode = .scaleAspectFill) async throws -> UIImage {
         let cacheKey = url.absoluteString
-        if let cancelable = cache.loadImage(
+        if let image = await cache.loadImage(
             cacheKey,
             size: size,
             scale: scale,
-            contentMode: contentMode,
-            completion: { image in
-                if let image = image {
-                    completion(.success(image))
+            contentMode: contentMode
+        ) { return image }
+        let image: UIImage = try await withCheckedThrowingContinuation { continuation in
+            let task = session.dataTask(with: url) { data, response, error in
+                if let data = data, let image = UIImage(data: data) {
+                    continuation.resume(returning: image)
+                } else if let error = error {
+                    continuation.resume(throwing: error)
                 } else {
-                    completion(.failure(SRError.unknownError))
+                    continuation.resume(throwing: SRError.unknownError)
                 }
             }
-        ) {
-            return cancelable
+            task.resume()
         }
-        let task = session.dataTask(with: url) { [weak cache] data, _, error in
-            if let data = data, let image = UIImage(data: data) {
-                cache?.saveImage(cacheKey, image: image)
-                let result = image.scale(to: size, scale: scale, mode: contentMode)
-                completion(.success(result))
-            } else if let error = error {
-                completion(.failure(error))
-            } else {
-                completion(.failure(SRError.unknownError))
-            }
-        }
-        task.resume()
-        return task
+        try Task.checkCancellation()
+        cache.saveImage(cacheKey, image: image)
+        return image.scale(to: size, scale: scale, mode: contentMode)
     }
     
     @discardableResult
@@ -76,3 +85,4 @@ class BlankCancellable: Cancellable {
 }
 
 extension URLSessionDataTask: Cancellable {}
+extension Task: Cancellable {}

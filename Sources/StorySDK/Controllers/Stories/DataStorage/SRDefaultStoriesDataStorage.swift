@@ -98,7 +98,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
                     case .failure(let error): self?.onErrorReceived?(error)
                     }
                 }
-            task.map { cell.cancellables.append($0) }
+            cell.cancellables.append(task)
         }
     }
     

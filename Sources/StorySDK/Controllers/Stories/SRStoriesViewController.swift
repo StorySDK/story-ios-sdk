@@ -11,9 +11,11 @@ public final class SRStoriesViewController: UIViewController {
     private let group: StoryGroup
     private let viewModel: SRStoriesViewModel
     private var storiesView: SRStoriesView!
+    private let logger: SRLogger
     
     public init(_ group: StoryGroup, sdk: StorySDK = .shared) {
         self.group = group
+        self.logger = sdk.logger
         let dataStorage = SRDefaultStoriesDataStorage(sdk: sdk)
         let progressController = SRDefaultProgressController()
         let widgetResponder = SRDefaultWidgetResponder(sdk: sdk)
@@ -73,8 +75,8 @@ public final class SRStoriesViewController: UIViewController {
             wSelf.viewModel.startAutoscrolling()
             wSelf.viewModel.reportGroupOpen()
         }
-        viewModel.onErrorReceived = { error in
-            logError(error.getDetails(), logger: .stories)
+        viewModel.onErrorReceived = { [logger] error in
+            logger.error(error.getDetails(), logger: .stories)
         }
         viewModel.onUpdateTransformNeeded = { [weak storiesView] ty in
             UIView.animate(

@@ -16,9 +16,9 @@ class SRTextView: SRImageWidgetView {
         return l
     }()
     
-    init(story: SRStory, data: SRWidget, textWidget: SRTextWidget, imageUrl: URL?, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, textWidget: SRTextWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
         self.textWidget = textWidget
-        super.init(story: story, data: data, url: imageUrl, loader: loader)
+        super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
     }
     
     override func setupContentLayer(_ layer: CALayer) {

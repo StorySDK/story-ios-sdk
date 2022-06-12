@@ -14,9 +14,9 @@ protocol SRClickMeViewDelegate: AnyObject {
 class SRClickMeView: SRImageWidgetView {
     let clickMeWidget: SRClickMeWidget
     
-    init(story: SRStory, data: SRWidget, clickMeWidget: SRClickMeWidget, imageUrl: URL?, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, clickMeWidget: SRClickMeWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
         self.clickMeWidget = clickMeWidget
-        super.init(story: story, data: data, url: imageUrl, loader: loader)
+        super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
     }
     
     override func setupContentLayer(_ layer: CALayer) {

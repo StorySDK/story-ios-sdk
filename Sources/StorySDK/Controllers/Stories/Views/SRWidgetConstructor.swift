@@ -16,6 +16,7 @@ final class SRWidgetConstructor {
             imageUrl = url
         }
         let loader = sdk.imageLoader
+        let logger = sdk.logger
         switch content {
         case .rectangle(let rectangleWidget):
             return RectangleView(data: widget, rectangleWidget: rectangleWidget)
@@ -26,11 +27,11 @@ final class SRWidgetConstructor {
         case .chooseAnswer(let answerWidget):
             return ChooseAnswerView(story: story, data: widget, chooseAnswerWidget: answerWidget)
         case .text(let textWidget):
-            return SRTextView(story: story, data: widget, textWidget: textWidget, imageUrl: imageUrl, loader: loader)
+            return SRTextView(story: story, data: widget, textWidget: textWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .swipeUp(let swipeUpWidget):
-            return SRSwipeUpView(story: story, data: widget, swipeUpWidget: swipeUpWidget, imageUrl: imageUrl, loader: loader)
+            return SRSwipeUpView(story: story, data: widget, swipeUpWidget: swipeUpWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .clickMe(let clickMeWidget):
-            return SRClickMeView(story: story, data: widget, clickMeWidget: clickMeWidget, imageUrl: imageUrl, loader: loader)
+            return SRClickMeView(story: story, data: widget, clickMeWidget: clickMeWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .slider(let sliderWidget):
             return SliderView( story: story, data: widget, sliderWidget: sliderWidget)
         case .question(let questionWidget):

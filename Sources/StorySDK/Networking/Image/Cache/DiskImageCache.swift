@@ -11,8 +11,10 @@ import UIKit
 final class DiskImageCache: ImageCache {
     private let rootDir: URL = FileManager.default.temporaryDirectory.appendingPathComponent(packageBundleId, isDirectory: true)
     private let queue = DispatchQueue(label: packageBundleId + ".DiskImageCache")
+    private let logger: SRLogger
     
-    init() throws {
+    init(logger: SRLogger) throws {
+        self.logger = logger
         try prepareDirectory()
     }
     
@@ -27,29 +29,29 @@ final class DiskImageCache: ImageCache {
             let data = try Data(contentsOf: url)
             return UIImage(data: data)
         } catch {
-            logError(error.localizedDescription, logger: .imageCache)
+            logger.error(error.localizedDescription, logger: .imageCache)
             return nil
         }
     }
     
     func saveImage(_ key: String, image: UIImage) {
         guard let url = fileUrl(key) else { return }
-        queue.async {
+        queue.async { [logger] in
             do {
                 try image.pngData()?.write(to: url)
             } catch {
-                logError(error.localizedDescription, logger: .imageCache)
+                logger.error(error.localizedDescription, logger: .imageCache)
             }
         }
     }
     
     func removeImage(_ key: String) {
         guard let url = fileUrl(key) else { return }
-        queue.async {
+        queue.async { [logger] in
             do {
                 try FileManager.default.removeItem(at: url)
             } catch {
-                logError(error.localizedDescription, logger: .imageCache)
+                logger.error(error.localizedDescription, logger: .imageCache)
             }
         }
     }
@@ -58,11 +60,11 @@ final class DiskImageCache: ImageCache {
         guard let filenames = try? FileManager.default.contentsOfDirectory(atPath: rootDir.path) else { return }
         let urls = filenames.map { rootDir.appendingPathComponent($0) }
         for url in urls {
-            queue.async {
+            queue.async { [logger] in
                 do {
                     try FileManager.default.removeItem(at: url)
                 } catch {
-                    logError(error.localizedDescription, logger: .imageCache)
+                    logger.error(error.localizedDescription, logger: .imageCache)
                 }
             }
         }

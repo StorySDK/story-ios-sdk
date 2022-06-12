@@ -6,14 +6,20 @@
 //
 
 import Foundation
+import os
 
 public final class StorySDK: NSObject {
     public static let shared = StorySDK()
-    public static let imageLoader = SRImageLoader()
+    public static let imageLoader = SRImageLoader(logger: .init())
     public var configuration = SRConfiguration() {
         didSet { update(configuration: configuration) }
     }
     public private(set) var app: StoryApp?
+    public var logLevel: OSLogType {
+        get { logger.logLevel }
+        set { logger.logLevel = newValue }
+    }
+    private(set) var logger: SRLogger = .init()
     var context = SRContext()
     let network = NetworkManager()
     let imageLoader: SRImageLoader
@@ -36,7 +42,7 @@ public final class StorySDK: NSObject {
         network.setupLanguage(configuration.fetchCurrentLanguage())
         if let sdkId = configuration.sdkId, let key = SRDiskUserDefaults.makeKey(sdkId: sdkId) {
             do {
-                let newDefaults = try SRDiskUserDefaults(key: key)
+                let newDefaults = try SRDiskUserDefaults(key: key, logger: logger)
                 userDefaults = newDefaults
             } catch {
                 print("StorySDK > Error:", error.localizedDescription)

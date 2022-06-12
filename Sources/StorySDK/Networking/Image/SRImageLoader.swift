@@ -12,11 +12,13 @@ import Combine
 public typealias SRImageLoaderTask = Task<UIImage, Error>
 
 public class SRImageLoader {
-    private let cache = DefaultImageCache()
+    private let cache: DefaultImageCache
     private let session = URLSession(configuration: .default,
                                      delegate: nil,
                                      delegateQueue: .main)
-    public init() {}
+    init(logger: SRLogger) {
+        cache = DefaultImageCache(logger: logger)
+    }
     
     @discardableResult
     public func load(_ url: URL,

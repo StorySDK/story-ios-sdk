@@ -16,10 +16,22 @@ extension OSLog {
     static let widgets = OSLog(subsystem: "StorySDK", category: "WidgetView")
 }
 
-func debug(_ message: String, logger: OSLog = .general) {
-    os_log("%@", log: logger, type: .debug, message)
+class SRLogger {
+    var logLevel: OSLogType = .error
+    
+    init() {}
+    
+    func debug(_ message: String, logger: OSLog = .general) {
+        guard logLevel <= .debug else { return }
+        os_log("%@", log: logger, type: .debug, message)
+    }
+
+    func error(_ message: String, logger: OSLog = .general) {
+        guard logLevel <= .error else { return }
+        os_log("%@", log: logger, type: .error, message)
+    }
 }
 
-func logError(_ message: String, logger: OSLog = .general) {
-    os_log("%@", log: logger, type: .error, message)
+func <=(_ lhs: OSLogType, _ rhs: OSLogType) -> Bool {
+    lhs.rawValue <= rhs.rawValue
 }

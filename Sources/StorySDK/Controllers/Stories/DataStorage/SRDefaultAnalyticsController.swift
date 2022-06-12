@@ -25,16 +25,13 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
     func sendReaction(_ reaction: SRStatistic, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         var reaction = reaction
         reaction.groupId = group?.id
+        let logger = storySdk.logger
         storySdk.sendStatistic(reaction) { result in
             switch result {
             case .success:
-                #if DEBUG
-                debug("\(reaction)", logger: .stories)
-                #else
-                break
-                #endif
+                logger.debug("\(reaction)", logger: .stories)
             case .failure(let error):
-                logError(error.localizedDescription, logger: .stories)
+                logger.error(error.localizedDescription, logger: .stories)
             }
             completion?(result)
         }

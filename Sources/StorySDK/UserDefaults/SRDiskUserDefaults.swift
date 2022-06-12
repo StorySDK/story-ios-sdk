@@ -11,11 +11,13 @@ public class SRDiskUserDefaults: SRMemoryUserDefaults {
     private let manager = FileManager.default
     private let fileUrl: URL
     let key: String
+    let logger: SRLogger
     public override var userId: String {
         didSet { saveModel() }
     }
     
-    init(key: String) throws {
+    init(key: String, logger: SRLogger) throws {
+        self.logger = logger
         guard var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
             throw SRError.missingDocumentsDirectory
         }
@@ -27,7 +29,7 @@ public class SRDiskUserDefaults: SRMemoryUserDefaults {
         do {
             try load()
         } catch {
-            logError(error.localizedDescription, logger: .userDefaults)
+            logger.error(error.localizedDescription, logger: .userDefaults)
             model = .init()
             saveModel()
         }
@@ -69,7 +71,7 @@ public class SRDiskUserDefaults: SRMemoryUserDefaults {
         do {
             try save()
         } catch {
-            logError(error.localizedDescription, logger: .userDefaults)
+            logger.error(error.localizedDescription, logger: .userDefaults)
         }
     }
 }

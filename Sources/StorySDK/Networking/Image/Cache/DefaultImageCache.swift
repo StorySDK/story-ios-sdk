@@ -11,8 +11,17 @@ import Combine
 final class DefaultImageCache {
     let queue = OperationQueue()
     
-    let fullSizeCache: ImageCache? = try? DiskImageCache()
+    let fullSizeCache: ImageCache?
 //    let resizedCache: ImageCache = MemoryImageCache()
+    
+    init(logger: SRLogger) {
+        do {
+            fullSizeCache = try DiskImageCache(logger: logger)
+        } catch {
+            logger.error(error.localizedDescription, logger: .imageCache)
+            fullSizeCache = nil
+        }
+    }
     
     @discardableResult
     func loadImage(

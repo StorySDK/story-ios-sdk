@@ -17,14 +17,16 @@ public class SRImageWidgetView: SRInteractiveWidgetView {
         return v
     }()
     let url: URL?
+    let logger: SRLogger
     weak var loader: SRImageLoader?
     private var loadingTask: Cancellable? {
         didSet { oldValue?.cancel() }
     }
     
-    init(story: SRStory, data: SRWidget, url: URL?, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, url: URL?, loader: SRImageLoader, logger: SRLogger) {
         self.url = url
         self.loader = loader
+        self.logger = logger
         super.init(story: story, data: data)
         addSubviews()
     }
@@ -49,7 +51,7 @@ public class SRImageWidgetView: SRInteractiveWidgetView {
         oldSize = size
         let scale = UIScreen.main.scale
         let targetSize = CGSize(width: size.width * scale, height: size.height * scale)
-        loadingTask = loader.load(url, size: targetSize) { [weak self] result in
+        loadingTask = loader.load(url, size: targetSize) { [weak self, logger] result in
             switch result {
             case .success(let image):
                 self?.contentView.isHidden = true
@@ -58,7 +60,7 @@ public class SRImageWidgetView: SRInteractiveWidgetView {
             case .failure(let error):
                 self?.contentView.isHidden = false
                 self?.imageView.isHidden = true
-                logError(error.localizedDescription, logger: .widgets)
+                logger.error(error.localizedDescription, logger: .widgets)
             }
         }
     }

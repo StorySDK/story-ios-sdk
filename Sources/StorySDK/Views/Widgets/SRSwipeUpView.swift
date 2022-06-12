@@ -28,9 +28,9 @@ class SRSwipeUpView: SRImageWidgetView {
         return v
     }()
 
-    init(story: SRStory, data: SRWidget, swipeUpWidget: SRSwipeUpWidget, imageUrl: URL?, loader: SRImageLoader) {
+    init(story: SRStory, data: SRWidget, swipeUpWidget: SRSwipeUpWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
         self.swipeUpWidget = swipeUpWidget
-        super.init(story: story, data: data, url: imageUrl, loader: loader)
+        super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
     }
     
     override func addSubviews() {

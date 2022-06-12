@@ -47,7 +47,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
                 self?.groupInfo.icon = image
             }
         }
-        storySdk.getStories(group, statistic: true) { [weak self] result in
+        storySdk.getStories(group) { [weak self] result in
             switch result {
             case .success(let stories):
                 self?.updateStories(stories)

@@ -21,20 +21,20 @@ extension StorySDK {
 // MARK: - Network for Groups
 
 extension StorySDK {
-    public func getGroups(from: String? = nil, to: String? = nil, statistic: Bool? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
-        network.getGroups(from: from, to: to, statistic: statistic, completion: completion)
+    public func getGroups(from: String? = nil, to: String? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
+        network.getGroups(from: from, to: to, completion: completion)
     }
     
-    public func getGroup(groupId: String, from: String? = nil, to: String? = nil, statistic: Bool? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
-        network.getGroup(groupId: groupId, statistic: statistic, completion: completion)
+    public func getGroup(groupId: String, from: String? = nil, to: String? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
+        network.getGroup(groupId: groupId, completion: completion)
     }
 }
 
 // MARK: - Network for Stories
 
 extension StorySDK {
-    public func getStories(_ group: StoryGroup, statistic: Bool? = nil, completion: @escaping (Result<[SRStory], Error>) -> Void) {
-        network.getStories(groupId: group.id, statistic: statistic, completion: completion)
+    public func getStories(_ group: StoryGroup, completion: @escaping (Result<[SRStory], Error>) -> Void) {
+        network.getStories(groupId: group.id, completion: completion)
     }
 }
 

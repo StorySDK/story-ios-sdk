@@ -52,9 +52,8 @@ extension NetworkManager {
     /// - Parameters:
     ///   - from: From date
     ///   - to: To date
-    ///   - statistic: Send statistics   
-    func getGroups(from: String? = nil, to: String? = nil, statistic: Bool? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
-        guard let request = Self.makeRequest("groups", method: .get, statistic: statistic) else {
+    func getGroups(from: String? = nil, to: String? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
+        guard let request = Self.makeRequest("groups", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -71,11 +70,10 @@ extension NetworkManager {
     /// Fetch group for the app
     /// - Parameters:
     ///   - groupId: Group identifier
-    ///   - statistic: Send statistics
     ///   - from: From date
     ///   - to: To date
-    func getGroup(groupId: String, statistic: Bool? = nil, from: String? = nil, to: String? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
-        guard let request = Self.makeRequest("groups/\(groupId)", method: .get, statistic: statistic) else {
+    func getGroup(groupId: String, from: String? = nil, to: String? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
+        guard let request = Self.makeRequest("groups/\(groupId)", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -92,9 +90,8 @@ extension NetworkManager {
     /// Fetch stories of the group for the app
     /// - Parameters:
     ///   - groupId: Group identifier
-    ///   - statistic: Send statistics
-    func getStories(groupId: String, statistic: Bool? = nil, completion: @escaping (Result<[SRStory], Error>) -> Void) {
-        guard let request = Self.makeRequest("groups/\(groupId)/stories", method: .get, statistic: statistic) else {
+    func getStories(groupId: String, completion: @escaping (Result<[SRStory], Error>) -> Void) {
+        guard let request = Self.makeRequest("groups/\(groupId)/stories", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -143,10 +140,8 @@ extension NetworkManager {
         return result
     }
     
-    private static func makeRequest(_ path: String, method: HTTPMethod, statistic: Bool? = nil) -> URLRequest? {
-        var urlString = "\(baseUrl)\(path)"
-        statistic.map { urlString += "?statistic=\($0)" }
-        guard let url = URL(string: urlString) else { return nil }
+    private static func makeRequest(_ path: String, method: HTTPMethod) -> URLRequest? {
+        guard let url = URL(string: "\(baseUrl)\(path)") else { return nil }
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         return request

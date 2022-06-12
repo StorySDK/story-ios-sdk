@@ -66,14 +66,13 @@ public final class SRStoriesViewController: UIViewController {
         viewModel.onReloadData = { [weak self] in
             guard let wSelf = self else { return }
             wSelf.storiesView.stopLoading()
-            guard wSelf.viewModel.numberOfItems > 0 else {
-                wSelf.close()
-                return
-            }
             wSelf.storiesView.reloadData()
             wSelf.viewModel.setupProgress(wSelf.storiesView.progressView)
             wSelf.viewModel.startAutoscrolling()
             wSelf.viewModel.reportGroupOpen()
+        }
+        viewModel.dismiss = { [weak self] in
+            self?.close()
         }
         viewModel.onErrorReceived = { [logger] error in
             logger.error(error.getDetails(), logger: .stories)

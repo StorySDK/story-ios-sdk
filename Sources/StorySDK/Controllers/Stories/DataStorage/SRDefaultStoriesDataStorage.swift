@@ -18,6 +18,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     var configuration: SRConfiguration { storySdk.configuration }
     var numberOfItems: Int { stories.count }
     var onReloadData: (() -> Void)?
+    var dismiss: (() -> Void)?
     var onErrorReceived: ((Error) -> Void)?
     var onUpdateHeader: ((HeaderInfo) -> Void)? {
         didSet { onUpdateHeader?(groupInfo) }
@@ -53,6 +54,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
                 self?.updateStories(stories)
             case .failure(let error):
                 self?.onErrorReceived?(error)
+                self?.dismiss?()
             }
         }
     }
@@ -106,6 +108,10 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         self.stories = stories
             .filter { $0.storyData != nil }
             .sorted(by: { $0.position < $1.position })
+        guard !stories.isEmpty else {
+            dismiss?()
+            return
+        }
         progress?.numberOfItems = numberOfItems
         onReloadData?()
         updateStoryDuration()

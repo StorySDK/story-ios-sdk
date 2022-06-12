@@ -75,8 +75,8 @@ final class SRStoryCanvasView: UIView {
             let transform = view.transform
             view.transform = .identity
             var size = CGSize(
-                width: frame.height * rect.width,
-                height: frame.height * rect.height
+                width: frame.width * rect.width,
+                height: frame.width * rect.height
             )
             size = view.sizeThatFits(size)
             let origin = CGPoint(

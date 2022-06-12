@@ -22,6 +22,10 @@ class EmojiReactionView: SRInteractiveWidgetView {
         return l
     }()
     
+    override var widgetScale: CGFloat {
+        data.positionLimits.minHeight.map { data.position.realHeight / $0 } ?? 1
+    }
+    
     init(story: SRStory, data: SRWidget, emojiReactionWidget: SREmojiReactionWidget) {
         self.emojiReactionWidget = emojiReactionWidget
         super.init(story: story, data: data)

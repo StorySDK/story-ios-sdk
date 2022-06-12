@@ -61,12 +61,17 @@ public final class SRStoriesViewController: UIViewController {
         storiesView.delegate = self
         storiesView.dataSource = self
         storiesView.addCloseTarget(self, selector: #selector(close))
-        viewModel.onReloadData = { [weak storiesView, weak viewModel] in
-            storiesView?.stopLoading()
-            storiesView?.reloadData()
-            storiesView.map { viewModel?.setupProgress($0.progressView) }
-            viewModel?.startAutoscrolling()
-            viewModel?.reportGroupOpen()
+        viewModel.onReloadData = { [weak self] in
+            guard let wSelf = self else { return }
+            wSelf.storiesView.stopLoading()
+            guard wSelf.viewModel.numberOfItems > 0 else {
+                wSelf.close()
+                return
+            }
+            wSelf.storiesView.reloadData()
+            wSelf.viewModel.setupProgress(wSelf.storiesView.progressView)
+            wSelf.viewModel.startAutoscrolling()
+            wSelf.viewModel.reportGroupOpen()
         }
         viewModel.onErrorReceived = { error in
             logError(error.getDetails(), logger: .stories)

@@ -40,11 +40,16 @@ public final class SRStoryWidget: UIView {
         set { viewModel.onErrorReceived = newValue }
     }
     private let viewModel: SRGroupsViewModel
-    private let layout = UICollectionViewFlowLayout()
+    private let layout: UICollectionViewFlowLayout = {
+        let l = UICollectionViewFlowLayout()
+        l.scrollDirection = .horizontal
+        return l
+    }()
     private lazy var collectionView: UICollectionView = {
         let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
         v.contentInset = .init(top: 14, left: 14, bottom: 14, right: 14)
         v.register(SRCollectionCell.self, forCellWithReuseIdentifier: "StoryCell")
+        v.showsHorizontalScrollIndicator = false
         return v
     }()
     public weak var delegate: SRStoryWidgetDelegate?

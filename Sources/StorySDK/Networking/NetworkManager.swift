@@ -20,7 +20,7 @@ final class NetworkManager {
         delegate: nil,
         delegateQueue: .main
     )
-    private static let baseUrl = "https://api.diffapp.link/sdk/v1/"
+    private static let baseUrl = "https://api.storysdk.com/sdk/v1/"
     
     func setupAuthorization(_ id: String?) {
         configuration.httpAdditionalHeaders?["Authorization"] = id.map { "SDK \($0)" }

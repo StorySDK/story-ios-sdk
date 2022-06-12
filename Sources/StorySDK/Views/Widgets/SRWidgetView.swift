@@ -11,7 +11,7 @@ public class SRWidgetView: UIView {
     let contentView: UIView = .init(frame: .zero)
     let data: SRWidget
     var widgetScale: CGFloat {
-        data.positionLimits.minHeight.map { data.position.realHeight / $0 } ?? 1
+        data.positionLimits.minWidth.map { data.position.realWidth / $0 } ?? 1
     }
     
     init(data: SRWidget) {

@@ -49,13 +49,13 @@ final class SRWidgetConstructor {
         let position = widget.position
         let x = position.x
         let y = position.y
-        let height = position.realHeight
         let width = position.realWidth
+        let height = position.realHeight
         return CGRect(
             x: x / defaultStorySize.width,
             y: y / defaultStorySize.height,
-            width: width / defaultStorySize.height,
-            height: height / defaultStorySize.height
+            width: width / defaultStorySize.width,
+            height: height / defaultStorySize.width
         )
     }
 }

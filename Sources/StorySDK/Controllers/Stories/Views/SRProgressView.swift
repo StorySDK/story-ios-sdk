@@ -14,7 +14,9 @@ final class SRProgressView: UIView, SRProgressComponent {
     }
     private let maskLayer = ProgressMaskLayer()
     private let fillLayer = CALayer()
-    private let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
+    private let blurEffect = UIBlurEffect(style: .light)
+    private lazy var blurView = UIVisualEffectView(effect: blurEffect)
+    private lazy var vibrancyView = UIVisualEffectView(effect: UIVibrancyEffect(blurEffect: blurEffect))
     
     override var tintColor: UIColor! {
         didSet { fillLayer.backgroundColor = tintColor.cgColor }
@@ -41,6 +43,8 @@ final class SRProgressView: UIView, SRProgressComponent {
     init() {
         super.init(frame: .zero)
         addSubview(blurView)
+        blurView.contentView.addSubview(vibrancyView)
+        vibrancyView.contentView.backgroundColor = .white
         layer.mask = maskLayer
         layer.addSublayer(fillLayer)
         fillLayer.backgroundColor = tintColor.cgColor
@@ -54,6 +58,7 @@ final class SRProgressView: UIView, SRProgressComponent {
     override func layoutSubviews() {
         super.layoutSubviews()
         blurView.frame = bounds
+        vibrancyView.frame = bounds
         maskLayer.frame = bounds
         CATransaction.begin()
         CATransaction.setValue(NSNumber(value: animationDuration),

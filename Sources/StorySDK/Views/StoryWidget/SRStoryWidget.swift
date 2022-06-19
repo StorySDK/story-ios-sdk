@@ -24,8 +24,12 @@ public final class SRStoryWidget: UIView {
 #if TARGET_INTERFACE_BUILDER
         .init(width: CGFloat.greatestFiniteMagnitude, height: 118)
 #else
-        .init(width: .greatestFiniteMagnitude,
-              height: layout.itemSize.height + contentInset.top + contentInset.bottom)
+        let height = layout.itemSize.height + contentInset.top + contentInset.bottom
+        let emptyHeight = CGFloat.leastNonzeroMagnitude
+        return .init(
+            width: CGFloat.greatestFiniteMagnitude,
+            height: viewModel.numberOfItems > 0 ? height : emptyHeight
+        )
 #endif
     }
     public var contentInset: UIEdgeInsets {
@@ -50,15 +54,17 @@ public final class SRStoryWidget: UIView {
         v.contentInset = .init(top: 14, left: 14, bottom: 14, right: 14)
         v.register(SRCollectionCell.self, forCellWithReuseIdentifier: "StoryCell")
         v.showsHorizontalScrollIndicator = false
+        v.backgroundColor = .clear
         return v
     }()
     public weak var delegate: SRStoryWidgetDelegate?
     
-    public init(dataStorage: SRGroupsDataStorage = SRDefaultGroupsDataStorage(sdk: .shared)) {
-        self.viewModel = .init(dataStorage: dataStorage)
+    public init(sdk: StorySDK = .shared) {
+        let dataSource = SRDefaultGroupsDataStorage(sdk: sdk)
+        self.viewModel = .init(dataStorage: dataSource)
         super.init(frame: .zero)
         setupLayout()
-        bindView() 
+        bindView()
     }
     
     required init?(coder: NSCoder) {
@@ -105,8 +111,8 @@ public final class SRStoryWidget: UIView {
         collectionView.delegate = self
         viewModel.onReloadData = { [weak self] in
             guard let wSelf = self else { return }
-            wSelf.viewModel.setupLayout(wSelf.layout)
             wSelf.invalidateIntrinsicContentSize()
+            wSelf.viewModel.setupLayout(wSelf.layout)
             wSelf.collectionView.reloadData()
         }
         viewModel.onErrorReceived = { [weak self] error in

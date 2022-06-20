@@ -24,13 +24,21 @@ public final class SRStoryWidget: UIView {
 #if TARGET_INTERFACE_BUILDER
         .init(width: CGFloat.greatestFiniteMagnitude, height: 118)
 #else
-        let height = layout.itemSize.height + contentInset.top + contentInset.bottom
-        let emptyHeight = CGFloat.leastNonzeroMagnitude
-        return .init(
-            width: CGFloat.greatestFiniteMagnitude,
-            height: viewModel.numberOfItems > 0 ? height : emptyHeight
-        )
+        if isLoading || viewModel.numberOfItems > 0 {
+            return .init(
+                width: CGFloat.greatestFiniteMagnitude,
+                height: layout.itemSize.height + contentInset.top + contentInset.bottom
+            )
+        } else {
+            return .init(
+                width: CGFloat.greatestFiniteMagnitude,
+                height: CGFloat.leastNonzeroMagnitude
+            )
+        }
 #endif
+    }
+    public override var tintColor: UIColor! {
+        didSet { loadingIndicator.tintColor = tintColor }
     }
     public var contentInset: UIEdgeInsets {
         get { collectionView.contentInset }
@@ -39,15 +47,26 @@ public final class SRStoryWidget: UIView {
             invalidateIntrinsicContentSize()
         }
     }
-    public var onErrorReceived: ((Error) -> Void)? {
-        get { viewModel.onErrorReceived }
-        set { viewModel.onErrorReceived = newValue }
+    public var onErrorReceived: ((Error) -> Void)?
+    private var isLoading: Bool = false {
+        didSet {
+            if isLoading {
+                loadingIndicator.startAnimating()
+            } else {
+                loadingIndicator.stopAnimating()
+            }
+        }
     }
     private let viewModel: SRGroupsViewModel
     private let layout: UICollectionViewFlowLayout = {
         let l = UICollectionViewFlowLayout()
         l.scrollDirection = .horizontal
         return l
+    }()
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let v = UIActivityIndicatorView(style: .medium)
+        v.hidesWhenStopped = true
+        return v
     }()
     private lazy var collectionView: UICollectionView = {
         let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -96,13 +115,18 @@ public final class SRStoryWidget: UIView {
 #endif
     
     private func setupLayout() {
-        addSubview(collectionView)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        for v: UIView in [loadingIndicator, collectionView] {
+            addSubview(v)
+            v.translatesAutoresizingMaskIntoConstraints = false
+        }
         NSLayoutConstraint.activate([
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.topAnchor.constraint(equalTo: topAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            
+            loadingIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
     
@@ -111,12 +135,15 @@ public final class SRStoryWidget: UIView {
         collectionView.delegate = self
         viewModel.onReloadData = { [weak self] in
             guard let wSelf = self else { return }
+            wSelf.isLoading = false
             wSelf.invalidateIntrinsicContentSize()
             wSelf.viewModel.setupLayout(wSelf.layout)
             wSelf.collectionView.reloadData()
         }
         viewModel.onErrorReceived = { [weak self] error in
             guard let widget = self else { return }
+            widget.isLoading = false
+            widget.onErrorReceived?(error)
             widget.delegate?.onWidgetErrorReceived(error, widget: widget)
         }
         viewModel.onPresentGroup = { [weak self] group in
@@ -127,6 +154,8 @@ public final class SRStoryWidget: UIView {
     
     public func load() {
         viewModel.load()
+        isLoading = true
+        invalidateIntrinsicContentSize()
     }
 }
 

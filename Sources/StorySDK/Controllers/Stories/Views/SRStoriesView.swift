@@ -67,6 +67,7 @@ final class SRStoriesView: UIView {
         bt.tintColor = .white
         return bt
     }()
+    private let topPanView = UIView()
     private let headerView = SRGroupHeaderView()
     private let headerGradientView: CAGradientLayer = {
         let l = CAGradientLayer()
@@ -94,7 +95,7 @@ final class SRStoriesView: UIView {
         backgroundColor = .systemBackground
         addSubview(collectionView)
         layer.addSublayer(headerGradientView)
-        for v: UIView in [progressView, headerView, closeButton] {
+        for v: UIView in [progressView, headerView, topPanView, closeButton] {
             v.translatesAutoresizingMaskIntoConstraints = false
             addSubview(v)
         }
@@ -112,6 +113,11 @@ final class SRStoriesView: UIView {
             closeButton.topAnchor.constraint(equalTo: progressView.bottomAnchor),
             closeButton.widthAnchor.constraint(equalToConstant: 48),
             closeButton.heightAnchor.constraint(equalToConstant: 48),
+            
+            topPanView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            topPanView.topAnchor.constraint(equalTo: topAnchor),
+            topPanView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            topPanView.bottomAnchor.constraint(equalTo: closeButton.bottomAnchor),
         ])
     }
     
@@ -142,6 +148,10 @@ final class SRStoriesView: UIView {
     
     func addCloseTarget(_ target: Any, selector: Selector) {
         closeButton.addTarget(target, action: selector, for: .touchUpInside)
+    }
+    
+    func addTopPanGesture(_ target: Any?, selector: Selector) {
+        topPanView.addGestureRecognizer(UIPanGestureRecognizer(target: target, action: selector))
     }
     
     func scroll(to x: CGFloat, animated: Bool) {

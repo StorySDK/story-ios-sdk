@@ -28,8 +28,9 @@ public final class SRStoriesViewController: UIViewController {
         )
         super.init(nibName: nil, bundle: nil)
         if dataStorage.configuration.needFullScreen {
-            modalPresentationStyle = .fullScreen
+            modalPresentationStyle = .overFullScreen
         }
+        isModalInPresentation = true
     }
     
     @available(*, unavailable)
@@ -49,10 +50,6 @@ public final class SRStoriesViewController: UIViewController {
         loadData()
     }
     
-    public override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
-    
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         viewModel.pauseAutoscrolling()
@@ -63,6 +60,12 @@ public final class SRStoriesViewController: UIViewController {
         storiesView.delegate = self
         storiesView.dataSource = self
         storiesView.addCloseTarget(self, selector: #selector(close))
+        if modalPresentationStyle == .overFullScreen {
+            storiesView.addTopPanGesture(
+                self.viewModel.gestureRecognizer,
+                selector: #selector(SRStoriesGestureRecognizer.swipeDown)
+            )
+        }
         viewModel.onReloadData = { [weak self] in
             guard let wSelf = self else { return }
             wSelf.storiesView.stopLoading()
@@ -99,6 +102,9 @@ public final class SRStoriesViewController: UIViewController {
         }
         viewModel.onScrollCompeted = { [weak self] in
             self?.close()
+        }
+        viewModel.resignFirstResponder = { [weak self] in
+            self?.view.resignFirstResponder()
         }
     }
     

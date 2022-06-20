@@ -131,13 +131,14 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     
     // MARK: - SRSwipeUpViewDelegate
     
-    func didSwipeUp(_ widget: SRSwipeUpView) {
+    func didSwipeUp(_ widget: SRSwipeUpView) -> Bool {
         let request = SRStatistic(type: .click, value: widget.swipeUpWidget.url)
         analytics?.sendWidgetReaction(request, widget: widget)
         
-        guard let url = URL(string: widget.swipeUpWidget.url) else { return }
-        guard UIApplication.shared.canOpenURL(url) else { return }
+        guard let url = URL(string: widget.swipeUpWidget.url) else { return false }
+        guard UIApplication.shared.canOpenURL(url) else { return false }
         progress?.pauseAutoscrolling()
         UIApplication.shared.open(url)
+        return true
     }
 }

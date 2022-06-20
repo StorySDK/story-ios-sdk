@@ -29,6 +29,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     }
     weak var analytics: SRAnalyticsController?
     weak var widgetResponder: SRWidgetResponder?
+    weak var gestureRecognizer: SRStoriesGestureRecognizer?
     
     init(sdk: StorySDK = .shared) {
         self.storySdk = sdk
@@ -75,6 +76,13 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
                 .reaction(widgetId: widget.id)
                 .map { view.setupWidget(reaction: $0) }
             (view as? SRInteractiveWidgetView)?.delegate = widgetResponder
+            if let swipeUp = view as? SRSwipeUpView {
+                let gesture = SRSwipeUpGestureRecognizer(
+                    widget: swipeUp.swipeUpWidget,
+                    target: gestureRecognizer
+                )
+                swipeUp.addGestureRecognizer(gesture)
+            }
             let position = SRWidgetConstructor.calcWidgetPosition(widget, story: story)
             cell.appendWidget(view, position: position)
         }

@@ -12,6 +12,7 @@ final class SRStoriesViewModel {
     let progress: SRProgressController
     let widgetResponder: SRWidgetResponder
     let analytics: SRAnalyticsController
+    let gestureRecognizer = SRStoriesGestureRecognizer()
     
     init(dataStorage: SRStoriesDataStorage,
          progress: SRProgressController,
@@ -21,13 +22,22 @@ final class SRStoriesViewModel {
         self.progress = progress
         self.widgetResponder = widgetResponder
         self.analytics = analytics
+        
         dataStorage.progress = progress
         dataStorage.analytics = analytics
         dataStorage.widgetResponder = widgetResponder
+        dataStorage.gestureRecognizer = gestureRecognizer
+        
         widgetResponder.progress = progress
         widgetResponder.analytics = analytics
+        
         progress.analytics = analytics
+        
         analytics.dataStorage = dataStorage
+        
+        gestureRecognizer.dataStorage = dataStorage
+        gestureRecognizer.widgetResponder = widgetResponder
+        gestureRecognizer.progress = progress
     }
     
     // MARK: - Data Storage
@@ -56,6 +66,10 @@ final class SRStoriesViewModel {
     var containerFrame: SRRect {
         get { widgetResponder.containerFrame }
         set { widgetResponder.containerFrame = newValue }
+    }
+    var resignFirstResponder: (() -> Void)? {
+        get { gestureRecognizer.resignFirstResponder }
+        set { gestureRecognizer.resignFirstResponder = newValue }
     }
     
     func loadStories(group: StoryGroup) {

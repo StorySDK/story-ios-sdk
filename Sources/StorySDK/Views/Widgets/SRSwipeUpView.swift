@@ -8,7 +8,7 @@
 import UIKit
 
 protocol SRSwipeUpViewDelegate: AnyObject {
-    func didSwipeUp(_ widget: SRSwipeUpView)
+    func didSwipeUp(_ widget: SRSwipeUpView) -> Bool
 }
 
 class SRSwipeUpView: SRImageWidgetView {
@@ -53,15 +53,6 @@ class SRSwipeUpView: SRImageWidgetView {
         if let name = swipeUpWidget.icon.systemIconName {
             iconView.image = UIImage(systemName: name)
         }
-        
-        let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(upSwiped(_:)))
-        swipeUp.direction = .up
-        self.addGestureRecognizer(swipeUp)
-    }
-    
-    @objc func upSwiped(_ gesture: UISwipeGestureRecognizer) {
-        guard gesture.direction == .up else { return }
-        delegate?.didSwipeUp(self)
     }
     
     override func layoutSubviews() {

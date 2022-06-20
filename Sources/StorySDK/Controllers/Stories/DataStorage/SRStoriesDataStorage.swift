@@ -20,6 +20,8 @@ protocol SRStoriesDataStorage: AnyObject {
     var analytics: SRAnalyticsController? { get set }
     /// Taking care about  widget actions
     var widgetResponder: SRWidgetResponder? { get set }
+    /// To process swipe up gesture
+    var gestureRecognizer: SRStoriesGestureRecognizer? { get set }
     /// Number of stories in the group
     var numberOfItems: Int { get }
     /// Stories collection has been updated

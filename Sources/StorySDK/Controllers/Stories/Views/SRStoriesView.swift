@@ -53,19 +53,31 @@ final class SRStoriesView: UIView {
     }()
     private let closeButton: UIButton = {
         let bt: UIButton
-        let icon = UIImage(systemName: "xmark")
+        let icon = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18))
         if #available(iOS 15.0, *) {
             var config = UIButton.Configuration.plain()
             config.image = icon
+            config.contentInsets = .init(top: 15, leading: 15, bottom: 15, trailing: 12)
             bt = .init(configuration: config)
         } else {
             bt = .init(type: .system)
             bt.setImage(icon, for: .normal)
+            bt.contentEdgeInsets = .init(top: 15, left: 15, bottom: 15, right: 12)
         }
         bt.tintColor = .white
         return bt
     }()
     private let headerView = SRGroupHeaderView()
+    private let headerGradientView: CAGradientLayer = {
+        let l = CAGradientLayer()
+        l.startPoint = CGPoint(x: 0.5, y: 0.0)
+        l.endPoint = CGPoint(x: 0.5, y: 1.0)
+        l.colors = [
+            UIColor.black.withAlphaComponent(0.2),
+            UIColor.clear
+        ].map(\.cgColor)
+        return l
+    }()
     let progressView = SRProgressView()
     
     init() {
@@ -81,6 +93,7 @@ final class SRStoriesView: UIView {
     private func setupView() {
         backgroundColor = .systemBackground
         addSubview(collectionView)
+        layer.addSublayer(headerGradientView)
         for v: UIView in [progressView, headerView, closeButton] {
             v.translatesAutoresizingMaskIntoConstraints = false
             addSubview(v)
@@ -97,8 +110,8 @@ final class SRStoriesView: UIView {
             
             closeButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             closeButton.topAnchor.constraint(equalTo: progressView.bottomAnchor),
-            closeButton.widthAnchor.constraint(equalToConstant: 72),
-            closeButton.heightAnchor.constraint(equalToConstant: 72),
+            closeButton.widthAnchor.constraint(equalToConstant: 48),
+            closeButton.heightAnchor.constraint(equalToConstant: 48),
         ])
     }
     
@@ -122,6 +135,7 @@ final class SRStoriesView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        headerGradientView.frame = .init(x: 0, y: 0, width: bounds.width, height: closeButton.frame.maxY + closeButton.frame.height)
         collectionView.frame = bounds
         loadingIndicator.center = center
     }

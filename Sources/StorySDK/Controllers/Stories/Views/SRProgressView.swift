@@ -76,7 +76,7 @@ final class SRProgressView: UIView, SRProgressComponent {
 }
 
 private final class ProgressMaskLayer: CALayer {
-    var numberOfItems: Int = 1 {
+    var numberOfItems: Int = 0 {
         didSet {
             guard oldValue != numberOfItems else { return }
             setNeedsDisplay()

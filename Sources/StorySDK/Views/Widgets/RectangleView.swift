@@ -7,16 +7,17 @@
 
 import UIKit
 
-class RectangleView: SRWidgetView {
+class RectangleView: SRImageWidgetView {
     let rectangleWidget: SRRectangleWidget
     
-    init(data: SRWidget, rectangleWidget: SRRectangleWidget) {
+    init(story: SRStory, data: SRWidget, rectangleWidget: SRRectangleWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
         self.rectangleWidget = rectangleWidget
-        super.init(data: data)
+        super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
     }
     
     override func setupView() {
         super.setupView()
+        guard url == nil else { return }
         if case .color(let color) = rectangleWidget.fillColor {
             let fillOpacity = CGFloat(rectangleWidget.fillOpacity / 100)
             contentView.backgroundColor = color.withAlphaComponent(fillOpacity)

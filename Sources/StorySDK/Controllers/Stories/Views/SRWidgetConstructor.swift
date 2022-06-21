@@ -19,9 +19,9 @@ final class SRWidgetConstructor {
         let logger = sdk.logger
         switch content {
         case .rectangle(let rectangleWidget):
-            return RectangleView(data: widget, rectangleWidget: rectangleWidget)
+            return RectangleView(story: story, data: widget, rectangleWidget: rectangleWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .ellipse(let ellipseWidget):
-            return EllipseView(data: widget, ellipseWidget: ellipseWidget)
+            return EllipseView(story: story, data: widget, ellipseWidget: ellipseWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .emoji(let emojiWidget):
             return EmojiReactionView(story: story, data: widget, emojiReactionWidget: emojiWidget)
         case .chooseAnswer(let answerWidget):
@@ -46,7 +46,7 @@ final class SRWidgetConstructor {
     }
     
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
-        let defaultStorySize = CGSize(width: 390, height: 694)
+        let defaultStorySize = CGSize(width: 1080, height: 1920) // CGSize(width: 390, height: 694)
         let position = widget.position
         let x = position.x
         let y = position.y

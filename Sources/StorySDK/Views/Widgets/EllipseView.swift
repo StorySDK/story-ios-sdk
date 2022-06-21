@@ -7,23 +7,22 @@
 
 import UIKit
 
-class EllipseView: SRWidgetView {
+class EllipseView: SRImageWidgetView {
     let ellipseWidget: SREllipseWidget
 
-    init(data: SRWidget, ellipseWidget: SREllipseWidget) {
+    init(story: SRStory, data: SRWidget, ellipseWidget: SREllipseWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
         self.ellipseWidget = ellipseWidget
-        super.init(data: data)
+        super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
     }
     
     override func setupView() {
         super.setupView()
-
+        guard url == nil else { return }
         if case .color(let color) = ellipseWidget.fillColor {
             let fillOpacity = CGFloat(ellipseWidget.fillOpacity / 100)
             contentView.backgroundColor = color
                 .withAlphaComponent(fillOpacity)
         }
-
         if ellipseWidget.hasBorder, case .color(let color) = ellipseWidget.strokeColor {
             let strokeOpacity = CGFloat(ellipseWidget.strokeOpacity / 100)
             contentView.layer.borderColor = color

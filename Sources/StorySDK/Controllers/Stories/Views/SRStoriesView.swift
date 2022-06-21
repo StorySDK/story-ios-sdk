@@ -38,19 +38,7 @@ final class SRStoriesView: UIView {
     }
     
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
-    private let collectionView: UICollectionView = {
-        let l = UICollectionViewFlowLayout()
-        l.minimumInteritemSpacing = 0
-        l.minimumLineSpacing = 0
-        l.scrollDirection = .horizontal
-        
-        let v = UICollectionView(frame: .zero, collectionViewLayout: l)
-        v.showsHorizontalScrollIndicator = false
-        v.isPagingEnabled = true
-        v.register(SRStoryCollectionCell.self, forCellWithReuseIdentifier: "StoryCell")
-        v.backgroundColor = .clear
-        return v
-    }()
+    private let collectionView = SRStoryCollectionView()
     private let closeButton: UIButton = {
         let bt: UIButton
         let icon = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18))
@@ -67,7 +55,6 @@ final class SRStoriesView: UIView {
         bt.tintColor = .white
         return bt
     }()
-    private let topPanView = UIView()
     private let headerView = SRGroupHeaderView()
     private let headerGradientView: CAGradientLayer = {
         let l = CAGradientLayer()
@@ -95,7 +82,7 @@ final class SRStoriesView: UIView {
         backgroundColor = .systemBackground
         addSubview(collectionView)
         layer.addSublayer(headerGradientView)
-        for v: UIView in [progressView, headerView, topPanView, closeButton] {
+        for v: UIView in [progressView, headerView, closeButton] {
             v.translatesAutoresizingMaskIntoConstraints = false
             addSubview(v)
         }
@@ -113,11 +100,6 @@ final class SRStoriesView: UIView {
             closeButton.topAnchor.constraint(equalTo: progressView.bottomAnchor),
             closeButton.widthAnchor.constraint(equalToConstant: 48),
             closeButton.heightAnchor.constraint(equalToConstant: 48),
-            
-            topPanView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            topPanView.topAnchor.constraint(equalTo: topAnchor),
-            topPanView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            topPanView.bottomAnchor.constraint(equalTo: closeButton.bottomAnchor),
         ])
     }
     
@@ -150,8 +132,8 @@ final class SRStoriesView: UIView {
         closeButton.addTarget(target, action: selector, for: .touchUpInside)
     }
     
-    func addTopPanGesture(_ target: Any?, selector: Selector) {
-        topPanView.addGestureRecognizer(UIPanGestureRecognizer(target: target, action: selector))
+    func addTopPanGesture(_ target: Any, selector: Selector) {
+        collectionView.verticalPanGestureRecognizer.addTarget(target, action: selector)
     }
     
     func scroll(to x: CGFloat, animated: Bool) {

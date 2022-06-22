@@ -49,10 +49,10 @@ public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
             layout.updateSpacing(10)
             layout.updateItemSize(.init(width: 90, height: 90))
         case .bigSquare:
-            layout.updateSpacing(0)
+            layout.updateSpacing(10)
             layout.updateItemSize(.init(width: 90, height: 90))
         case .rectangle:
-            layout.updateSpacing(0)
+            layout.updateSpacing(10)
             layout.updateItemSize(.init(width: 72, height: 90))
         }
         layout.invalidateLayout()

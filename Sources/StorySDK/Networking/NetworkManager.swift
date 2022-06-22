@@ -24,9 +24,18 @@ final class NetworkManager {
     
     func setupAuthorization(_ id: String?) {
         configuration.httpAdditionalHeaders?["Authorization"] = id.map { "SDK \($0)" }
+        updateSession()
     }
     func setupLanguage(_ value: String?) {
         configuration.httpAdditionalHeaders?["Accept-Language"] = value
+        updateSession()
+    }
+    private func updateSession() {
+        session = URLSession(
+            configuration: configuration,
+            delegate: nil,
+            delegateQueue: .main
+        )
     }
 }
 

@@ -26,7 +26,7 @@ public struct SRConfiguration {
     /// Default language choosed for the app
     public private(set) var defaultLanguage: String = "en"
     
-    public init(language: String = "en",
+    public init(language: String = Locale.current.languageCode ?? "en",
                 sdkId: String? = nil,
                 storyDuration: TimeInterval = 6.0,
                 needShowTitle: Bool = false,

@@ -25,6 +25,8 @@ class SRSwipeUpView: SRImageWidgetView {
         let v = UILabel()
         v.textAlignment = .center
         v.textColor = .white
+        v.adjustsFontSizeToFitWidth = true
+        v.minimumScaleFactor = 0.5
         return v
     }()
 
@@ -57,13 +59,14 @@ class SRSwipeUpView: SRImageWidgetView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        let scale = widgetScale
-        titleLabel.font = .regular(ofSize: swipeUpWidget.fontSize * scale)
+        let iconSize = bounds.height * swipeUpWidget.iconSize / data.position.realHeight
+        let fontSize = bounds.height * swipeUpWidget.fontSize / data.position.realHeight
+        titleLabel.font = .regular(ofSize: fontSize)
         iconView.frame = .init(
             x: 0, y: 0,
             width: bounds.width,
-            height: swipeUpWidget.iconSize * scale)
-        let y = iconView.frame.maxY + 6 * scale
+            height: iconSize)
+        let y = iconView.frame.maxY
         titleLabel.frame = .init(
             x: 0, y: y,
             width: bounds.width,

@@ -104,7 +104,7 @@ public final class SRStoriesViewController: UIViewController {
             self?.close()
         }
         viewModel.resignFirstResponder = { [weak self] in
-            self?.view.resignFirstResponder()
+            self?.view.endEditing(true)
         }
     }
     

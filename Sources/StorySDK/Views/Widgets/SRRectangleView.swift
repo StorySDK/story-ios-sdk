@@ -1,5 +1,5 @@
 //
-//  RectangleView.swift
+//  SRRectangleView.swift
 //  StorySDK
 //
 //  Created by MeadowsPhone Team on 06.02.2022.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class RectangleView: SRImageWidgetView {
+class SRRectangleView: SRImageWidgetView {
     let rectangleWidget: SRRectangleWidget
     
     init(story: SRStory, data: SRWidget, rectangleWidget: SRRectangleWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
@@ -17,7 +17,6 @@ class RectangleView: SRImageWidgetView {
     
     override func setupView() {
         super.setupView()
-        guard url == nil else { return }
         if case .color(let color) = rectangleWidget.fillColor {
             let fillOpacity = CGFloat(rectangleWidget.fillOpacity / 100)
             contentView.backgroundColor = color.withAlphaComponent(fillOpacity)

@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class SRDefaultProgressController: SRProgressController {
+final class SRDefaultProgressController: NSObject, SRProgressController {
     var analytics: SRAnalyticsController?
     var isDragging: Bool = false
     var isInteracted: Bool = false
@@ -28,7 +28,23 @@ final class SRDefaultProgressController: SRProgressController {
         }
     }
     
-    init() {}
+    override init() {
+        super.init()
+        addEvents()
+    }
+    
+    func addEvents() {
+        NotificationCenter.default
+            .addObserver(self,
+                         selector: #selector(didEnterBackground),
+                         name: UIApplication.didEnterBackgroundNotification,
+                         object: nil)
+        NotificationCenter.default
+            .addObserver(self,
+                         selector: #selector(willEnterForeground),
+                         name: UIApplication.willEnterForegroundNotification,
+                         object: nil)
+    }
     
     func startAutoscrolling() {
         timer = .scheduledTimer(withTimeInterval: timerPeriod, repeats: true) { [weak self] _ in
@@ -92,5 +108,13 @@ final class SRDefaultProgressController: SRProgressController {
             }
             progress = newProgress
         }
+    }
+    
+    @objc func didEnterBackground() {
+        pauseAutoscrolling()
+    }
+    
+    @objc func willEnterForeground() {
+        startAutoscrolling()
     }
 }

@@ -1,5 +1,5 @@
 //
-//  GiphyView.swift
+//  SRGiphyView.swift
 //  StorySDK
 //
 //  Created by MeadowsPhone Team on 06.02.2022.
@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-class GiphyView: SRWidgetView {
+class SRGiphyView: SRWidgetView {
     let giphyWidget: SRGiphyWidget
     let loader: SRImageLoader
     private let gifQueue = DispatchQueue(label: "\(packageBundleId).gifQueue",

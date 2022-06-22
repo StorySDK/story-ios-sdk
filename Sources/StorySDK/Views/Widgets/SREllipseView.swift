@@ -1,5 +1,5 @@
 //
-//  EllipseView.swift
+//  SREllipseView.swift
 //  StorySDK
 //
 //  Created by MeadowsPhone Team on 06.02.2022.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class EllipseView: SRImageWidgetView {
+class SREllipseView: SRImageWidgetView {
     let ellipseWidget: SREllipseWidget
 
     init(story: SRStory, data: SRWidget, ellipseWidget: SREllipseWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
@@ -17,7 +17,7 @@ class EllipseView: SRImageWidgetView {
     
     override func setupView() {
         super.setupView()
-        guard url == nil else { return }
+        // guard url == nil else { return }
         if case .color(let color) = ellipseWidget.fillColor {
             let fillOpacity = CGFloat(ellipseWidget.fillOpacity / 100)
             contentView.backgroundColor = color

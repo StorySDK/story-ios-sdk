@@ -55,7 +55,7 @@ class EmojiReactionView: SRInteractiveWidgetView {
         contentView.layer.cornerRadius = contentView.frame.height / 2
         gradientLayer.frame = contentView.bounds
         gradientLayer.cornerRadius = contentView.layer.cornerRadius
-        let emojiWidth: CGFloat = 34 * widgetScale
+        let emojiWidth: CGFloat = bounds.height * 0.6 // 34 * widgetScale
         let padding = contentView.layer.cornerRadius - emojiWidth / 2
         let contentWidth = contentView.frame.width - padding * 2
         let spacing = (contentWidth - emojiWidth * CGFloat(emojiViews.count)) / max(0, CGFloat(emojiViews.count - 1))

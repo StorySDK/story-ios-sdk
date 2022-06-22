@@ -19,9 +19,9 @@ final class SRWidgetConstructor {
         let logger = sdk.logger
         switch content {
         case .rectangle(let rectangleWidget):
-            return RectangleView(story: story, data: widget, rectangleWidget: rectangleWidget, imageUrl: imageUrl, loader: loader, logger: logger)
+            return SRRectangleView(story: story, data: widget, rectangleWidget: rectangleWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .ellipse(let ellipseWidget):
-            return EllipseView(story: story, data: widget, ellipseWidget: ellipseWidget, imageUrl: imageUrl, loader: loader, logger: logger)
+            return SREllipseView(story: story, data: widget, ellipseWidget: ellipseWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .emoji(let emojiWidget):
             return EmojiReactionView(story: story, data: widget, emojiReactionWidget: emojiWidget)
         case .chooseAnswer(let answerWidget):
@@ -39,7 +39,7 @@ final class SRWidgetConstructor {
         case .talkAbout(let talkAboutWidget):
             return TalkAboutView(story: story, data: widget, talkAboutWidget: talkAboutWidget, loader: loader)
         case .giphy(let giphyWidget):
-            return GiphyView(data: widget, giphyWidget: giphyWidget, loader: loader)
+            return SRGiphyView(data: widget, giphyWidget: giphyWidget, loader: loader)
         case .image:
             fatalError("Unexpected widget type")
         }

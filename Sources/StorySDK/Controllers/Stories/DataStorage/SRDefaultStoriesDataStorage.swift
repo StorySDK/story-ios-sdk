@@ -115,8 +115,9 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     private func updateStories(_ stories: [SRStory]) {
         self.stories = stories
             .filter { $0.storyData != nil }
+            .filter { $0.storyData?.status == .active }
             .sorted(by: { $0.position < $1.position })
-        guard !stories.isEmpty else {
+        guard numberOfItems > 0 else {
             dismiss?()
             return
         }

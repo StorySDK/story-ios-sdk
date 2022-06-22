@@ -34,7 +34,7 @@ public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
             self?.storySdk.getGroups { result in
                 switch result {
                 case .success(let groups):
-                    self?.groups = groups
+                    self?.groups = groups.filter { $0.active }
                     self?.onReloadData?()
                 case .failure(let error):
                     self?.onErrorReceived?(error)

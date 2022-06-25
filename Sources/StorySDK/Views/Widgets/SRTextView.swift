@@ -21,6 +21,11 @@ class SRTextView: SRImageWidgetView {
         super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
     }
     
+    override func setupView() {
+        super.setupView()
+        isUserInteractionEnabled = false
+    }
+    
     override func setupContentLayer(_ layer: CALayer) {
         layer.masksToBounds = true
         layer.cornerRadius = 8 * widgetScale

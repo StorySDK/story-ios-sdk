@@ -28,5 +28,6 @@ class SRRectangleView: SRImageWidgetView {
             contentView.layer.borderColor = color.withAlphaComponent(strokeOpacity).cgColor
             contentView.layer.borderWidth = CGFloat(rectangleWidget.strokeThickness)
         }
+        isUserInteractionEnabled = false
     }
 }

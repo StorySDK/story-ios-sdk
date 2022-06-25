@@ -30,6 +30,7 @@ class SREllipseView: SRImageWidgetView {
                 .cgColor
             contentView.layer.borderWidth = CGFloat(ellipseWidget.strokeThickness)
         }
+        isUserInteractionEnabled = false
     }
     
     override func layoutSubviews() {

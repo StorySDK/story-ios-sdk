@@ -73,7 +73,7 @@ final class SRStoriesView: UIView {
     }()
     private let contentView: UIView = {
         let v = UIView(frame: UIScreen.main.bounds)
-//        v.layer.cornerRadius = 15
+        v.layer.cornerRadius = 10
         v.layer.masksToBounds = true
         return v
     }()

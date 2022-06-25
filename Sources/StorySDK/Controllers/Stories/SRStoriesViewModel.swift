@@ -47,9 +47,9 @@ final class SRStoriesViewModel {
         get { dataStorage.onReloadData }
         set { dataStorage.onReloadData = newValue }
     }
-    var dismiss: (() -> Void)? {
-        get { dataStorage.dismiss }
-        set { dataStorage.dismiss = newValue }
+    var onGotEmptyGroup: (() -> Void)? {
+        get { dataStorage.onGotEmptyGroup }
+        set { dataStorage.onGotEmptyGroup = newValue }
     }
     var onErrorReceived: ((Error) -> Void)? {
         get { dataStorage.onErrorReceived }

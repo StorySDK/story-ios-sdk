@@ -26,8 +26,8 @@ protocol SRStoriesDataStorage: AnyObject {
     var numberOfItems: Int { get }
     /// Stories collection has been updated
     var onReloadData: (() -> Void)? { get set }
-    /// Need to dismiss screen
-    var dismiss: (() -> Void)? { get set }
+    /// Calls when a group don't have any stories or error
+    var onGotEmptyGroup: (() -> Void)? { get set }
     /// An error has been received
     var onErrorReceived: ((Error) -> Void)? { get set }
     /// Updates header view

@@ -73,7 +73,7 @@ public final class SRStoriesViewController: UIViewController {
             wSelf.viewModel.startAutoscrolling()
             wSelf.viewModel.reportGroupOpen()
         }
-        viewModel.dismiss = { [weak self] in
+        viewModel.onGotEmptyGroup = { [weak self] in
             self?.close()
         }
         viewModel.onErrorReceived = { [logger] error in
@@ -140,6 +140,10 @@ public final class SRStoriesViewController: UIViewController {
     
     func updateOnScrollCompleted(_ completion: @escaping () -> Void) {
         viewModel.onScrollCompeted = completion
+    }
+    
+    func updateOnGotEmptyGroup(_ completion: @escaping () -> Void) {
+        viewModel.onGotEmptyGroup = completion
     }
     
     @objc func close() {

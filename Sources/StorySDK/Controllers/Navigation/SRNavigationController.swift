@@ -74,7 +74,7 @@ public final class SRNavigationController: UIViewController, SRNavigationViewDat
         vc.isScrollEnabled = false
         vc.tapGesture.delegate = gestures
         if index < groups.count - 1 {
-            vc.updateOnScrollCompleted { [weak animations] in
+            let scrollNext: () -> Void = { [weak animations] in
                 guard let animations = animations else { return }
                 let animation = animations.makeSwipeAnimator(
                     duration: .animationsDuration,
@@ -82,6 +82,8 @@ public final class SRNavigationController: UIViewController, SRNavigationViewDat
                 )
                 animation.startAnimation()
             }
+            vc.updateOnScrollCompleted(scrollNext)
+            vc.updateOnGotEmptyGroup(scrollNext)
         }
         loadedViewControllers[index] = vc
         return vc

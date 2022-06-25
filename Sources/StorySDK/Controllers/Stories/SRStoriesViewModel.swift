@@ -72,7 +72,7 @@ final class SRStoriesViewModel {
         set { gestureRecognizer.resignFirstResponder = newValue }
     }
     
-    func loadStories(group: StoryGroup) {
+    func loadStories(group: SRStoryGroup) {
         dataStorage.loadStories(group: group)
     }
     
@@ -126,5 +126,13 @@ final class SRStoriesViewModel {
     
     func reportGroupClose() {
         analytics.reportGroupClose()
+    }
+    
+    func willBeginTransition() {
+        progress.willBeginTransition()
+    }
+    
+    func didEndTransition() {
+        progress.didEndTransition()
     }
 }

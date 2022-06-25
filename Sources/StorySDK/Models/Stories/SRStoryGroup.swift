@@ -1,5 +1,5 @@
 //
-//  StoryGroup.swift
+//  SRStoryGroup.swift
 //  StorySDK
 //
 //  Created by MeadowsPhone Team on 03.02.2022.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct StoryGroup: Codable {
+public struct SRStoryGroup: Codable {
     public var id: String
     public var appId: String
     public var userId: String

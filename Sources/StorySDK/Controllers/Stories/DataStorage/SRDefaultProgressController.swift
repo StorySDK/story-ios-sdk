@@ -21,6 +21,8 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
     var progress: Float = 0 {
         didSet { onProgressUpdated?(progress) }
     }
+    /// The view controller is being transited
+    var isTransiting: Bool = false
     var timer: Timer? {
         didSet {
             oldValue?.invalidate()
@@ -67,29 +69,39 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
         startAutoscrollingAfter(deadline)
     }
     
-    public func willBeginDragging() {
+    func willBeginDragging() {
         isDragging = true
     }
     
-    public func didEndDragging() {
+    func didEndDragging() {
         isDragging = false
     }
     
-    public func didScroll(offset: Float, contentWidth: Float) {
+    func willBeginTransition() {
+        isTransiting = true
+    }
+    
+    func didEndTransition() {
+        isTransiting = false
+    }
+    
+    func didScroll(offset: Float, contentWidth: Float) {
+        guard contentWidth > 0 else { return }
+        guard numberOfItems > 0 else { return }
         let index = Int(offset / (contentWidth / Float(numberOfItems)))
         analytics?.storyDidChanged(to: index, byUser: isDragging)
         guard isDragging else { return }
         progress = min(1, max(0, offset / contentWidth))
     }
     
-    public func setupProgress(_ component: SRProgressComponent) {
+    func setupProgress(_ component: SRProgressComponent) {
         component.numberOfItems = numberOfItems
         component.animationDuration = timerPeriod
         activeColor.map { component.activeColor = $0 }
     }
     
     func onTimerUpdated() {
-        guard !isDragging && !isInteracted else { return }
+        guard !isDragging && !isInteracted && !isTransiting else { return }
         guard progress < 1 else { return }
         guard numberOfItems > 0 else { return }
         let storyProgress = 1 / Float(numberOfItems)
@@ -116,5 +128,23 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
     
     @objc func willEnterForeground() {
         startAutoscrolling()
+    }
+    
+    func scrollNext() {
+        let storyProgress = 1 / Float(numberOfItems)
+        var index = Int(floor(progress / storyProgress))
+        index += 1
+        guard index < numberOfItems else { return }
+        progress = Float(index) / Float(numberOfItems)
+        onScrollToStory?(index)
+    }
+    
+    func scrollBack() {
+        let storyProgress = 1 / Float(numberOfItems)
+        var index = Int(floor(progress / storyProgress))
+        index -= 1
+        guard index >= 0 else { return }
+        progress = Float(index) / Float(numberOfItems)
+        onScrollToStory?(index)
     }
 }

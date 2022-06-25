@@ -44,7 +44,7 @@ public struct SRCollectionCellStyle {
         self.backgroundColor = backgroundColor
     }
     
-    public mutating func update(settings: AppGroupViewSettings) {
+    public mutating func update(settings: SRAppGroupViewSettings) {
         switch settings {
         case .circle:
             corderRadius = 0.5

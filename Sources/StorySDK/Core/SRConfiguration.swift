@@ -15,8 +15,6 @@ public struct SRConfiguration {
     public var storyDuration: TimeInterval
     /// Show title for stories
     public var needShowTitle: Bool
-    /// Show stories in full screen
-    public var needFullScreen: Bool
     /// Filled story progress color
     public var progressColor: UIColor
     
@@ -30,18 +28,16 @@ public struct SRConfiguration {
                 sdkId: String? = nil,
                 storyDuration: TimeInterval = 6.0,
                 needShowTitle: Bool = false,
-                needFullScreen: Bool = true,
                 progressColor: UIColor = .init(white: 1, alpha: 1)
     ) {
         self.language = language
         self.sdkId = sdkId
         self.storyDuration = storyDuration
         self.needShowTitle = needShowTitle
-        self.needFullScreen = needFullScreen
         self.progressColor = progressColor
     }
     
-    mutating func update(localization: AppLocalization) {
+    mutating func update(localization: SRAppLocalization) {
         languages = .init(localization.languages)
         defaultLanguage = localization.defaultLocale
     }

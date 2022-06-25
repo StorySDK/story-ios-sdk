@@ -42,14 +42,14 @@ final class NetworkManager {
 // MARK: - App
 extension NetworkManager {
     /// Fetch story app
-    func getApp(completion: @escaping (Result<StoryApp, Error>) -> Void) {
+    func getApp(completion: @escaping (Result<SRStoryApp, Error>) -> Void) {
         guard let request = Self.makeRequest("app", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
         session.dataTask(with: request) { (data, response, error) in
             do {
-                let result = try Self.decode(StoryApp.self, from: data, response: response, error: error)
+                let result = try Self.decode(SRStoryApp.self, from: data, response: response, error: error)
                 completion(.success(result))
             } catch {
                 completion(.failure(error))
@@ -61,14 +61,14 @@ extension NetworkManager {
     /// - Parameters:
     ///   - from: From date
     ///   - to: To date
-    func getGroups(from: String? = nil, to: String? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
+    func getGroups(from: String? = nil, to: String? = nil, completion: @escaping (Result<[SRStoryGroup], Error>) -> Void) {
         guard let request = Self.makeRequest("groups", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
         session.dataTask(with: request) { (data, response, error) in
             do {
-                let result = try Self.decode([StoryGroup].self, from: data, response: response, error: error)
+                let result = try Self.decode([SRStoryGroup].self, from: data, response: response, error: error)
                 completion(.success(result))
             } catch {
                 completion(.failure(error))
@@ -81,14 +81,14 @@ extension NetworkManager {
     ///   - groupId: Group identifier
     ///   - from: From date
     ///   - to: To date
-    func getGroup(groupId: String, from: String? = nil, to: String? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
+    func getGroup(groupId: String, from: String? = nil, to: String? = nil, completion: @escaping (Result<SRStoryGroup, Error>) -> Void) {
         guard let request = Self.makeRequest("groups/\(groupId)", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
         session.dataTask(with: request) { (data, response, error) in
             do {
-                let result = try Self.decode(StoryGroup.self, from: data, response: response, error: error)
+                let result = try Self.decode(SRStoryGroup.self, from: data, response: response, error: error)
                 completion(.success(result))
             } catch {
                 completion(.failure(error))

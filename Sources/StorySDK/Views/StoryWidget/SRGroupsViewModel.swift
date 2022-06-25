@@ -17,10 +17,11 @@ final class SRGroupsViewModel {
         get { dataStorage.onErrorReceived }
         set { dataStorage.onErrorReceived = newValue }
     }
-    var onPresentGroup: ((StoryGroup) -> Void)? {
+    var onPresentGroup: ((Int) -> Void)? {
         get { dataStorage.onPresentGroup }
         set { dataStorage.onPresentGroup = newValue }
     }
+    var groups: [SRStoryGroup] { dataStorage.groups }
     let dataStorage: SRGroupsDataStorage
     
     init(dataStorage: SRGroupsDataStorage) {

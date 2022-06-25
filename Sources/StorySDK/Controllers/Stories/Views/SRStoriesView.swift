@@ -36,9 +36,25 @@ final class SRStoriesView: UIView {
         get { headerView.isHidden }
         set { headerView.isHidden = newValue }
     }
-    
+    var isScrollEnabled: Bool {
+        get { collectionView.isScrollEnabled }
+        set { collectionView.isScrollEnabled = newValue }
+    }
+    var isItChildViewController: Bool = false
+    let collectionView: UICollectionView = {
+        let l = UICollectionViewFlowLayout()
+        l.minimumInteritemSpacing = 0
+        l.minimumLineSpacing = 0
+        l.scrollDirection = .horizontal
+        let v = UICollectionView(frame: .zero, collectionViewLayout: l)
+        v.showsHorizontalScrollIndicator = false
+        v.isPagingEnabled = true
+        v.register(SRStoryCollectionCell.self, forCellWithReuseIdentifier: "StoryCell")
+        v.backgroundColor = .clear
+        v.contentInsetAdjustmentBehavior = .never
+        return v
+    }()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
-    private let collectionView = SRStoryCollectionView()
     private let closeButton: UIButton = {
         let bt: UIButton
         let icon = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18))
@@ -54,6 +70,12 @@ final class SRStoriesView: UIView {
         }
         bt.tintColor = .white
         return bt
+    }()
+    private let contentView: UIView = {
+        let v = UIView(frame: UIScreen.main.bounds)
+//        v.layer.cornerRadius = 15
+        v.layer.masksToBounds = true
+        return v
     }()
     private let headerView = SRGroupHeaderView()
     private let headerGradientView: CAGradientLayer = {
@@ -80,23 +102,24 @@ final class SRStoriesView: UIView {
     
     private func setupView() {
         backgroundColor = .systemBackground
-        addSubview(collectionView)
-        layer.addSublayer(headerGradientView)
-        for v: UIView in [progressView, headerView, closeButton] {
-            v.translatesAutoresizingMaskIntoConstraints = false
-            addSubview(v)
+        [contentView].forEach(addSubview)
+        [collectionView].forEach(contentView.addSubview)
+        contentView.layer.addSublayer(headerGradientView)
+        [progressView, headerView, closeButton].forEach(contentView.addSubview)
+        [progressView, headerView, closeButton].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
         }
         
         NSLayoutConstraint.activate([
-            progressView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
-            progressView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 12),
-            progressView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            progressView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            progressView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            progressView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
             headerView.leadingAnchor.constraint(equalTo: progressView.leadingAnchor),
             headerView.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 8),
             headerView.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor),
             
-            closeButton.trailingAnchor.constraint(equalTo: trailingAnchor),
+            closeButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             closeButton.topAnchor.constraint(equalTo: progressView.bottomAnchor),
             closeButton.widthAnchor.constraint(equalToConstant: 48),
             closeButton.heightAnchor.constraint(equalToConstant: 48),
@@ -122,18 +145,29 @@ final class SRStoriesView: UIView {
     }
     
     override func layoutSubviews() {
+        if isItChildViewController {
+            contentView.frame = bounds
+        } else {
+            contentView.frame = .init(
+                x: 0,
+                y: safeAreaInsets.top,
+                width: bounds.width,
+                height: bounds.height - safeAreaInsets.top - safeAreaInsets.bottom
+            )
+        }
         super.layoutSubviews()
-        headerGradientView.frame = .init(x: 0, y: 0, width: bounds.width, height: closeButton.frame.maxY + closeButton.frame.height)
-        collectionView.frame = bounds
+        headerGradientView.frame = .init(
+            x: 0,
+            y: 0,
+            width: contentView.frame.width,
+            height: closeButton.frame.maxY + closeButton.frame.height
+        )
+        collectionView.frame = contentView.bounds
         loadingIndicator.center = center
     }
     
     func addCloseTarget(_ target: Any, selector: Selector) {
         closeButton.addTarget(target, action: selector, for: .touchUpInside)
-    }
-    
-    func addTopPanGesture(_ target: Any, selector: Selector) {
-        collectionView.verticalPanGestureRecognizer.addTarget(target, action: selector)
     }
     
     func scroll(to x: CGFloat, animated: Bool) {

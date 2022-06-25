@@ -14,7 +14,7 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
         var openTime: Date = .init()
     }
     let storySdk: StorySDK
-    var group: StoryGroup? { dataStorage?.group }
+    var group: SRStoryGroup? { dataStorage?.group }
     weak var dataStorage: SRStoriesDataStorage?
     private var currentStory: StoryInfo?
     

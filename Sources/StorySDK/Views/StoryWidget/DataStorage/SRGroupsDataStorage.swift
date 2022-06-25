@@ -9,14 +9,16 @@ import UIKit
 import Combine
 
 public protocol SRGroupsDataStorage: AnyObject {
+    /// Array of loaded groups
+    var groups: [SRStoryGroup] { get }
     /// Number of groups in the app
     var numberOfItems: Int { get }
     /// Groups collection has been updated
     var onReloadData: (() -> Void)? { get set }
     /// An error has been received
     var onErrorReceived: ((Error) -> Void)? { get set }
-    /// The group should be presented to a user
-    var onPresentGroup: ((StoryGroup) -> Void)? { get set }
+    /// Index of the group should be presented to a user
+    var onPresentGroup: ((Int) -> Void)? { get set }
     /// Configures story layout according used groups style
     func setupLayout(_ layout: SRGroupsLayout)
     /// Configures cell with a group with index

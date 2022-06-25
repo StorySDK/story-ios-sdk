@@ -9,7 +9,7 @@ import UIKit
 
 public protocol SRStoryWidgetDelegate: AnyObject {
     func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget)
-    func onWidgetGroupPresent(_ group: StoryGroup, widget: SRStoryWidget)
+    func onWidgetGroupPresent(index: Int, groups: [SRStoryGroup], widget: SRStoryWidget)
 }
 
 public extension SRStoryWidgetDelegate {
@@ -74,6 +74,7 @@ public final class SRStoryWidget: UIView {
         v.register(SRCollectionCell.self, forCellWithReuseIdentifier: "StoryCell")
         v.showsHorizontalScrollIndicator = false
         v.backgroundColor = .clear
+        v.contentInsetAdjustmentBehavior = .never
         return v
     }()
     public weak var delegate: SRStoryWidgetDelegate?
@@ -146,9 +147,13 @@ public final class SRStoryWidget: UIView {
             widget.onErrorReceived?(error)
             widget.delegate?.onWidgetErrorReceived(error, widget: widget)
         }
-        viewModel.onPresentGroup = { [weak self] group in
+        viewModel.onPresentGroup = { [weak self] index in
             guard let widget = self else { return }
-            widget.delegate?.onWidgetGroupPresent(group, widget: widget)
+            widget.delegate?.onWidgetGroupPresent(
+                index: index,
+                groups: widget.viewModel.groups,
+                widget: widget
+            )
         }
     }
     

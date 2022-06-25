@@ -10,7 +10,7 @@ import Foundation
 // MARK: - Network for App
 
 extension StorySDK {
-    public func getApp(completion: @escaping (Result<StoryApp, Error>) -> Void) {
+    public func getApp(completion: @escaping (Result<SRStoryApp, Error>) -> Void) {
         network.getApp { [weak self] result in
             if case .success(let app) = result { self?.updateApp(app) }
             completion(result)
@@ -21,11 +21,11 @@ extension StorySDK {
 // MARK: - Network for Groups
 
 extension StorySDK {
-    public func getGroups(from: String? = nil, to: String? = nil, completion: @escaping (Result<[StoryGroup], Error>) -> Void) {
+    public func getGroups(from: String? = nil, to: String? = nil, completion: @escaping (Result<[SRStoryGroup], Error>) -> Void) {
         network.getGroups(from: from, to: to, completion: completion)
     }
     
-    public func getGroup(groupId: String, from: String? = nil, to: String? = nil, completion: @escaping (Result<StoryGroup, Error>) -> Void) {
+    public func getGroup(groupId: String, from: String? = nil, to: String? = nil, completion: @escaping (Result<SRStoryGroup, Error>) -> Void) {
         network.getGroup(groupId: groupId, completion: completion)
     }
 }
@@ -33,7 +33,7 @@ extension StorySDK {
 // MARK: - Network for Stories
 
 extension StorySDK {
-    public func getStories(_ group: StoryGroup, completion: @escaping (Result<[SRStory], Error>) -> Void) {
+    public func getStories(_ group: SRStoryGroup, completion: @escaping (Result<[SRStory], Error>) -> Void) {
         network.getStories(groupId: group.id, completion: completion)
     }
 }

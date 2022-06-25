@@ -14,7 +14,7 @@ public final class StorySDK: NSObject {
     public var configuration = SRConfiguration() {
         didSet { update(configuration: configuration) }
     }
-    public private(set) var app: StoryApp?
+    public private(set) var app: SRStoryApp?
     public var logLevel: OSLogType {
         get { logger.logLevel }
         set { logger.logLevel = newValue }
@@ -32,7 +32,7 @@ public final class StorySDK: NSObject {
         update(configuration: configuration)
     }
     
-    func updateApp(_ app: StoryApp) {
+    func updateApp(_ app: SRStoryApp) {
         self.app = app
         configuration.update(localization: app.localization)
     }

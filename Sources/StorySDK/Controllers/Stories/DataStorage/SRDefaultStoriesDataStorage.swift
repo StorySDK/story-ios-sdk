@@ -23,7 +23,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     var onUpdateHeader: ((HeaderInfo) -> Void)? {
         didSet { onUpdateHeader?(groupInfo) }
     }
-    private(set) var group: StoryGroup?
+    private(set) var group: SRStoryGroup?
     weak var progress: SRProgressController? {
         didSet { progress?.activeColor = configuration.progressColor }
     }
@@ -36,7 +36,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         self.groupInfo = .init(isHidden: !sdk.configuration.needShowTitle)
     }
     
-    func loadStories(group: StoryGroup) {
+    func loadStories(group: SRStoryGroup) {
         self.group = group
         groupInfo.title = group.title
         if let url = group.imageUrl {

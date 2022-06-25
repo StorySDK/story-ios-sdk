@@ -11,7 +11,7 @@ import UIKit
 
 protocol SRStoriesDataStorage: AnyObject {
     /// Current Story group
-    var group: StoryGroup? { get }
+    var group: SRStoryGroup? { get }
     /// Story conguration
     var configuration: SRConfiguration { get }
     /// Progress controller which take care about progress bar state
@@ -33,7 +33,7 @@ protocol SRStoriesDataStorage: AnyObject {
     /// Updates header view
     var onUpdateHeader: ((HeaderInfo) -> Void)? { get set }
     /// Load stories for the group
-    func loadStories(group: StoryGroup)
+    func loadStories(group: SRStoryGroup)
     /// Configures cell with a story with index
     func setupCell(_ cell: SRStoryCell, index: Int)
     /// Returns id of the story at index
@@ -74,6 +74,10 @@ protocol SRProgressController: AnyObject {
     func willBeginDragging()
     /// When user stopped scrolling
     func didEndDragging()
+    /// View starter transition
+    func willBeginTransition()
+    /// View finished transition
+    func didEndTransition()
     /// When user scrolled
     func didScroll(offset: Float, contentWidth: Float)
     /// Updates progress component
@@ -86,6 +90,10 @@ protocol SRProgressController: AnyObject {
     func pauseAutoscrolling()
     /// Stops scrolling timer and start after
     func pauseAutoscrollingUntil(_ deadline: DispatchTime)
+    /// Scroll to the next story
+    func scrollNext()
+    /// Scroll to the previous story
+    func scrollBack()
 }
 
 public typealias SRRect = CGRect

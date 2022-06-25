@@ -59,10 +59,10 @@ final class SRStoryCanvasView: UIView {
     
     private func setupLayout() {
         addSubview(containerView)
-        topOffset = containerView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor)
+        topOffset = containerView.topAnchor.constraint(equalTo: topAnchor)
         NSLayoutConstraint.activate([
             topOffset,
-            containerView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
+            containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             containerView.rightAnchor.constraint(equalTo: rightAnchor),
             containerView.leftAnchor.constraint(equalTo: leftAnchor),
         ])

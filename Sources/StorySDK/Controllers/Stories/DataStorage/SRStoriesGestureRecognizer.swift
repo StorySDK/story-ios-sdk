@@ -11,43 +11,11 @@ final class SRStoriesGestureRecognizer: NSObject {
     var onUpdateTransformNeeded: ((Float) -> Void)? {
         widgetResponder?.onUpdateTransformNeeded
     }
-    var dismiss: (() -> Void)? {
-        dataStorage?.dismiss
-    }
     var resignFirstResponder: (() -> Void)?
+    
     weak var dataStorage: SRStoriesDataStorage?
     weak var widgetResponder: SRWidgetResponder?
     weak var progress: SRProgressController?
-    
-    @objc func swipeDown(_ gesture: UIPanGestureRecognizer) {
-        switch gesture.state {
-        case .began:
-            let transform = Float(gesture.translation(in: gesture.view).y)
-            guard transform > 0 else { break }
-            progress?.pauseAutoscrolling()
-            resignFirstResponder?()
-            onUpdateTransformNeeded?(transform)
-        case .changed:
-            var transform = Float(gesture.translation(in: gesture.view).y)
-            transform = max(transform, 0)
-            onUpdateTransformNeeded?(transform)
-        case .ended:
-            let transform = Float(gesture.translation(in: gesture.view).y)
-            if transform > 200 {
-                dismiss?()
-            } else {
-                onUpdateTransformNeeded?(0)
-                progress?.startAutoscrolling()
-            }
-        case .possible:
-            break
-        case .failed, .cancelled:
-            onUpdateTransformNeeded?(0)
-            progress?.startAutoscrolling()
-        @unknown default:
-            break
-        }
-    }
     
     @objc func swipeUp(_ gesture: SRSwipeUpGestureRecognizer) {
         guard let view = gesture.view else { return }
@@ -61,7 +29,7 @@ final class SRStoriesGestureRecognizer: NSObject {
         case .began:
             let transform = gesture.translation(in: view).y
             guard transform < 0 else { break }
-            progress?.pauseAutoscrolling()
+            progress?.willBeginDragging()
             resignFirstResponder?()
             updateTransform(transform)
         case .changed:
@@ -74,20 +42,42 @@ final class SRStoriesGestureRecognizer: NSObject {
             if transform < -100, let widget = gesture.view as? SRSwipeUpView {
                 isCancelled = !(widgetResponder?.didSwipeUp(widget) ?? false)
             }
-            if isCancelled { progress?.startAutoscrolling() }
+            if isCancelled { progress?.didEndDragging() }
             updateTransform(0)
         case .possible:
             break
         case .failed, .cancelled:
             updateTransform(0)
-            progress?.startAutoscrolling()
+            progress?.didEndDragging()
+        @unknown default:
+            break
+        }
+    }
+    
+    @objc func onTap(_ gesture: UITapGestureRecognizer) {
+        switch gesture.state {
+        case .possible, .changed:
+            break
+        case .began:
+            progress?.willBeginDragging()
+        case .ended:
+            progress?.didEndDragging()
+            let screenWidth = UIScreen.main.bounds.width
+            let position = gesture.location(in: nil).x / screenWidth
+            if position < 0.5 {
+                progress?.scrollBack()
+            } else {
+                progress?.scrollNext()
+            }
+        case .cancelled, .failed:
+            progress?.didEndDragging()
         @unknown default:
             break
         }
     }
 }
 
-class SRSwipeUpGestureRecognizer: UIPanGestureRecognizer {
+final class SRSwipeUpGestureRecognizer: UIPanGestureRecognizer {
     let widget: SRSwipeUpWidget
     
     init(widget: SRSwipeUpWidget, target: SRStoriesGestureRecognizer?) {

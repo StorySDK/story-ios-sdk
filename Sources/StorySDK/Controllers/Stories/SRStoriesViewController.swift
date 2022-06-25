@@ -8,12 +8,25 @@
 import UIKit
 
 public final class SRStoriesViewController: UIViewController {
-    private let group: StoryGroup
+    private let group: SRStoryGroup
     private let viewModel: SRStoriesViewModel
     private var storiesView: SRStoriesView!
     private let logger: SRLogger
+    let tapGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer()
+        gesture.isEnabled = false
+        return gesture
+    }()
     
-    public init(_ group: StoryGroup, sdk: StorySDK = .shared) {
+    var isScrollEnabled: Bool {
+        get { storiesView.isScrollEnabled }
+        set {
+            storiesView.isScrollEnabled = newValue
+            tapGesture.isEnabled = !newValue
+        }
+    }
+    
+    public init(_ group: SRStoryGroup, sdk: StorySDK = .shared) {
         self.group = group
         self.logger = sdk.logger
         let dataStorage = SRDefaultStoriesDataStorage(sdk: sdk)
@@ -27,9 +40,7 @@ public final class SRStoriesViewController: UIViewController {
             analytics: analyticsController
         )
         super.init(nibName: nil, bundle: nil)
-        if dataStorage.configuration.needFullScreen {
-            modalPresentationStyle = .overFullScreen
-        }
+        modalPresentationStyle = .overFullScreen
         isModalInPresentation = true
     }
     
@@ -50,22 +61,10 @@ public final class SRStoriesViewController: UIViewController {
         loadData()
     }
     
-    public override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        viewModel.pauseAutoscrolling()
-        viewModel.reportGroupClose()
-    }
-    
     private func bindView() {
         storiesView.delegate = self
         storiesView.dataSource = self
         storiesView.addCloseTarget(self, selector: #selector(close))
-        if modalPresentationStyle == .overFullScreen {
-            storiesView.addTopPanGesture(
-                self.viewModel.gestureRecognizer,
-                selector: #selector(SRStoriesGestureRecognizer.swipeDown)
-            )
-        }
         viewModel.onReloadData = { [weak self] in
             guard let wSelf = self else { return }
             wSelf.storiesView.stopLoading()
@@ -97,7 +96,9 @@ public final class SRStoriesViewController: UIViewController {
         }
         viewModel.onScrollToStory = { [weak storiesView] index in
             guard let v = storiesView else { return }
-            let x = v.frame.width * CGFloat(index)
+            var x = v.frame.width * CGFloat(index)
+            x = min(x, v.collectionView.contentSize.width - v.frame.width)
+            x = max(x, 0)
             v.scroll(to: x, animated: true)
         }
         viewModel.onScrollCompeted = { [weak self] in
@@ -106,6 +107,11 @@ public final class SRStoriesViewController: UIViewController {
         viewModel.resignFirstResponder = { [weak self] in
             self?.view.endEditing(true)
         }
+        tapGesture.addTarget(
+            viewModel.gestureRecognizer,
+            action: #selector(SRStoriesGestureRecognizer.onTap)
+        )
+        storiesView.addGestureRecognizer(tapGesture)
     }
     
     private func loadData() {
@@ -118,7 +124,26 @@ public final class SRStoriesViewController: UIViewController {
         viewModel.containerFrame = view.convert(view.bounds, to: nil)
     }
     
+    public override func willMove(toParent parent: UIViewController?) {
+        super.willMove(toParent: parent)
+        storiesView.isItChildViewController = parent != nil
+    }
+    
+    func willBeginTransition() {
+        viewModel.willBeginTransition()
+    }
+    
+    func didEndTransition() {
+        guard view.window != nil else { return }
+        viewModel.didEndTransition()
+    }
+    
+    func updateOnScrollCompleted(_ completion: @escaping () -> Void) {
+        viewModel.onScrollCompeted = completion
+    }
+    
     @objc func close() {
+        viewModel.reportGroupClose()
         dismiss(animated: true)
     }
 }

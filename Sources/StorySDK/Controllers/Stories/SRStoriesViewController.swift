@@ -94,12 +94,12 @@ public final class SRStoriesViewController: UIViewController {
             storiesView?.groupImage = info.icon
             storiesView?.isHeaderHidden = info.isHidden
         }
-        viewModel.onScrollToStory = { [weak storiesView] index in
+        viewModel.onScrollToStory = { [weak storiesView] index, animated in
             guard let v = storiesView else { return }
             var x = v.frame.width * CGFloat(index)
             x = min(x, v.collectionView.contentSize.width - v.frame.width)
             x = max(x, 0)
-            v.scroll(to: x, animated: true)
+            v.scroll(to: x, animated: animated)
         }
         viewModel.onScrollCompeted = { [weak self] in
             self?.close()

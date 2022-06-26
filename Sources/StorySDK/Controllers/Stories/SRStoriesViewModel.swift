@@ -87,7 +87,7 @@ final class SRStoriesViewModel {
         set { progress.onProgressUpdated = newValue }
     }
     
-    var onScrollToStory: ((Int) -> Void)? {
+    var onScrollToStory: ((Int, Bool) -> Void)? {
         get { progress.onScrollToStory }
         set { progress.onScrollToStory = newValue }
     }

@@ -14,7 +14,7 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
     var timerPeriod: TimeInterval = 0.5
     var timeForStory: TimeInterval = 7
     var onProgressUpdated: ((Float) -> Void)?
-    var onScrollToStory: ((Int) -> Void)?
+    var onScrollToStory: ((Int, Bool) -> Void)?
     var onScrollCompeted: (() -> Void)?
     var numberOfItems: Int = 0
     var activeColor: UIColor?
@@ -116,7 +116,7 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
         } else {
             let newIndex = floor(newProgress / storyProgress)
             if newIndex - oldIndex > .ulpOfOne {
-                onScrollToStory?(Int(newIndex))
+                onScrollToStory?(Int(newIndex), false)
             }
             progress = newProgress
         }
@@ -136,7 +136,7 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
         index += 1
         guard index < numberOfItems else { return }
         progress = Float(index) / Float(numberOfItems)
-        onScrollToStory?(index)
+        onScrollToStory?(index, false)
     }
     
     func scrollBack() {
@@ -145,6 +145,6 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
         index -= 1
         guard index >= 0 else { return }
         progress = Float(index) / Float(numberOfItems)
-        onScrollToStory?(index)
+        onScrollToStory?(index, false)
     }
 }

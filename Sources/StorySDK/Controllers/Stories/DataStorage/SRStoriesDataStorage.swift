@@ -67,7 +67,7 @@ protocol SRProgressController: AnyObject {
     /// It’s used when the progress bar needs to be updated
     var onProgressUpdated: ((Float) -> Void)? { get set }
     /// When we need to scroll to the next story
-    var onScrollToStory: ((Int) -> Void)? { get set }
+    var onScrollToStory: ((Int, Bool) -> Void)? { get set }
     /// When timer finished
     var onScrollCompeted: (() -> Void)? { get set }
     /// When user is going to scroll

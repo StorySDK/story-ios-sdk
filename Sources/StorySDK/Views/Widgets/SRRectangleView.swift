@@ -21,7 +21,8 @@ class SRRectangleView: SRImageWidgetView {
             let fillOpacity = CGFloat(rectangleWidget.fillOpacity / 100)
             contentView.backgroundColor = color.withAlphaComponent(fillOpacity)
         }
-        contentView.layer.cornerRadius = CGFloat(rectangleWidget.fillBorderRadius)
+        
+        contentView.layer.cornerRadius = CGFloat(rectangleWidget.fillBorderRadius) * bounds.height / data.position.realHeight
 
         if rectangleWidget.hasBorder, case .color(let color) = rectangleWidget.strokeColor {
             let strokeOpacity = CGFloat(rectangleWidget.strokeOpacity / 100)

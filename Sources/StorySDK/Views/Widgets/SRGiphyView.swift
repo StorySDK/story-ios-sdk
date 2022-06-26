@@ -55,7 +55,6 @@ class SRGiphyView: SRWidgetView {
     override func setupView() {
         super.setupView()
         clipsToBounds = true
-        layer.cornerRadius = giphyWidget.borderRadius
         alpha = giphyWidget.widgetOpacity / 100
     }
     
@@ -83,6 +82,7 @@ class SRGiphyView: SRWidgetView {
     override func layoutSubviews() {
         super.layoutSubviews()
         indicator.frame = bounds
+        layer.cornerRadius = giphyWidget.borderRadius * bounds.height / data.position.realHeight
     }
     
     override func draw(_ rect: CGRect) {

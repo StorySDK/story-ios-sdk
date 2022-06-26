@@ -99,6 +99,7 @@ public final class SRStoriesViewController: UIViewController {
             var x = v.frame.width * CGFloat(index)
             x = min(x, v.collectionView.contentSize.width - v.frame.width)
             x = max(x, 0)
+            v.endEditing(true)
             v.scroll(to: x, animated: animated)
         }
         viewModel.onScrollCompeted = { [weak self] in

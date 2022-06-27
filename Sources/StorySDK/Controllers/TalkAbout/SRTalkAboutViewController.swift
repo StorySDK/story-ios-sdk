@@ -38,10 +38,9 @@ final class SRTalkAboutViewController: UIViewController, SRTalkAboutViewDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         addNotifications()
-        [background, widget].forEach(view.addSubview)
-        widget.transform = .identity
-        widget.becomeFirstResponder()
-        widget.talkAboutDelegate = self
+        addSubviews()
+        setupWidget()
+        addEvents()
     }
     
     override func viewDidLayoutSubviews() {
@@ -65,6 +64,20 @@ final class SRTalkAboutViewController: UIViewController, SRTalkAboutViewDelegate
         )
     }
     
+    private func addSubviews() {
+        [background, widget].forEach(view.addSubview)
+    }
+    
+    private func setupWidget() {
+        widget.transform = .identity
+        widget.becomeFirstResponder()
+        widget.talkAboutDelegate = self
+    }
+    
+    private func addEvents() {
+        background.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(close)))
+    }
+    
     func updateWidgetFrame() {
         var frame = view.bounds
         frame.origin.y += view.safeAreaInsets.top
@@ -79,6 +92,10 @@ final class SRTalkAboutViewController: UIViewController, SRTalkAboutViewDelegate
             width: size.width,
             height: size.height
         )
+    }
+    
+    @objc func close() {
+        dismiss(animated: true) { [completion] in completion(nil) }
     }
     
     // MARK: - Keyboard events
@@ -100,7 +117,7 @@ final class SRTalkAboutViewController: UIViewController, SRTalkAboutViewDelegate
     // MARK: - SRTalkAboutViewDelegate
     
     func needHideKeyboard(_ widget: SRTalkAboutView) {
-        dismiss(animated: true) { [completion] in completion(nil) }
+        close()
     }
     
     func didSentTextAbout(_ widget: SRTalkAboutView, text: String?) {

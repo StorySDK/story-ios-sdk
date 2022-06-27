@@ -61,6 +61,14 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
         postProcessStory()
     }
     
+    func reportStoryOpen(_ id: String) {
+        sendReaction(.init(type: .open, storyId: id))
+    }
+    
+    func reportStoryClose(_ id: String) {
+        sendReaction(.init(type: .close, storyId: id))
+    }
+    
     func storyDidChanged(to index: Int, byUser: Bool) {
         guard let id = dataStorage?.storyId(atIndex: index) else { return }
         guard let old = currentStory else {

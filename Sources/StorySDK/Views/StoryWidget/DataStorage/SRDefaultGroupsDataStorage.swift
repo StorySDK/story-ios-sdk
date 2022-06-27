@@ -21,6 +21,12 @@ public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     private let storySdk: StorySDK
     var app: SRStoryApp? { storySdk.app }
     var cellConfg: SRCollectionCellStyle = .init()
+    var presentedCancellable: Cancellable? {
+        didSet { oldValue?.cancel() }
+    }
+    var presentedStories: [String: Bool] = [:] {
+        didSet { onReloadData?() }
+    }
     
     public init(sdk: StorySDK = .shared) {
         self.storySdk = sdk
@@ -34,8 +40,9 @@ public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
             self?.storySdk.getGroups { result in
                 switch result {
                 case .success(let groups):
-                    self?.groups = groups.filter { $0.active }
-                    self?.onReloadData?()
+                    let groups = groups.filter { $0.active }
+                    self?.groups = groups
+                    self?.updatePresentedStats(groups)
                 case .failure(let error):
                     self?.onErrorReceived?(error)
                 }
@@ -60,7 +67,7 @@ public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     
     public func setupCell(_ cell: SRGroupsCollectionCell, index: Int) {
         guard let group = group(with: index) else { return }
-        cell.isPresented = storySdk.userDefaults.isPresented(group: group.id)
+        cell.isPresented = presentedStories[group.id] ?? false
         cell.setupStyle(cellConfg)
         cell.title = group.title
         guard let url = group.imageUrl else { return }
@@ -82,10 +89,8 @@ public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     }
     
     public func didTap(index: Int) {
-        guard let group = group(with: index) else { return }
-        storySdk.userDefaults.didPresent(group: group.id)
-        onReloadData?()
         onPresentGroup?(index)
+        onReloadData?()
     }
     
     func loadApp(_ completion: @escaping (SRStoryApp) -> Void) {
@@ -102,6 +107,13 @@ public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
                 }
             }
         }
+    }
+    
+    func updatePresentedStats(_ groups: [SRStoryGroup]) {
+        let set = Set<String>(groups.map(\.id))
+        presentedCancellable = storySdk.userDefaults
+            .presentedStoriesObserve(for: set)
+            .assign(to: \.presentedStories, on: self)
     }
 }
 

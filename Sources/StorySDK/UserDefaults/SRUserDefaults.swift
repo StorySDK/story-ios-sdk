@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 public protocol SRUserDefaults: AnyObject {
     
@@ -25,6 +26,10 @@ public protocol SRUserDefaults: AnyObject {
     
     func clean()
     func removePresented(group: String)
+    
+    // MARK: - Combine
+    
+    func presentedStoriesObserve(for groups: Set<String>) -> AnyPublisher<[String: Bool], Never>
 }
 
 struct SRUserDefaultsModel: Codable {

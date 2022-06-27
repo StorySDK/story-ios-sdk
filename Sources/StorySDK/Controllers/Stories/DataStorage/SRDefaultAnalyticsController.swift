@@ -51,6 +51,7 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
     
     func reportGroupOpen() {
         sendReaction(.init(type: .open))
+        if let id = group?.id { storySdk.userDefaults.didPresent(group: id) }
         guard let first = dataStorage?.storyId(atIndex: 0) else { return }
         currentStory = .init(index: 0, id: first)
     }

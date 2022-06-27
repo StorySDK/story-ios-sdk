@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import Combine
 
 public class SRMemoryUserDefaults: SRUserDefaults {
-    var model = SRUserDefaultsModel()
+    @Published var model = SRUserDefaultsModel()
     
     public var userId: String {
         get {
@@ -42,5 +43,19 @@ public class SRMemoryUserDefaults: SRUserDefaults {
     
     public func removePresented(group: String) {
         model.presentedStories.remove(group)
+    }
+    
+    public func presentedStoriesObserve(for groups: Set<String>) -> AnyPublisher<[String : Bool], Never> {
+        $model
+            .map(\.presentedStories)
+            .removeDuplicates()
+            .map { presented -> [String: Bool] in
+                groups.reduce([String: Bool]()) { partialResult, group in
+                    var result = partialResult
+                    result[group] = presented.contains(group)
+                    return result
+                }
+            }
+            .eraseToAnyPublisher()
     }
 }

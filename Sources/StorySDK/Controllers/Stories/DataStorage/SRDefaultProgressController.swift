@@ -11,6 +11,7 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
     var analytics: SRAnalyticsController?
     var isDragging: Bool = false
     var isInteracted: Bool = false
+    var isLoading: [String: Bool] = [:]
     var timerPeriod: TimeInterval = 0.5
     var timeForStory: TimeInterval = 7
     var onProgressUpdated: ((Float) -> Void)?
@@ -102,6 +103,7 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
     
     func onTimerUpdated() {
         guard !isDragging && !isInteracted && !isTransiting else { return }
+        if !isLoading.isEmpty, !isLoading.allSatisfy({ $0.value }) { return }
         guard progress < 1 else { return }
         guard numberOfItems > 0 else { return }
         let storyProgress = 1 / Float(numberOfItems)

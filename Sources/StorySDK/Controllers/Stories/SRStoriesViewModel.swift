@@ -80,6 +80,14 @@ final class SRStoriesViewModel {
         dataStorage.setupCell(cell, index: index)
     }
     
+    func willDisplay(_ cell: SRStoryCell, index: Int) {
+        dataStorage.willDisplay(cell, index: index)
+    }
+    
+    func endDisplaying(_ cell: SRStoryCell, index: Int) {
+        dataStorage.endDisplaying(cell, index: index)
+    }
+    
     // MARK: - Progress
     
     var onProgressUpdated: ((Float) -> Void)? {

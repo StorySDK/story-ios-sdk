@@ -36,6 +36,10 @@ protocol SRStoriesDataStorage: AnyObject {
     func loadStories(group: SRStoryGroup)
     /// Configures cell with a story with index
     func setupCell(_ cell: SRStoryCell, index: Int)
+    /// Prepare cell for displaying
+    func willDisplay(_ cell: SRStoryCell, index: Int)
+    /// Clean cell displaying connected staff
+    func endDisplaying(_ cell: SRStoryCell, index: Int)
     /// Returns id of the story at index
     func storyId(atIndex index: Int) -> String?
 }
@@ -43,7 +47,7 @@ protocol SRStoriesDataStorage: AnyObject {
 protocol SRStoryCell: AnyObject {
     var backgroundColors: [UIColor]? { get set }
     var backgroundImage: UIImage? { get set }
-    var cancellables: [Cancellable] { get set }
+    var cancellables: Set<AnyCancellable> { get set }
     var needShowTitle: Bool { get set }
     
     func appendWidget(_ widget: SRWidgetView, position: CGRect)
@@ -60,6 +64,8 @@ protocol SRProgressComponent: AnyObject {
 protocol SRProgressController: AnyObject {
     /// To report about analytics events
     var analytics: SRAnalyticsController? { get set }
+    /// Reports loading states for stories with id
+    var isLoading: [String: Bool] { get set }
     /// Number of components
     var numberOfItems: Int { get set }
     /// Progress bar tint color

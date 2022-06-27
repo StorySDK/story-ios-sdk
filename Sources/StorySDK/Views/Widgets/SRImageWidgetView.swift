@@ -39,19 +39,24 @@ public class SRImageWidgetView: SRInteractiveWidgetView {
     public override func layoutSubviews() {
         super.layoutSubviews()
         imageView.frame = bounds
-        updateImage()
+        updateImage(bounds.size, completion: {}).map { loadingTask = $0 }
+    }
+    
+    override func loadData(_ completion: @escaping () -> Void) -> Cancellable? {
+        let size = CGSize(width: data.position.realWidth, height: data.position.realHeight)
+        return updateImage(size, completion: completion)
     }
     
     private var oldSize = CGSize.zero
-    private func updateImage() {
-        guard let url = url, let loader = loader else { return }
-        let size = bounds.size
+    private func updateImage(_ size: CGSize, completion: @escaping () -> Void) -> Cancellable? {
+        guard let url = url, let loader = loader else { return nil }
         guard abs(size.width - oldSize.width) > .ulpOfOne,
-              abs(size.height - oldSize.height) > .ulpOfOne else { return }
+              abs(size.height - oldSize.height) > .ulpOfOne else { return nil }
         oldSize = size
         let scale = UIScreen.main.scale
         let targetSize = CGSize(width: size.width * scale, height: size.height * scale)
-        loadingTask = loader.load(url, size: targetSize) { [weak self, logger] result in
+        return loader.load(url, size: targetSize) { [weak self, logger] result in
+            defer { completion() }
             switch result {
             case .success(let image):
                 self?.contentView.isHidden = true

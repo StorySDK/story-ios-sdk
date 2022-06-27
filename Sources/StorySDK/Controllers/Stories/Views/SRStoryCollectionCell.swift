@@ -30,7 +30,7 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
         get { canvasView.needShowTitle }
         set { canvasView.needShowTitle = newValue }
     }
-    var cancellables = [Cancellable]()
+    var cancellables = Set<AnyCancellable>()
     
     private let backgroundLayer: CAGradientLayer = {
         let l = CAGradientLayer()
@@ -61,7 +61,7 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         cancellables.forEach { $0.cancel() }
-        cancellables = []
+        cancellables = .init()
         backgroundColors = nil
         backgroundImage = nil
         canvasView.cleanCanvas()

@@ -20,10 +20,6 @@ class SRGiphyView: SRWidgetView {
         return aiv
     }()
     
-    private var loadTask: Cancellable? {
-        didSet { oldValue?.cancel() }
-    }
-    
     private let options = [
         String(kCGImageSourceShouldCache): kCFBooleanFalse,
     ] as CFDictionary
@@ -43,10 +39,6 @@ class SRGiphyView: SRWidgetView {
         displayLink.isPaused = true
     }
     
-    deinit {
-        loadTask = nil
-    }
-    
     override func addSubviews() {
         super.addSubviews()
         [indicator].forEach(contentView.addSubview)
@@ -60,20 +52,17 @@ class SRGiphyView: SRWidgetView {
     
     override func removeFromSuperview() {
         super.removeFromSuperview()
-        loadTask = nil
         displayLink.invalidate()
     }
     
-    override func didMoveToSuperview() {
-        super.didMoveToSuperview()
-        load(loader)
-    }
-    
-    private func load(_ loader: SRImageLoader) {
+    override func loadData(_ completion: @escaping () -> Void) -> Cancellable? {
         startLoading()
         let size = CGSize(width: data.position.realWidth, height: data.position.realHeight)
-        loadTask = loader.loadGif(giphyWidget.gif, size: size) { [weak self] result in
-            defer { self?.stopLoading() }
+        return loader.loadGif(giphyWidget.gif, size: size) { [weak self] result in
+            defer {
+                self?.stopLoading()
+                completion()
+            }
             guard case .success(let data) = result else { return }
             self?.loadData(data)
         }

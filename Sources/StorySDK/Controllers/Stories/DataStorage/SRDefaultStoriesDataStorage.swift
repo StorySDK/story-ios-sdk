@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import Combine
 
 final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     let storySdk: StorySDK
@@ -66,12 +67,16 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         guard let data = story.storyData else { return }
         cell.needShowTitle = storySdk.configuration.needShowTitle
         
+        let group = DispatchGroup()
         if let background = data.background {
-            setupBackground(cell, background: background)
+            group.enter()
+            setupBackground(cell, background: background) { group.leave() }
         }
         
         for widget in data.widgets {
             let view = SRWidgetConstructor.makeWidget(widget, story: story, sdk: storySdk)
+            group.enter()
+            view.loadData({ group.leave() })?.store(in: &cell.cancellables)
             storySdk.userDefaults
                 .reaction(widgetId: widget.id)
                 .map { view.setupWidget(reaction: $0) }
@@ -86,29 +91,45 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             let position = SRWidgetConstructor.calcWidgetPosition(widget, story: story)
             cell.appendWidget(view, position: position)
         }
+        let id = story.id
+        group.notify(queue: .main) { [weak progress] in progress?.isLoading[id] = true }
+    }
+    
+    func willDisplay(_ cell: SRStoryCell, index: Int) {
+        guard let id = storyId(atIndex: index) else { return }
+        if progress?.isLoading[id] ?? false { return }
+        progress?.isLoading[id] = false
+    }
+    
+    func endDisplaying(_ cell: SRStoryCell, index: Int) {
+        guard let id = storyId(atIndex: index) else { return }
+        progress?.isLoading[id] = nil
     }
     
     func storyId(atIndex index: Int) -> String? {
         index < stories.count ? stories[index].id : nil
     }
     
-    private func setupBackground(_ cell: SRStoryCell, background: SRColor) {
+    private func setupBackground(_ cell: SRStoryCell, background: SRColor, completion: @escaping () -> Void) {
         switch background {
         case .color(let color):
             cell.backgroundColors = [color, color]
+            completion()
         case .gradient(let array):
             cell.backgroundColors = array
+            completion()
         case .image(let url):
             let size = UIScreen.main.bounds.size
             let scale = UIScreen.main.scale
-            let task = storySdk.imageLoader
+            storySdk.imageLoader
                 .load(url, size: size, scale: scale, contentMode: .scaleAspectFill) { [weak cell, weak self] result in
+                    defer { completion() }
                     switch result {
                     case .success(let image): cell?.backgroundImage = image
                     case .failure(let error): self?.onErrorReceived?(error)
                     }
                 }
-            cell.cancellables.append(task)
+                .store(in: &cell.cancellables)
         }
     }
     

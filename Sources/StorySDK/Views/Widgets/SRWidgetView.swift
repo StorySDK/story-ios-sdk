@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 public class SRWidgetView: UIView {
     let contentView: UIView = .init(frame: .zero)
@@ -28,6 +29,11 @@ public class SRWidgetView: UIView {
     
     func addSubviews() {
         [contentView].forEach(addSubview)
+    }
+    
+    func loadData(_ completion: @escaping () -> Void) -> Cancellable? {
+        completion()
+        return nil
     }
     
     func setupView() {

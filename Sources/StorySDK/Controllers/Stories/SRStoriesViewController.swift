@@ -165,6 +165,16 @@ extension SRStoriesViewController: UICollectionViewDataSource {
         cell.layoutCanvas()
         return cell
     }
+    
+    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard let cell = cell as? SRStoryCollectionCell else { return }
+        viewModel.willDisplay(cell, index: indexPath.row)
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard let cell = cell as? SRStoryCollectionCell else { return }
+        viewModel.endDisplaying(cell, index: indexPath.row)
+    }
 }
 
 extension SRStoriesViewController: UICollectionViewDelegateFlowLayout {

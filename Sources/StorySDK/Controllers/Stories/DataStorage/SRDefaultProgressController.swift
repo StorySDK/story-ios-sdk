@@ -135,10 +135,13 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
     func scrollNext() {
         let storyProgress = 1 / Float(numberOfItems)
         var index = Int(floor(progress / storyProgress))
-        index += 1
-        guard index < numberOfItems else { return }
-        progress = Float(index) / Float(numberOfItems)
-        onScrollToStory?(index, false)
+        if index + 1 < numberOfItems {
+            index += 1
+            progress = Float(index) / Float(numberOfItems)
+            onScrollToStory?(index, false)
+        } else {
+            onScrollCompeted?()
+        }
     }
     
     func scrollBack() {

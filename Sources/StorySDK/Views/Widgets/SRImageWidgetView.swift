@@ -49,9 +49,13 @@ public class SRImageWidgetView: SRInteractiveWidgetView {
     
     private var oldSize = CGSize.zero
     private func updateImage(_ size: CGSize, completion: @escaping () -> Void) -> Cancellable? {
-        guard let url = url, let loader = loader else { return nil }
-        guard abs(size.width - oldSize.width) > .ulpOfOne,
-              abs(size.height - oldSize.height) > .ulpOfOne else { return nil }
+        guard let url = url,
+              let loader = loader,
+              abs(size.width - oldSize.width) > .ulpOfOne,
+              abs(size.height - oldSize.height) > .ulpOfOne else {
+            completion()
+            return nil
+        }
         oldSize = size
         let scale = UIScreen.main.scale
         let targetSize = CGSize(width: size.width * scale, height: size.height * scale)

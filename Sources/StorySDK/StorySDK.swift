@@ -32,6 +32,10 @@ public final class StorySDK: NSObject {
         update(configuration: configuration)
     }
     
+    public convenience init(sdkId: String) {
+        self.init(configuration: .init(sdkId: sdkId))
+    }
+    
     func updateApp(_ app: SRStoryApp) {
         self.app = app
         configuration.update(localization: app.localization)

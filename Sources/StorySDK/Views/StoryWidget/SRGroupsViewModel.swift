@@ -8,6 +8,7 @@
 import Foundation
 
 final class SRGroupsViewModel {
+    var cellClass: SRGroupsCollectionCell.Type { dataStorage.cellClass }
     var numberOfItems: Int { dataStorage.numberOfItems }
     var onReloadData: (() -> Void)? {
         get { dataStorage.onReloadData }

@@ -71,7 +71,7 @@ public final class SRStoryWidget: UIView {
     private lazy var collectionView: UICollectionView = {
         let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
         v.contentInset = .init(top: 14, left: 14, bottom: 14, right: 14)
-        v.register(SRCollectionCell.self, forCellWithReuseIdentifier: "StoryCell")
+        v.register(viewModel.cellClass, forCellWithReuseIdentifier: "StoryCell")
         v.showsHorizontalScrollIndicator = false
         v.backgroundColor = .clear
         v.contentInsetAdjustmentBehavior = .never
@@ -79,12 +79,16 @@ public final class SRStoryWidget: UIView {
     }()
     public weak var delegate: SRStoryWidgetDelegate?
     
-    public init(sdk: StorySDK = .shared) {
-        let dataSource = SRDefaultGroupsDataStorage(sdk: sdk)
-        self.viewModel = .init(dataStorage: dataSource)
+    public init(dataStorage: SRDefaultGroupsDataStorage) {
+        self.viewModel = .init(dataStorage: dataStorage)
         super.init(frame: .zero)
         setupLayout()
         bindView()
+    }
+    
+    public convenience init(sdk: StorySDK = .shared) {
+        let dataStorage = SRDefaultGroupsDataStorage(sdk: sdk)
+        self.init(dataStorage: dataStorage)
     }
     
     required init?(coder: NSCoder) {
@@ -171,7 +175,7 @@ extension SRStoryWidget: UICollectionViewDataSource {
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let reusable = collectionView.dequeueReusableCell(withReuseIdentifier: "StoryCell", for: indexPath)
-        guard let cell = reusable as? SRCollectionCell else { return reusable }
+        guard let cell = reusable as? SRGroupsCollectionCell else { return reusable }
         viewModel.setupCell(cell, index: indexPath.row)
         return cell
     }

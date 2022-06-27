@@ -8,7 +8,8 @@
 import UIKit
 import Combine
 
-public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
+open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
+    open var cellClass: SRGroupsCollectionCell.Type { SRCollectionCell.self }
     public var numberOfItems: Int { groups.count }
     public var onReloadData: (() -> Void)?
     public var onErrorReceived: ((Error) -> Void)?
@@ -50,7 +51,7 @@ public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
         }
     }
     
-    public func setupLayout(_ layout: SRGroupsLayout) {
+    open func setupLayout(_ layout: SRGroupsLayout) {
         switch groupsStyle {
         case .circle, .square:
             layout.updateSpacing(10)
@@ -65,7 +66,7 @@ public class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
         layout.invalidateLayout()
     }
     
-    public func setupCell(_ cell: SRGroupsCollectionCell, index: Int) {
+    open func setupCell(_ cell: SRGroupsCollectionCell, index: Int) {
         guard let group = group(with: index) else { return }
         cell.isPresented = presentedStories[group.id] ?? false
         cell.setupStyle(cellConfg)

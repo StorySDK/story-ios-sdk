@@ -9,6 +9,8 @@ import UIKit
 import Combine
 
 public protocol SRGroupsDataStorage: AnyObject {
+    /// Cell class to register in the collection view
+    var cellClass: SRGroupsCollectionCell.Type { get }
     /// Array of loaded groups
     var groups: [SRStoryGroup] { get }
     /// Number of groups in the app
@@ -29,7 +31,7 @@ public protocol SRGroupsDataStorage: AnyObject {
     func load()
 }
 
-public protocol SRGroupsCollectionCell: AnyObject {
+public protocol SRGroupsCollectionCell: UICollectionViewCell {
     var title: String? { get set }
     var image: UIImage? { get set }
     var isPresented: Bool { get set }

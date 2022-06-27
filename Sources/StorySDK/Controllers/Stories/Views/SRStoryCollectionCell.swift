@@ -31,6 +31,9 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
         set { canvasView.needShowTitle = newValue }
     }
     var cancellables = Set<AnyCancellable>()
+    var isLoading: Bool = false {
+        didSet { isLoading ? loadingView.startLoading() : loadingView.stopLoading() }
+    }
     
     private let backgroundLayer: CAGradientLayer = {
         let l = CAGradientLayer()
@@ -47,6 +50,7 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
         return v
     }()
     private let canvasView = SRStoryCanvasView()
+    private let loadingView = LoadingBluredView()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -65,18 +69,20 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
         backgroundColors = nil
         backgroundImage = nil
         canvasView.cleanCanvas()
+        isLoading = false
     }
     
     private func setupView() {
         contentView.layer.addSublayer(backgroundLayer)
         backgroundView = backgroundImageView
-        contentView.addSubview(canvasView)
+        [canvasView, loadingView].forEach(contentView.addSubview)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         backgroundLayer.frame = bounds
         canvasView.frame = bounds
+        loadingView.frame = bounds
     }
     
     func layoutCanvas() {
@@ -95,5 +101,37 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
             v?.stopConfetti()
             v?.removeFromSuperview()
         }
+    }
+}
+
+private final class LoadingBluredView: UIView {
+    private let blurView: UIVisualEffectView = .init(effect: UIBlurEffect(style: .light))
+    private let loadingIndicator: UIActivityIndicatorView = .init(style: .large)
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        [blurView, loadingIndicator].forEach(addSubview)
+        isHidden = true
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        blurView.frame = bounds
+        loadingIndicator.center = blurView.center
+    }
+    
+    func startLoading() {
+        isHidden = false
+        loadingIndicator.startAnimating()
+    }
+    
+    func stopLoading() {
+        isHidden = true
+        loadingIndicator.stopAnimating()
     }
 }

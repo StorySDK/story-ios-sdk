@@ -49,6 +49,7 @@ protocol SRStoryCell: AnyObject {
     var backgroundImage: UIImage? { get set }
     var cancellables: Set<AnyCancellable> { get set }
     var needShowTitle: Bool { get set }
+    var isLoading: Bool { get set }
     
     func appendWidget(_ widget: SRWidgetView, position: CGRect)
     func presentParticles()

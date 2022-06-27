@@ -92,7 +92,11 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             cell.appendWidget(view, position: position)
         }
         let id = story.id
-        group.notify(queue: .main) { [weak progress] in progress?.isLoading[id] = true }
+        cell.isLoading = true
+        group.notify(queue: .main) { [weak progress, weak cell] in
+            progress?.isLoading[id] = true
+            cell?.isLoading = false
+        }
     }
     
     func willDisplay(_ cell: SRStoryCell, index: Int) {

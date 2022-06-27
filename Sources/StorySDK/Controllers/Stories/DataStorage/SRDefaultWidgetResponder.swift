@@ -10,68 +10,38 @@ import UIKit
 final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     let storySdk: StorySDK
     var containerFrame: SRRect = .zero
-    var onUpdateTransformNeeded: ((Float) -> Void)?
+    var presentTalkAbout: ((SRTalkAboutViewController) -> Void)?
     var pauseInterval: DispatchTimeInterval = .seconds(1)
     weak var progress: SRProgressController?
     weak var analytics: SRAnalyticsController?
-    private var keyboardHeight: Float = 0
+    private var transition: SRTalkAboutViewTransitionDelegate?
     
     init(sdk: StorySDK = .shared) {
         storySdk = sdk
         super.init()
-        addNotifications()
     }
     
-    private func addNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow(notification:)),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide(notification:)),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
+    // MARK: - SRTalkAboutViewDelegate
     
-    // MARK: - Keyboard events
-    
-    @objc func keyboardWillShow(notification: NSNotification) {
-        guard let userInfo = notification.userInfo as? NSDictionary,
-              let keyboardFrame = userInfo.value(forKey: UIResponder.keyboardFrameEndUserInfoKey) as? NSValue
-        else { return }
-        let keyboardRectangle = keyboardFrame.cgRectValue
-        keyboardHeight = Float(keyboardRectangle.height)
-    }
-    
-    @objc func keyboardWillHide(notification: NSNotification) {
-        keyboardHeight = 0
-    }
-    
-    // MARK: - TalkAboutViewDelegate
-    
-    func needShowKeyboard(_ widget: TalkAboutView) {
-        guard widget.isTextFieldActive else { return }
-        var bottom = containerFrame.maxY
-        bottom -= widget.convert(widget.bounds, to: nil).maxY
-        bottom -= 50 // Space between widget and keyboard
-        let delta = keyboardHeight - Float(bottom)
+    func needShowKeyboard(_ widget: SRTalkAboutView) {
+        widget.endEditing(true)
+        let vc = SRTalkAboutViewController(
+            story: widget.story,
+            data: widget.data,
+            talkAboutWidget: widget.talkAboutWidget,
+            loader: widget.loader
+        ) { [weak self] text in
+            defer { self?.progress?.startAutoscrolling() }
+            guard let text = text, !text.isEmpty else { return }
+            widget.setupWidget(reaction: text)
+            let request = SRStatistic(type: .answer, value: text)
+            self?.analytics?.sendWidgetReaction(request, widget: widget)
+            
+        }
+        transition = .init(widget: widget)
+        vc.transitioningDelegate = transition
         progress?.pauseAutoscrolling()
-        guard delta > 0 else { return }
-        onUpdateTransformNeeded?(-delta)
-    }
-    
-    func needHideKeyboard(_ widget: TalkAboutView) {
-        onUpdateTransformNeeded?(0)
-        progress?.startAutoscrollingAfter(.now() + pauseInterval)
-    }
-    
-    func didSentTextAbout(_ widget: TalkAboutView, text: String?) {
-        let request = SRStatistic(type: .answer, value: text)
-        analytics?.sendWidgetReaction(request, widget: widget)
+        presentTalkAbout?(vc)
     }
     
     // MARK: - ChooseAnswerViewDelegate

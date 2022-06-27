@@ -79,11 +79,8 @@ public final class SRStoriesViewController: UIViewController {
         viewModel.onErrorReceived = { [logger] error in
             logger.error(error.getDetails(), logger: .stories)
         }
-        viewModel.onUpdateTransformNeeded = { [weak storiesView] ty in
-            UIView.animate(
-                withDuration: .animationsDuration,
-                animations: { storiesView?.transform.ty = CGFloat(ty) }
-            )
+        viewModel.presentTalkAbout = { [weak self] vc in
+            self?.present(vc, animated: true)
         }
         viewModel.onProgressUpdated = { [weak self] progress in
             self?.storiesView.progress = progress

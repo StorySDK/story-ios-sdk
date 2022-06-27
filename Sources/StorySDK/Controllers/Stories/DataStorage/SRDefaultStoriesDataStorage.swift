@@ -81,12 +81,17 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
                 .reaction(widgetId: widget.id)
                 .map { view.setupWidget(reaction: $0) }
             (view as? SRInteractiveWidgetView)?.delegate = widgetResponder
-            if let swipeUp = view as? SRSwipeUpView {
+            switch view {
+            case let swipeUp as SRSwipeUpView:
                 let gesture = SRSwipeUpGestureRecognizer(
                     widget: swipeUp.swipeUpWidget,
                     target: gestureRecognizer
                 )
                 swipeUp.addGestureRecognizer(gesture)
+            case let talkAbout as SRTalkAboutView:
+                talkAbout.addTapGesture()
+            default:
+                break
             }
             let position = SRWidgetConstructor.calcWidgetPosition(widget, story: story)
             cell.appendWidget(view, position: position)

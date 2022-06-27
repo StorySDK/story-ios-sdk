@@ -59,9 +59,9 @@ final class SRStoriesViewModel {
         get { dataStorage.onUpdateHeader }
         set { dataStorage.onUpdateHeader = newValue }
     }
-    var onUpdateTransformNeeded: ((Float) -> Void)? {
-        get { widgetResponder.onUpdateTransformNeeded }
-        set { widgetResponder.onUpdateTransformNeeded = newValue }
+    var presentTalkAbout: ((SRTalkAboutViewController) -> Void)? {
+        get { widgetResponder.presentTalkAbout }
+        set { widgetResponder.presentTalkAbout = newValue }
     }
     var containerFrame: SRRect {
         get { widgetResponder.containerFrame }

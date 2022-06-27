@@ -8,9 +8,6 @@
 import UIKit
 
 final class SRStoriesGestureRecognizer: NSObject {
-    var onUpdateTransformNeeded: ((Float) -> Void)? {
-        widgetResponder?.onUpdateTransformNeeded
-    }
     var resignFirstResponder: (() -> Void)?
     
     weak var dataStorage: SRStoriesDataStorage?

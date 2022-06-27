@@ -1,5 +1,5 @@
 //
-//  TalkAboutView.swift
+//  SRTalkAboutView.swift
 //  StorySDK
 //
 //  Created by MeadowsPhone Team on 06.02.2022.
@@ -8,16 +8,26 @@
 import UIKit
 import Combine
 
-protocol TalkAboutViewDelegate: AnyObject {
-    func needShowKeyboard(_ widget: TalkAboutView)
-    func needHideKeyboard(_ widget: TalkAboutView)
-    func didSentTextAbout(_ widget: TalkAboutView, text: String?)
+protocol SRTalkAboutViewDelegate: AnyObject {
+    func needShowKeyboard(_ widget: SRTalkAboutView)
+    func needHideKeyboard(_ widget: SRTalkAboutView)
+    func didSentTextAbout(_ widget: SRTalkAboutView, text: String?)
 }
 
-class TalkAboutView: SRInteractiveWidgetView {
+extension SRTalkAboutViewDelegate {
+    func needShowKeyboard(_ widget: SRTalkAboutView) {}
+    func needHideKeyboard(_ widget: SRTalkAboutView) {}
+    func didSentTextAbout(_ widget: SRTalkAboutView, text: String?) {}
+}
+
+class SRTalkAboutView: SRInteractiveWidgetView {
     var talkAboutWidget: SRTalkAboutWidget
     var isTextFieldActive = false
     let loader: SRImageLoader
+    weak var talkAboutDelegate: SRTalkAboutViewDelegate?
+    override var delegate: SRIneractiveWidgetDelegate? {
+        didSet { talkAboutDelegate = delegate }
+    }
     
     private var imageLoadOperation: Cancellable?
     private let mainView: UIView = {
@@ -163,15 +173,35 @@ class TalkAboutView: SRInteractiveWidgetView {
         textField.text = reaction
         isUserInteractionEnabled = false
     }
+    
+    @discardableResult
+    override func becomeFirstResponder() -> Bool {
+        textField.becomeFirstResponder()
+    }
+    
+    @discardableResult
+    override func resignFirstResponder() -> Bool {
+        textField.resignFirstResponder()
+    }
+    
+    func addTapGesture() {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(didTap))
+        addGestureRecognizer(gesture)
+        textField.isUserInteractionEnabled = false
+    }
+    
+    @objc func didTap() {
+        talkAboutDelegate?.needShowKeyboard(self)
+    }
 }
 
 // MARK: - TextField
-extension TalkAboutView: UITextFieldDelegate {
+extension SRTalkAboutView: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         isTextFieldActive = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let wSelf = self else { return }
-            wSelf.delegate?.needShowKeyboard(wSelf)
+            wSelf.talkAboutDelegate?.needShowKeyboard(wSelf)
         }
     }
     
@@ -180,9 +210,7 @@ extension TalkAboutView: UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        delegate?.needHideKeyboard(self)
-        textField.resignFirstResponder()
-        delegate?.didSentTextAbout(self, text: textField.text)
+        talkAboutDelegate?.didSentTextAbout(self, text: textField.text)
         isUserInteractionEnabled = false
         return true
     }

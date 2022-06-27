@@ -37,7 +37,7 @@ final class SRWidgetConstructor {
         case .question(let questionWidget):
             return QuestionView(story: story, data: widget, questionWidget: questionWidget)
         case .talkAbout(let talkAboutWidget):
-            return TalkAboutView(story: story, data: widget, talkAboutWidget: talkAboutWidget, loader: loader)
+            return SRTalkAboutView(story: story, data: widget, talkAboutWidget: talkAboutWidget, loader: loader)
         case .giphy(let giphyWidget):
             return SRGiphyView(data: widget, giphyWidget: giphyWidget, loader: loader)
         case .image:

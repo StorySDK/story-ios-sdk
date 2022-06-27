@@ -108,8 +108,8 @@ public typealias SRRect = CGRect
 protocol SRWidgetResponderStorage: AnyObject {
     /// View controller frame in absulute coordinates
     var containerFrame: SRRect { get set }
-    /// Needs to lift up the view when the keyboard has appeared
-    var onUpdateTransformNeeded: ((Float) -> Void)? { get set }
+    /// Need to present view controller
+    var presentTalkAbout: ((SRTalkAboutViewController) -> Void)? { get set }
     /// Progress controller which take care about progress bar state
     var progress: SRProgressController? { get set }
     /// To report about analytics events

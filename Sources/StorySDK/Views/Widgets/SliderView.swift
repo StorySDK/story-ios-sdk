@@ -132,7 +132,7 @@ class SliderView: SRInteractiveWidgetView {
         centerView.layer.cornerRadius = centerView.bounds.height / 2
         slider.frame = centerView.frame.insetBy(dx: 0, dy: -12 * scale)
         
-        slider.animateValue(to: slider.value, duration: 0.5)
+        slider.animateValue(to: slider.value, duration: 0)
         sliderPosY = slider.frame.origin.y
         changeEmojiFrame(for: slider.value)
     }

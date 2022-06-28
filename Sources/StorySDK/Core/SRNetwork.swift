@@ -45,6 +45,7 @@ extension StorySDK {
         var reaction = reaction
         reaction.locale = configuration.fetchCurrentLanguage()
         reaction.userId = userDefaults.userId
+        reaction.value = reaction.value ?? ""
         network.sendStatistic(reaction: reaction, completion: completion)
     }
 }

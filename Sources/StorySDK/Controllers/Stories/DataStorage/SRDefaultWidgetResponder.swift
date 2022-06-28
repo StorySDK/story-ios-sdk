@@ -59,7 +59,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     // MARK: - EmojiReactionViewDelegate
     
     func didChooseEmojiReaction(_ widget: EmojiReactionView, emoji: String) {
-        let request = SRStatistic(type: .answer, value: emoji )
+        let request = SRStatistic(type: .answer, value: emoji)
         analytics?.sendWidgetReaction(request, widget: widget)
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
     }
@@ -75,7 +75,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     // MARK: - SliderViewDelegate
     
     func didChooseSliderValue(_ widget: SliderView, value: Float) {
-        let request = SRStatistic(type: .answer, value: "\(Int(value * 100))%")
+        let request = SRStatistic(type: .answer, value: "\(Int(value * 100))")
         analytics?.sendWidgetReaction(request, widget: widget)
     }
     

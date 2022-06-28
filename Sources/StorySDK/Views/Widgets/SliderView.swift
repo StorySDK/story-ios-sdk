@@ -154,8 +154,7 @@ class SliderView: SRInteractiveWidgetView {
     }
     
     override func setupWidget(reaction: String) {
-        guard reaction.hasSuffix("%") else { return }
-        guard let percents = Float(reaction.dropLast()) else { return }
+        guard let percents = Float(reaction) else { return }
         let value = CGFloat(percents) / 100
         slider.isUserInteractionEnabled = false
         slider.value = value

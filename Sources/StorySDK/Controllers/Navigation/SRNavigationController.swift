@@ -78,7 +78,8 @@ public final class SRNavigationController: UIViewController, SRNavigationViewDat
                 guard let animations = animations else { return }
                 let animation = animations.makeSwipeAnimator(
                     duration: .animationsDuration,
-                    to: index + 1
+                    to: index + 1,
+                    byUser: false
                 )
                 animation.startAnimation()
             }

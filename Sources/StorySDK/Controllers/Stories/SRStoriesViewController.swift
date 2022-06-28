@@ -148,6 +148,16 @@ public final class SRStoriesViewController: UIViewController {
         viewModel.reportGroupClose()
         dismiss(animated: true)
     }
+    
+    // MARK: - Analytics gateway
+    
+    func reportSwipeForward() {
+        viewModel.reportSwipeBackward()
+    }
+    
+    func reportSwipeBackward() {
+        viewModel.reportSwipeForward()
+    }
 }
 
 extension SRStoriesViewController: UICollectionViewDataSource {

@@ -126,10 +126,10 @@ protocol SRAnalyticsController: AnyObject {
     func reportGroupOpen()
     /// When a user closes the group
     func reportGroupClose()
-    /// When the story has been displayed
-    func reportStoryOpen(_ id: String)
-    /// When the story has been disapeared
-    func reportStoryClose(_ id: String)
+    /// When group or story has been swiped forward
+    func reportSwipeForward(from storyId: String?)
+    /// When group or story has been swiped backward
+    func reportSwipeBackward(from storyId: String?)
 }
 
 typealias SRWidgetResponder = SRWidgetResponderStorage & SRIneractiveWidgetDelegate

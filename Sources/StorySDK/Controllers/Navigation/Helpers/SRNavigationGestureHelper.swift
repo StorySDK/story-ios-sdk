@@ -52,7 +52,11 @@ final class SRNavigationGestureHelper: NSObject, UIGestureRecognizerDelegate {
         case .began:
             let velocity = gesture.velocity(in: nil).x
             let nextIndex = velocity < 0 ? dataSource.currentIndex + 1 : dataSource.currentIndex - 1
-            animations.swipe = animations.makeSwipeAnimator(duration: .animationsDuration, to: nextIndex)
+            animations.swipe = animations.makeSwipeAnimator(
+                duration: .animationsDuration,
+                to: nextIndex,
+                byUser: true
+            )
             animations.swipe?.pauseAnimation()
         case .ended:
             guard let animator = animations.swipe else { return }

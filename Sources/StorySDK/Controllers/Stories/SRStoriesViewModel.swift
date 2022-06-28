@@ -143,4 +143,14 @@ final class SRStoriesViewModel {
     func didEndTransition() {
         progress.didEndTransition()
     }
+    
+    // MARK: - Analytics
+    
+    func reportSwipeForward() {
+        analytics.reportSwipeForward(from: nil)
+    }
+    
+    func reportSwipeBackward() {
+        analytics.reportSwipeBackward(from: nil)
+    }
 }

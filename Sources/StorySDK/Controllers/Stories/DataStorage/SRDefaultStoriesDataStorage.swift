@@ -106,14 +106,12 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     
     func willDisplay(_ cell: SRStoryCell, index: Int) {
         guard let id = storyId(atIndex: index) else { return }
-        analytics?.reportGroupOpen()
         if progress?.isLoading[id] ?? false { return }
         progress?.isLoading[id] = false
     }
     
     func endDisplaying(_ cell: SRStoryCell, index: Int) {
         guard let id = storyId(atIndex: index) else { return }
-        analytics?.reportStoryClose(id)
         progress?.isLoading[id] = nil
     }
     

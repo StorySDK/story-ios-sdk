@@ -74,7 +74,7 @@ final class SRNavigationAnimationHelper {
         return animator
     }
     
-    func makeSwipeAnimator(duration: TimeInterval, to index: Int) -> UIViewPropertyAnimator {
+    func makeSwipeAnimator(duration: TimeInterval, to index: Int, byUser: Bool) -> UIViewPropertyAnimator {
         let animator = UIViewPropertyAnimator(
             duration: duration,
             curve: .easeInOut
@@ -125,6 +125,13 @@ final class SRNavigationAnimationHelper {
         animator.addCompletion { [weak dataSource] position in
             switch position {
             case .end:
+                if byUser {
+                    if currentIndex > index {
+                        current.reportSwipeForward()
+                    } else {
+                        current.reportSwipeBackward()
+                    }
+                }
                 dataSource?.removeViewController(current)
                 dataSource?.currentIndex = index
             case .current, .start:

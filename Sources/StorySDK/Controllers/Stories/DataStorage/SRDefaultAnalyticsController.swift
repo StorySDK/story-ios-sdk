@@ -15,6 +15,7 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
     }
     let storySdk: StorySDK
     var group: SRStoryGroup? { dataStorage?.group }
+    var groupOpenTime: Date?
     weak var dataStorage: SRStoriesDataStorage?
     private var currentStory: StoryInfo?
     
@@ -51,53 +52,54 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
     
     func reportGroupOpen() {
         sendReaction(.init(type: .open))
+        groupOpenTime = Date()
         if let id = group?.id { storySdk.userDefaults.didPresent(group: id) }
         guard let first = dataStorage?.storyId(atIndex: 0) else { return }
-        currentStory = .init(index: 0, id: first)
+        reportStoryOpen(.init(index: 0, id: first))
     }
     
     func reportGroupClose() {
+        currentStory.map(reportStoryClose)
         sendReaction(.init(type: .close))
-        postProcessStory()
+        guard let time = groupOpenTime else { return }
+        let duration = -time.timeIntervalSinceNow
+        reportViewDuration(duration: duration)
     }
     
-    func reportStoryOpen(_ id: String) {
-        sendReaction(.init(type: .open, storyId: id))
+    func reportStoryOpen(_ info: StoryInfo) {
+        sendReaction(.init(type: .open, storyId: info.id))
+        currentStory = info
     }
     
-    func reportStoryClose(_ id: String) {
-        sendReaction(.init(type: .close, storyId: id))
+    func reportStoryClose(_ info: StoryInfo) {
+        let duration = -info.openTime.timeIntervalSinceNow
+        if duration > 2 { reportImpression(info.id) }
+        reportViewDuration(info.id, duration: duration)
+        sendReaction(.init(type: .close, storyId: info.id))
     }
     
     func storyDidChanged(to index: Int, byUser: Bool) {
         guard let id = dataStorage?.storyId(atIndex: index) else { return }
         guard let old = currentStory else {
-            currentStory = .init(index: index, id: id)
+            reportStoryOpen(.init(index: index, id: id))
             return
         }
         guard old.index != index else { return }
-        postProcessStory()
-        currentStory = .init(index: index, id: id)
+        reportStoryClose(old)
+        reportStoryOpen(.init(index: index, id: id))
         guard byUser else { return }
         if old.index > index {
-            reportSwipeBackward(id)
+            reportSwipeBackward(from: old.id)
         } else {
-            reportSwipeForward(id)
+            reportSwipeForward(from: old.id)
         }
     }
     
-    func postProcessStory() {
-        guard let story = currentStory else { return }
-        let duration = -story.openTime.timeIntervalSinceNow
-        if duration > 2 { reportImpression(story.id) }
-        reportViewDuration(story.id, duration: duration)
-    }
-    
-    func reportSwipeForward(_ storyId: String) {
+    func reportSwipeForward(from storyId: String?) {
         sendReaction(.init(type: .next, storyId: storyId))
     }
     
-    func reportSwipeBackward(_ storyId: String) {
+    func reportSwipeBackward(from storyId: String?) {
         sendReaction(.init(type: .back, storyId: storyId))
     }
     
@@ -105,7 +107,7 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
         sendReaction(.init(type: .impression, storyId: storyId))
     }
     
-    func reportViewDuration(_ storyId: String, duration: TimeInterval) {
+    func reportViewDuration(_ storyId: String? = nil, duration: TimeInterval) {
         sendReaction(.init(type: .duration, storyId: storyId, value: "\(duration)"))
     }
 }

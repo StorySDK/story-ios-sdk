@@ -138,6 +138,7 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
         if index + 1 < numberOfItems {
             index += 1
             progress = Float(index) / Float(numberOfItems)
+            analytics?.storyDidChanged(to: index, byUser: true)
             onScrollToStory?(index, false)
         } else {
             onScrollCompeted?()
@@ -150,6 +151,7 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
         index -= 1
         guard index >= 0 else { return }
         progress = Float(index) / Float(numberOfItems)
+        analytics?.storyDidChanged(to: index, byUser: true)
         onScrollToStory?(index, false)
     }
 }

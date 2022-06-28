@@ -47,15 +47,20 @@ public final class SRNavigationController: UIViewController, SRNavigationViewDat
         loadCurrentViewController()
     }
     
+    public override func viewDidLayoutSubviews() {
+        var frame = view.bounds.inset(by: view.safeAreaInsets)
+        let maxHeight = frame.height
+        let storySize = CGSize.defaultStory
+        frame.size.height = min(maxHeight, storySize.height * frame.width / storySize.width)
+        if sdk.configuration.needShowTitle {
+            frame.size.height = min(maxHeight, frame.height + 64)
+        }
+        containerView.frame = frame
+        super.viewDidLayoutSubviews()
+    }
+    
     private func setupContainer() {
         view.addSubview(containerView)
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-        ])
     }
     
     private func addGestures() {

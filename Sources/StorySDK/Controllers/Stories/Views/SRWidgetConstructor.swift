@@ -46,7 +46,7 @@ final class SRWidgetConstructor {
     }
     
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
-        let defaultStorySize = CGSize(width: 1080, height: 1920) // CGSize(width: 390, height: 694)
+        let defaultStorySize = CGSize.defaultStory
         let position = widget.position
         let x = position.x
         let y = position.y
@@ -59,4 +59,8 @@ final class SRWidgetConstructor {
             height: height / defaultStorySize.width
         )
     }
+}
+
+extension CGSize {
+    static let defaultStory = CGSize(width: 1080, height: 1920)
 }

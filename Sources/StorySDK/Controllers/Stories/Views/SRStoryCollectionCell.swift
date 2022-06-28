@@ -105,7 +105,7 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
 }
 
 private final class LoadingBluredView: UIView {
-    private let blurView: UIVisualEffectView = .init(effect: UIBlurEffect(style: .light))
+    private let blurView: UIVisualEffectView = .init(effect: nil)
     private let loadingIndicator: UIActivityIndicatorView = .init(style: .large)
     
     override init(frame: CGRect) {
@@ -127,11 +127,27 @@ private final class LoadingBluredView: UIView {
     
     func startLoading() {
         isHidden = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            let isLoading = self?.loadingIndicator.isAnimating ?? false
+            guard isLoading else { return }
+            UIView.animate(
+                withDuration: .animationsDuration,
+                delay: 0,
+                options: .curveLinear,
+                animations: { self?.blurView.effect = UIBlurEffect(style: .light) }
+            )
+        }
         loadingIndicator.startAnimating()
     }
     
     func stopLoading() {
-        isHidden = true
+        UIView.animate(
+            withDuration: .animationsDuration,
+            delay: 0,
+            options: .curveLinear,
+            animations: { [weak blurView] in blurView?.effect = nil },
+            completion: { [weak self] _ in self?.isHidden = true }
+        )
         loadingIndicator.stopAnimating()
     }
 }

@@ -59,6 +59,12 @@ final class SRStoriesViewModel {
         get { dataStorage.onUpdateHeader }
         set { dataStorage.onUpdateHeader = newValue }
     }
+    
+    var onFilled: ((Bool) -> Void)? {
+        get { dataStorage.onFilled }
+        set { dataStorage.onFilled = newValue }
+    }
+    
     var presentTalkAbout: ((SRTalkAboutViewController) -> Void)? {
         get { widgetResponder.presentTalkAbout }
         set { widgetResponder.presentTalkAbout = newValue }
@@ -99,9 +105,9 @@ final class SRStoriesViewModel {
         get { progress.onScrollToStory }
         set { progress.onScrollToStory = newValue }
     }
-    var onScrollCompeted: (() -> Void)? {
-        get { progress.onScrollCompeted }
-        set { progress.onScrollCompeted = newValue }
+    var onScrollCompleted: (() -> Void)? {
+        get { progress.onScrollCompleted }
+        set { progress.onScrollCompleted = newValue }
     }
     
     func willBeginDragging() {

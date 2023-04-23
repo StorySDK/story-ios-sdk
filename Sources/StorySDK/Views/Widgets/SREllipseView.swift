@@ -18,12 +18,12 @@ class SREllipseView: SRImageWidgetView {
     override func setupView() {
         super.setupView()
         // guard url == nil else { return }
-        if case .color(let color) = ellipseWidget.fillColor {
+        if case .color(let color, let isFilled) = ellipseWidget.fillColor {
             let fillOpacity = CGFloat(ellipseWidget.fillOpacity / 100)
             contentView.backgroundColor = color
                 .withAlphaComponent(fillOpacity)
         }
-        if ellipseWidget.hasBorder, case .color(let color) = ellipseWidget.strokeColor {
+        if ellipseWidget.hasBorder, case .color(let color, let isFilled) = ellipseWidget.strokeColor {
             let strokeOpacity = CGFloat(ellipseWidget.strokeOpacity / 100)
             contentView.layer.borderColor = color
                 .withAlphaComponent(strokeOpacity)

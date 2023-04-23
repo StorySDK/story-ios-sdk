@@ -33,6 +33,10 @@ final class SRGroupsViewModel {
         dataStorage.load()
     }
     
+    func reload() {
+        dataStorage.reload()
+    }
+    
     func setupLayout(_ layout: SRGroupsLayout) {
         dataStorage.setupLayout(layout)
     }

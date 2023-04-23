@@ -42,6 +42,8 @@ protocol SRStoriesDataStorage: AnyObject {
     func endDisplaying(_ cell: SRStoryCell, index: Int)
     /// Returns id of the story at index
     func storyId(atIndex index: Int) -> String?
+    
+    var onFilled: ((Bool) -> Void)? { get set }
 }
 
 protocol SRStoryCell: AnyObject {
@@ -76,7 +78,7 @@ protocol SRProgressController: AnyObject {
     /// When we need to scroll to the next story
     var onScrollToStory: ((Int, Bool) -> Void)? { get set }
     /// When timer finished
-    var onScrollCompeted: (() -> Void)? { get set }
+    var onScrollCompleted: (() -> Void)? { get set }
     /// When user is going to scroll
     func willBeginDragging()
     /// When user stopped scrolling
@@ -139,4 +141,6 @@ struct HeaderInfo {
     var duration: String?
     var icon: UIImage?
     var isHidden: Bool
+    var isProhibitToClose: Bool = false
+    var isProgressHidden: Bool = false
 }

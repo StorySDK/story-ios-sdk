@@ -41,6 +41,19 @@ final class SRStoriesView: UIView {
         set { collectionView.isScrollEnabled = newValue }
     }
     var isItChildViewController: Bool = false
+    var isFilled: Bool = false
+    var isProhibitToClose: Bool = false {
+        didSet {
+            closeButton.isHidden = isProhibitToClose
+        }
+    }
+    
+    var isProgressHidden: Bool = false {
+        didSet {
+            progressView.isHidden = isProgressHidden
+        }
+    }
+    
     let collectionView: UICollectionView = {
         let l = UICollectionViewFlowLayout()
         l.minimumInteritemSpacing = 0
@@ -112,7 +125,7 @@ final class SRStoriesView: UIView {
         
         NSLayoutConstraint.activate([
             progressView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            progressView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            progressView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 12),
             progressView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
             headerView.leadingAnchor.constraint(equalTo: progressView.leadingAnchor),
@@ -148,12 +161,16 @@ final class SRStoriesView: UIView {
         if isItChildViewController {
             contentView.frame = bounds
         } else {
-            contentView.frame = .init(
-                x: 0,
-                y: safeAreaInsets.top,
-                width: bounds.width,
-                height: bounds.height - safeAreaInsets.top - safeAreaInsets.bottom
-            )
+            if isFilled {
+                contentView.frame = bounds
+            } else {
+                contentView.frame = .init(
+                    x: 0,
+                    y: safeAreaInsets.top,
+                    width: bounds.width,
+                    height: bounds.height - safeAreaInsets.top - safeAreaInsets.bottom
+                )
+            }
         }
         super.layoutSubviews()
         headerGradientView.frame = .init(

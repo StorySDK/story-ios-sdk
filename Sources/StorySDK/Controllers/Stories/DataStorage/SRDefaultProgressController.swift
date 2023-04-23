@@ -16,7 +16,7 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
     var timeForStory: TimeInterval = 7
     var onProgressUpdated: ((Float) -> Void)?
     var onScrollToStory: ((Int, Bool) -> Void)?
-    var onScrollCompeted: (() -> Void)?
+    var onScrollCompleted: (() -> Void)?
     var numberOfItems: Int = 0
     var activeColor: UIColor?
     var progress: Float = 0 {
@@ -113,7 +113,7 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
         let newProgress = progress + progressForOneFire
         if newProgress >= 1 {
             progress = 1
-            onScrollCompeted?()
+            onScrollCompleted?()
             return
         } else {
             let newIndex = floor(newProgress / storyProgress)
@@ -141,7 +141,7 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
             analytics?.storyDidChanged(to: index, byUser: true)
             onScrollToStory?(index, false)
         } else {
-            onScrollCompeted?()
+            onScrollCompleted?()
         }
     }
     

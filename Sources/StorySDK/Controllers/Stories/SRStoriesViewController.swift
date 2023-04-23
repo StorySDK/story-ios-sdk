@@ -12,9 +12,10 @@ public final class SRStoriesViewController: UIViewController {
     private let viewModel: SRStoriesViewModel
     private var storiesView: SRStoriesView!
     private let logger: SRLogger
+    
     let tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer()
-        gesture.isEnabled = false
+        gesture.isEnabled = true
         return gesture
     }()
     
@@ -90,6 +91,13 @@ public final class SRStoriesViewController: UIViewController {
             storiesView?.groupDuration = info.duration
             storiesView?.groupImage = info.icon
             storiesView?.isHeaderHidden = info.isHidden
+            storiesView?.isProhibitToClose = info.isProhibitToClose
+            storiesView?.isProgressHidden = info.isProgressHidden
+        }
+        viewModel.onFilled = { [weak storiesView] value in
+            //self?.close()
+            storiesView?.isFilled = value
+            storiesView?.layoutSubviews()
         }
         viewModel.onScrollToStory = { [weak storiesView] index, animated in
             guard let v = storiesView else { return }
@@ -99,7 +107,7 @@ public final class SRStoriesViewController: UIViewController {
             v.endEditing(true)
             v.scroll(to: x, animated: animated)
         }
-        viewModel.onScrollCompeted = { [weak self] in
+        viewModel.onScrollCompleted = { [weak self] in
             self?.close()
         }
         viewModel.resignFirstResponder = { [weak self] in
@@ -137,7 +145,7 @@ public final class SRStoriesViewController: UIViewController {
     }
     
     func updateOnScrollCompleted(_ completion: @escaping () -> Void) {
-        viewModel.onScrollCompeted = completion
+        viewModel.onScrollCompleted = completion
     }
     
     func updateOnGotEmptyGroup(_ completion: @escaping () -> Void) {

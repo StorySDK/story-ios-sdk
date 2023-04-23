@@ -8,7 +8,8 @@
 import Foundation
 
 public struct SRStoryData: Decodable {
-    public var background: SRColor?
+    //public var background: SRColor?
+    public var background: BRColor?
     public var status: SRStoryStatus
     public var widgets: [SRWidget]
     
@@ -18,7 +19,7 @@ public struct SRStoryData: Decodable {
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        background = try? container.decode(SRColor.self, forKey: .background)
+        background = try? container.decode(BRColor.self, forKey: .background)
         status = (try? container.decode(SRStoryStatus.self, forKey: .status)) ?? .invalid
         widgets = try container.decode([SRWidget].self, forKey: .widgets)
     }

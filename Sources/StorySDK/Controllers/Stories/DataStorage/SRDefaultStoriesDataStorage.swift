@@ -10,6 +10,8 @@ import UIKit
 import Combine
 
 final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
+    var onFilled: ((Bool) -> Void)?
+    
     let storySdk: StorySDK
     var stories: [SRStory] = []
     var groupInfo: HeaderInfo {
@@ -40,6 +42,9 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     func loadStories(group: SRStoryGroup) {
         self.group = group
         groupInfo.title = group.title
+        groupInfo.isProhibitToClose = group.settings?.isProhibitToClose ?? false
+        groupInfo.isProgressHidden = group.settings?.isProgressHidden ?? false
+        
         if let url = group.imageUrl {
             let height = SRGroupHeaderView.Size.image
             storySdk.imageLoader.load(
@@ -119,15 +124,18 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         index < stories.count ? stories[index].id : nil
     }
     
-    private func setupBackground(_ cell: SRStoryCell, background: SRColor, completion: @escaping () -> Void) {
+    private func setupBackground(_ cell: SRStoryCell, background: BRColor, completion: @escaping () -> Void) {
         switch background {
-        case .color(let color):
+        case .color(let color, let isFilled):
+            onFilled?(isFilled)
             cell.backgroundColors = [color, color]
             completion()
-        case .gradient(let array):
+        case .gradient(let array, let isFilled):
+            onFilled?(isFilled)
             cell.backgroundColors = array
             completion()
-        case .image(let url):
+        case .image(let url, let isFilled):
+            onFilled?(isFilled)
             let size = UIScreen.main.bounds.size
             let scale = UIScreen.main.scale
             storySdk.imageLoader

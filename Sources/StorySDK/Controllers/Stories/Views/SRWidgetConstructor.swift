@@ -63,4 +63,5 @@ final class SRWidgetConstructor {
 
 extension CGSize {
     static let defaultStory = CGSize(width: 1080, height: 1920)
+    static let largeStory = CGSize(width: 1080, height: 2338)
 }

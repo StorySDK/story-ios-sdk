@@ -166,6 +166,12 @@ public final class SRStoryWidget: UIView {
         isLoading = true
         invalidateIntrinsicContentSize()
     }
+    
+    public func reload() {
+        viewModel.reload()
+        isLoading = true
+        invalidateIntrinsicContentSize()
+    }
 }
 
 extension SRStoryWidget: UICollectionViewDataSource {

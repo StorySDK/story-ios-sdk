@@ -47,7 +47,7 @@ class SRSwipeUpView: SRImageWidgetView {
         titleLabel.text = swipeUpWidget.text
         titleLabel.font = .regular(ofSize: swipeUpWidget.fontSize)
         
-        if case .color(let color) = swipeUpWidget.color {
+        if case .color(let color, let isFilled) = swipeUpWidget.color {
             iconView.tintColor = color
             titleLabel.textColor = color
         }

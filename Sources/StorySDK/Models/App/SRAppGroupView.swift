@@ -8,10 +8,7 @@
 import UIKit
 
 public struct SRAppGroupView: Codable {
-//    public var android: String
-//    public var web: String
     public var ios: SRAppGroupViewSettings
-//    public var react: String
     
     enum CodingKeys: String, CodingKey {
         case ios

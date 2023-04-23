@@ -29,6 +29,8 @@ public protocol SRGroupsDataStorage: AnyObject {
     func didTap(index: Int)
     /// Loads groups
     func load()
+    /// Reloads app & groups
+    func reload()
 }
 
 public protocol SRGroupsCollectionCell: UICollectionViewCell {

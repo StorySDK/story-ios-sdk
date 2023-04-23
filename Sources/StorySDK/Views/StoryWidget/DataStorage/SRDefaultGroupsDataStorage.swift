@@ -17,22 +17,24 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     
     private(set) public var groups: [SRStoryGroup] = []
     private(set) var groupsStyle: SRAppGroupViewSettings {
-        didSet { cellConfg.update(settings: groupsStyle) }
+        didSet { cellConfig.update(settings: groupsStyle) }
     }
     private let storySdk: StorySDK
     var app: SRStoryApp? { storySdk.app }
-    var cellConfg: SRCollectionCellStyle = .init()
+    var cellConfig: SRCollectionCellStyle = .init()
     var presentedCancellable: Cancellable? {
         didSet { oldValue?.cancel() }
     }
     var presentedStories: [String: Bool] = [:] {
-        didSet { onReloadData?() }
+        didSet {
+            onReloadData?()
+        }
     }
     
     public init(sdk: StorySDK = .shared) {
         self.storySdk = sdk
         self.groupsStyle = sdk.app?.settings.groupView.ios ?? .circle
-        cellConfg.update(settings: groupsStyle)
+        cellConfig.update(settings: groupsStyle)
     }
     
     public func load() {
@@ -40,10 +42,26 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
         loadApp { [weak self] _ in
             self?.storySdk.getGroups { result in
                 switch result {
-                case .success(let groups):
-                    let groups = groups.filter { $0.active }
-                    self?.groups = groups
-                    self?.updatePresentedStats(groups)
+                case .success(let allGroups):
+                    let activeGroups = allGroups.filter { $0.active && $0.settings?.addToStories ?? true }.sorted()
+                    self?.groups = activeGroups
+                    self?.updatePresentedStats(activeGroups)
+                case .failure(let error):
+                    self?.onErrorReceived?(error)
+                }
+            }
+        }
+    }
+    
+    public func reload() {
+        groups = []
+        reloadApp { [weak self] _ in
+            self?.storySdk.getGroups { result in
+                switch result {
+                case .success(let allGroups):
+                    let activeGroups = allGroups.filter { $0.active && $0.settings?.addToStories ?? true }.sorted()
+                    self?.groups = activeGroups
+                    self?.updatePresentedStats(activeGroups)
                 case .failure(let error):
                     self?.onErrorReceived?(error)
                 }
@@ -69,7 +87,7 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     open func setupCell(_ cell: SRGroupsCollectionCell, index: Int) {
         guard let group = group(with: index) else { return }
         cell.isPresented = presentedStories[group.id] ?? false
-        cell.setupStyle(cellConfg)
+        cell.setupStyle(cellConfig)
         cell.title = group.title
         guard let url = group.imageUrl else { return }
         cell.cancelable = storySdk.imageLoader.load(
@@ -106,6 +124,18 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
                 case .failure(let error):
                     self?.onErrorReceived?(error)
                 }
+            }
+        }
+    }
+    
+    func reloadApp(_ completion: @escaping (SRStoryApp) -> Void) {
+        storySdk.getApp { [weak self] result in
+            switch result {
+            case .success(let app):
+                self?.groupsStyle = app.settings.groupView.ios
+                completion(app)
+            case .failure(let error):
+                self?.onErrorReceived?(error)
             }
         }
     }

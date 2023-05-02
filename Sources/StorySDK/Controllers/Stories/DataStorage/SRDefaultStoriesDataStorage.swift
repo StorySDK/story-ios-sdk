@@ -154,6 +154,8 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         self.stories = stories
             .filter { $0.storyData != nil }
             .filter { $0.storyData?.status == .active }
+            .filter { $0.layerData != nil }
+            .filter { $0.layerData?.isDefaultLayer == true }
             .sorted(by: { $0.position < $1.position })
         guard numberOfItems > 0 else {
             onGotEmptyGroup?()

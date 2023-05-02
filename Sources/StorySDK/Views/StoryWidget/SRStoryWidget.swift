@@ -10,6 +10,7 @@ import UIKit
 public protocol SRStoryWidgetDelegate: AnyObject {
     func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget)
     func onWidgetGroupPresent(index: Int, groups: [SRStoryGroup], widget: SRStoryWidget)
+    func onWidgetGroupsLoaded(groups: [SRStoryGroup]) //index: Int, groups: [SRStoryGroup], widget: SRStoryWidget)
 }
 
 public extension SRStoryWidgetDelegate {
@@ -159,6 +160,12 @@ public final class SRStoryWidget: UIView {
                 widget: widget
             )
         }
+        viewModel.onGroupsLoaded = { [weak self] in
+            guard let widget = self else { return }
+            widget.delegate?.onWidgetGroupsLoaded(
+                groups: widget.viewModel.groups
+                )
+        }
     }
     
     public func load() {
@@ -171,6 +178,11 @@ public final class SRStoryWidget: UIView {
         viewModel.reload()
         isLoading = true
         invalidateIntrinsicContentSize()
+    }
+    
+    public func openAsOnboarding(groupId: String) {
+        guard let groupIndex = (viewModel.dataStorage.groups.firstIndex(where: { $0.id == groupId })) else { return }
+        viewModel.onPresentGroup?(groupIndex)
     }
 }
 

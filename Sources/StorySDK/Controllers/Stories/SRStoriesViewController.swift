@@ -71,7 +71,10 @@ public final class SRStoriesViewController: UIViewController {
             wSelf.storiesView.stopLoading()
             wSelf.storiesView.reloadData()
             wSelf.viewModel.setupProgress(wSelf.storiesView.progressView)
-            wSelf.viewModel.startAutoscrolling()
+            if !wSelf.storiesView.isProgressHidden {
+                wSelf.viewModel.startAutoscrolling()
+            }
+            
             wSelf.viewModel.reportGroupOpen()
         }
         viewModel.onGotEmptyGroup = { [weak self] in

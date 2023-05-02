@@ -21,6 +21,8 @@ public protocol SRGroupsDataStorage: AnyObject {
     var onErrorReceived: ((Error) -> Void)? { get set }
     /// Index of the group should be presented to a user
     var onPresentGroup: ((Int) -> Void)? { get set }
+    /// When all groups are loaded
+    var onGroupsLoaded: (() -> Void)? { get set }
     /// Configures story layout according used groups style
     func setupLayout(_ layout: SRGroupsLayout)
     /// Configures cell with a group with index

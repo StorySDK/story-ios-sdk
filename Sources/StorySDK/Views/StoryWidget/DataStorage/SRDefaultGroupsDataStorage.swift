@@ -14,6 +14,7 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     public var onReloadData: (() -> Void)?
     public var onErrorReceived: ((Error) -> Void)?
     public var onPresentGroup: ((Int) -> Void)?
+    public var onGroupsLoaded: (() -> Void)?
     
     private(set) public var groups: [SRStoryGroup] = []
     private(set) var groupsStyle: SRAppGroupViewSettings {
@@ -43,9 +44,11 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
             self?.storySdk.getGroups { result in
                 switch result {
                 case .success(let allGroups):
-                    let activeGroups = allGroups.filter { $0.active && $0.settings?.addToStories ?? true }.sorted()
+                    let activeGroups = self?.activeGroupsFilter(allGroups) ?? []
                     self?.groups = activeGroups
                     self?.updatePresentedStats(activeGroups)
+                    
+                    self?.onGroupsLoaded?()
                 case .failure(let error):
                     self?.onErrorReceived?(error)
                 }
@@ -59,14 +62,20 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
             self?.storySdk.getGroups { result in
                 switch result {
                 case .success(let allGroups):
-                    let activeGroups = allGroups.filter { $0.active && $0.settings?.addToStories ?? true }.sorted()
+                    let activeGroups = self?.activeGroupsFilter(allGroups) ?? []
                     self?.groups = activeGroups
                     self?.updatePresentedStats(activeGroups)
+                    
+                    self?.onGroupsLoaded?()
                 case .failure(let error):
                     self?.onErrorReceived?(error)
                 }
             }
         }
+    }
+    
+    func activeGroupsFilter(_ allGroups: [SRStoryGroup]) -> [SRStoryGroup] {
+        return allGroups.filter { $0.readyToShow() }.sorted()
     }
     
     open func setupLayout(_ layout: SRGroupsLayout) {

@@ -8,7 +8,7 @@
 import Foundation
 
 public enum SRStoryGroupType: String {
-    case onboarding, group
+    case onboarding, group, unknown
     
     public static func <(lhs: SRStoryGroupType, rhs: SRStoryGroupType) -> Bool {
         return lhs == SRStoryGroupType.onboarding && rhs == SRStoryGroupType.group
@@ -24,7 +24,7 @@ public struct SRStoryGroup: Decodable {
     public var startTime: TimeInterval
     public var endTime: TimeInterval
     public var active: Bool
-    public var type: String
+    public var type: SRStoryGroupType
     public var settings: SRStorySettings?
     public var createdAt: Date
     public var updatedAt: Date
@@ -49,13 +49,17 @@ public struct SRStoryGroup: Decodable {
         endTime = TimeInterval(innerEndTime) ?? TimeInterval.infinity
 
         active = try container.decode(Bool.self, forKey: .active)
-        type = try container.decode(String.self, forKey: .type)
+        let innerType = try container.decode(String.self, forKey: .type)
+        
+        type = SRStoryGroupType(rawValue: innerType) ?? .unknown
         settings = try? container.decode(SRStorySettings.self, forKey: .settings)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
     }
     
     public func readyToShow() -> Bool {
+        guard type != .unknown else { return false }
+        
         let timestamp = TimeInterval(Date().timeIntervalSince1970 * 1000)
         return active && (settings?.addToStories ?? true) &&
             (startTime < timestamp) && (timestamp < endTime)
@@ -68,8 +72,8 @@ extension SRStoryGroup: Comparable {
     }
     
     public static func <(lhs: SRStoryGroup, rhs: SRStoryGroup) -> Bool {
-        let lType = SRStoryGroupType(rawValue: lhs.type) ?? .group
-        let rType = SRStoryGroupType(rawValue: rhs.type) ?? .group
+        let lType = lhs.type
+        let rType = rhs.type
         
         if lType < rType { return true }
         

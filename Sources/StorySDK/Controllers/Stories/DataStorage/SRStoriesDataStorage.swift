@@ -134,7 +134,7 @@ protocol SRAnalyticsController: AnyObject {
     func reportSwipeBackward(from storyId: String?)
 }
 
-typealias SRWidgetResponder = SRWidgetResponderStorage & SRIneractiveWidgetDelegate
+typealias SRWidgetResponder = SRWidgetResponderStorage & SRInteractiveWidgetDelegate
 
 struct HeaderInfo {
     var title: String?

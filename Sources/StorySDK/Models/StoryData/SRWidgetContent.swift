@@ -21,6 +21,8 @@ public indirect enum SRWidgetContent: Decodable {
     case giphy(SRGiphyWidget)
     case image(URL, SRWidgetContent)
     
+    case quizOneAnswer(SRQuizOneAnswerWidget)
+    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let type = try container.decode(SRWidgetTypes.self, forKey: .type)
@@ -67,6 +69,9 @@ public indirect enum SRWidgetContent: Decodable {
         case .giphy:
             let params = try container.decode(SRGiphyWidget.self, forKey: .params)
             return .giphy(params)
+        case .quizOneAnswer:
+            let params = try container.decode(SRQuizOneAnswerWidget.self, forKey: .params)
+            return .quizOneAnswer(params)
         }
     }
 }
@@ -90,4 +95,5 @@ enum SRWidgetTypes: String, Decodable {
     // case timer = "timer"
     case chooseAnswer = "choose_answer"
     case giphy = "giphy"
+    case quizOneAnswer = "quiz_one_answer"
 }

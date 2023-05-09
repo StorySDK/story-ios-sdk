@@ -72,6 +72,8 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
     }
     
+    // MARK: - QuizMultipleImageViewDelegate
+    
     // MARK: - SliderViewDelegate
     
     func didChooseSliderValue(_ widget: SliderView, value: Float) {
@@ -100,6 +102,10 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     }
     
     // MARK: - SRSwipeUpViewDelegate
+    
+    func didChooseQuizMultipleImageAnswer(_ widget: QuizMultipleImageView, isYes: Bool) {
+        
+    }
     
     func didSwipeUp(_ widget: SRSwipeUpView) -> Bool {
         let request = SRStatistic(type: .click, value: widget.swipeUpWidget.url)

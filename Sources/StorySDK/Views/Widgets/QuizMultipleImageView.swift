@@ -12,7 +12,7 @@ protocol QuizMultipleImageViewDelegate: AnyObject {
 }
 
 class QuizMultipleImageView: SRInteractiveWidgetView {
-    let questionWidget: SRQuestionWidget
+    let quizWidget: SRQuizMultipleImageWidget
     
     private let buttonsView: UIStackView = {
         let sv = UIStackView()
@@ -31,14 +31,14 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
     private let yesButton: UIButton = {
         let b = UIButton(type: .system)
         b.tag = 0
-        b.tintColor = SRThemeColor.green.color
+        b.tintColor = SRThemeColor.black.color
         return b
     }()
     
     private let noButton: UIButton = {
         let b = UIButton(type: .system)
         b.tag = 1
-        b.tintColor = SRThemeColor.orangeRed.color
+        b.tintColor = SRThemeColor.black.color
         return b
     }()
     
@@ -50,21 +50,33 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
         return l
     }()
     
-    init(story: SRStory, data: SRWidget, questionWidget: SRQuestionWidget) {
-        self.questionWidget = questionWidget
+    init(story: SRStory, data: SRWidget, quizWidget: SRQuizMultipleImageWidget) {
+        self.quizWidget = quizWidget
         super.init(story: story, data: data)
     }
     
     override func setupView() {
         super.setupView()
         [titleLabel, buttonsView, grayView].forEach(contentView.addSubview)
-        titleLabel.text = questionWidget.question
+        titleLabel.text = quizWidget.title
         
-        yesButton.setTitle(questionWidget.confirm.uppercased(), for: .normal)
+        let confirmAnswer = quizWidget.answers.first?.title ?? "First"
+        let declineAnswer = quizWidget.answers.last?.title ?? "Last"
+        
+        yesButton.setTitle(confirmAnswer, for: .normal)
         yesButton.addTarget(self, action: #selector(answerTapped(_:)), for: .touchUpInside)
-        buttonsView.addArrangedSubview(yesButton)
         
-        noButton.setTitle(questionWidget.decline.uppercased(), for: .normal)
+        switch quizWidget.answersFont.fontColor {
+        case .color(let color, _):
+            yesButton.tintColor = color
+            noButton.tintColor = color
+        default:
+            yesButton.tintColor = SRThemeColor.black.color
+            noButton.tintColor = SRThemeColor.black.color
+        }
+        
+        buttonsView.addArrangedSubview(yesButton)
+        noButton.setTitle(declineAnswer, for: .normal)
         noButton.addTarget(self, action: #selector(answerTapped(_:)), for: .touchUpInside)
         buttonsView.addArrangedSubview(noButton)
     }
@@ -80,9 +92,9 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
     override func layoutSubviews() {
         super.layoutSubviews()
         let scale = widgetScale
-        titleLabel.font = .bold(ofSize: 14 * scale)
-        yesButton.titleLabel?.font = .bold(ofSize: 24 * scale)
-        noButton.titleLabel?.font = .bold(ofSize: 24 * scale)
+        titleLabel.font = .bold(ofSize: 16 * scale)
+        yesButton.titleLabel?.font = .medium(ofSize: 14 * scale)
+        noButton.titleLabel?.font = .medium(ofSize: 14 * scale)
         
         let buttonsHeight = 50 * scale
         buttonsView.frame = .init(x: 0,

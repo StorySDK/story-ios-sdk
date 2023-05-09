@@ -43,10 +43,7 @@ final class SRWidgetConstructor {
         case .quizOneAnswer(let questionWidget):
             return QuestionView(story: story, data: widget, questionWidget: SRQuestionWidget(question: questionWidget.title, confirm: "Yes", decline: "No", color: "red"))
         case .quizMultipleImageAnswer(let questionWidget):
-            let confirmAnswer = questionWidget.answers.first?.title ?? "First"
-            let declineAnswer = questionWidget.answers.last?.title ?? "Last"
-            
-            return QuizMultipleImageView(story: story, data: widget, questionWidget: SRQuestionWidget(question: questionWidget.title, confirm: confirmAnswer, decline: declineAnswer, color: "blue"))
+            return QuizMultipleImageView(story: story, data: widget, quizWidget: questionWidget)
         case .quizOpenAnswer(let questionWidget):
             return QuestionView(story: story, data: widget, questionWidget: SRQuestionWidget(question: questionWidget.title, confirm: "Yes", decline: "No", color: "green"))
         case .image:

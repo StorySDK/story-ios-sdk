@@ -9,7 +9,7 @@ import UIKit
 
 public class SRInteractiveWidgetView: SRWidgetView {
     let story: SRStory
-    weak var delegate: SRIneractiveWidgetDelegate?
+    weak var delegate: SRInteractiveWidgetDelegate?
     
     init(story: SRStory, data: SRWidget) {
         self.story = story
@@ -17,4 +17,4 @@ public class SRInteractiveWidgetView: SRWidgetView {
     }
 }
 
-typealias SRIneractiveWidgetDelegate = SRTalkAboutViewDelegate & ChooseAnswerViewDelegate & EmojiReactionViewDelegate & QuestionViewDelegate & SliderViewDelegate & SRClickMeViewDelegate & SRSwipeUpViewDelegate
+typealias SRInteractiveWidgetDelegate = SRTalkAboutViewDelegate & ChooseAnswerViewDelegate & EmojiReactionViewDelegate & QuestionViewDelegate & SliderViewDelegate & SRClickMeViewDelegate & SRSwipeUpViewDelegate

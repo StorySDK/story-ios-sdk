@@ -40,6 +40,8 @@ final class SRWidgetConstructor {
             return SRTalkAboutView(story: story, data: widget, talkAboutWidget: talkAboutWidget, loader: loader)
         case .giphy(let giphyWidget):
             return SRGiphyView(data: widget, giphyWidget: giphyWidget, loader: loader)
+        case .quizOneAnswer(let questionWidget):
+            return QuestionView(story: story, data: widget, questionWidget: SRQuestionWidget(question: questionWidget.title, confirm: "Yes", decline: "No", color: "red"))
         case .image:
             fatalError("Unexpected widget type")
         }

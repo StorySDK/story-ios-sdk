@@ -25,7 +25,7 @@ class SRTalkAboutView: SRInteractiveWidgetView {
     var isTextFieldActive = false
     let loader: SRImageLoader
     weak var talkAboutDelegate: SRTalkAboutViewDelegate?
-    override var delegate: SRIneractiveWidgetDelegate? {
+    override var delegate: SRInteractiveWidgetDelegate? {
         didSet { talkAboutDelegate = delegate }
     }
     

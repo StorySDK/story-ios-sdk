@@ -9,4 +9,5 @@ import Foundation
 
 public struct SRAnswersFont: Decodable {
     public var fontColor: SRColor
+    public var fontParams: SRFontParamsValue
 }

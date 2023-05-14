@@ -75,7 +75,7 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
         } else {
             headerLabel.textColor = SRThemeColor.white.color
         }
-        headerLabel.text = chooseAnswerWidget.text
+        headerLabel.text = chooseAnswerWidget.text.uppercased()
         
         answerViews.forEach { v in
             v.addTarget(self, action: #selector(answerClicked), for: .touchUpInside)

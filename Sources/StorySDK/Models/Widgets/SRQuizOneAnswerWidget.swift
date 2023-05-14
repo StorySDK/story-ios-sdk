@@ -9,4 +9,7 @@ import UIKit
 
 public struct SRQuizOneAnswerWidget: Decodable {
     public var title: String
+    public var answers: [SRAnswerValue]
+    public var titleFont: SRAnswersFont
+    public var answersFont: SRAnswersFont
 }

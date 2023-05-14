@@ -10,4 +10,5 @@ import UIKit
 public struct SRAnswerValue: Decodable {
     public var id: String
     public var title: String
+    public var emoji: SREmojiValue?
 }

@@ -40,16 +40,19 @@ final class SRWidgetConstructor {
             return SRTalkAboutView(story: story, data: widget, talkAboutWidget: talkAboutWidget, loader: loader)
         case .giphy(let giphyWidget):
             return SRGiphyView(data: widget, giphyWidget: giphyWidget, loader: loader)
-        case .quizOneAnswer(let questionWidget):
-            return QuestionView(story: story, data: widget, questionWidget: SRQuestionWidget(question: questionWidget.title, confirm: "Yes", decline: "No", color: "red"))
+        case .quizOneAnswer(let oneAnswerWidget):
+            return QuizOneAnswerView(story: story, data: widget, widget: oneAnswerWidget)
+                                     
+                                     //quizWidget: SRQuizOneAnswerWidget(title: oneAnswerWidget.title, answers: oneAnswerWidget.answers, answersFont: oneAnswerWidget.answersFont))
+//            return QuestionView(story: story, data: widget, questionWidget: SRQuestionWidget(question: questionWidget.title, confirm: "Yes", decline: "No", color: "red"))
         case .quizMultipleImageAnswer(let questionWidget):
             return QuizMultipleImageView(story: story, data: widget, quizWidget: questionWidget)
         case .quizOpenAnswer(let questionWidget):
             return QuestionView(story: story, data: widget, questionWidget: SRQuestionWidget(question: questionWidget.title, confirm: "Yes", decline: "No", color: "green"))
         case .image:
             fatalError("Unexpected widget type")
-        @unknown default:
-            fatalError("Unknown widget type")
+        case .unknownWidget(let unknownWidget):
+            return UnknownWidgetView(story: story, data: widget ,widget: unknownWidget)
         }
     }
     

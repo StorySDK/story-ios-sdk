@@ -48,8 +48,8 @@ extension UIFont {
         fontsRegistered = true
     }
     
-    static func regular(ofSize size: CGFloat) -> UIFont {
-        getFont(name: "Inter-Regular", size: size)
+    static func regular(ofSize size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
+        getFont(name: "Inter-Regular", size: size, weight: weight)
     }
     static func semibold(ofSize size: CGFloat) -> UIFont {
         getFont(name: "Inter-SemiBold", size: size)

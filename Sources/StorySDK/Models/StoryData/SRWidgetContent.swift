@@ -25,9 +25,13 @@ public indirect enum SRWidgetContent: Decodable {
     case quizMultipleImageAnswer(SRQuizMultipleImageWidget)
     case quizOpenAnswer(SRQuizOpenAnswerWidget)
     
+    case unknownWidget(SRUnknownWidget)
+    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(SRWidgetTypes.self, forKey: .type)
+        let innerType = try container.decode(String.self, forKey: .type)
+        
+        let type = SRWidgetTypes(rawValue: innerType) ?? .unknown
         let content = try SRWidgetContent.decodeType(type, container: container)
         if let url = try? container.decode(URL.self, forKey: .widgetImage) {
             self = .image(url, content)
@@ -74,12 +78,15 @@ public indirect enum SRWidgetContent: Decodable {
         case .quizOneAnswer:
             let params = try container.decode(SRQuizOneAnswerWidget.self, forKey: .params)
             return .quizOneAnswer(params)
-        case .quizOneMultipleImage:
-            let params = try container.decode(SRQuizMultipleImageWidget.self, forKey: .params)
-            return .quizMultipleImageAnswer(params)
-        case .quizOpenAnswer:
-            let params = try container.decode(SRQuizOpenAnswerWidget.self, forKey: .params)
-            return .quizOpenAnswer(params)
+//        case .quizOneMultipleImage:
+//            let params = try container.decode(SRQuizMultipleImageWidget.self, forKey: .params)
+//            return .quizMultipleImageAnswer(params)
+//        case .quizOpenAnswer:
+//            let params = try container.decode(SRQuizOpenAnswerWidget.self, forKey: .params)
+//            return .quizOpenAnswer(params)
+        case .unknown:
+            let widget = SRUnknownWidget(title: "Unknown widget type")
+            return .unknownWidget(widget)
         }
     }
 }
@@ -104,6 +111,8 @@ enum SRWidgetTypes: String, Decodable {
     case chooseAnswer = "choose_answer"
     case giphy = "giphy"
     case quizOneAnswer = "quiz_one_answer"
-    case quizOneMultipleImage = "quiz_one_multiple_with_image"
-    case quizOpenAnswer = "quiz_open_answer"
+    //case quizOneMultipleImage = "quiz_one_multiple_with_image"
+    //case quizOpenAnswer = "quiz_open_answer"
+    //case quizMultipleAnswers = "quiz_multiple_answers"
+    case unknown = "unknown"
 }

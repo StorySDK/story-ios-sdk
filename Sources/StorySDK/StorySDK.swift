@@ -21,11 +21,16 @@ public final class StorySDK: NSObject {
     }
     private(set) var logger: SRLogger = .init()
     var context = SRContext()
-    let network = NetworkManager()
+    
+    lazy var network: NetworkManager = {
+       return NetworkManager(baseUrl: configuration.sdkAPIUrl)
+    }()
+    
     let imageLoader: SRImageLoader
     var userDefaults: SRUserDefaults = SRMemoryUserDefaults()
     
-    public init(configuration: SRConfiguration = .init(), imageLoader: SRImageLoader = StorySDK.imageLoader) {
+    public init(configuration: SRConfiguration = .init(),
+                imageLoader: SRImageLoader = StorySDK.imageLoader) {
         self.configuration = configuration
         self.imageLoader = imageLoader
         super.init()
@@ -42,6 +47,7 @@ public final class StorySDK: NSObject {
     }
     
     private func update(configuration: SRConfiguration) {
+        network.setupBaseUrl(configuration.sdkAPIUrl)
         network.setupAuthorization(configuration.sdkId)
         network.setupLanguage(configuration.fetchCurrentLanguage())
         if let sdkId = configuration.sdkId, let key = SRDiskUserDefaults.makeKey(sdkId: sdkId) {

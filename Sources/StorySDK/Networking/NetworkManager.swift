@@ -9,27 +9,41 @@ import AVFoundation
 import UIKit
 
 final class NetworkManager {
-    static let shared = NetworkManager()
     private let configuration: URLSessionConfiguration = {
         let config = URLSessionConfiguration.default
         config.httpAdditionalHeaders = ["Content-type": "application/json"]
         return config
     }()
+    
     private lazy var session = URLSession(
         configuration: configuration,
         delegate: nil,
         delegateQueue: .main
     )
-    private static let baseUrl = "https://api.storysdk.com/sdk/v1/"
+    
+    private var baseUrl: String
+    
+    init(baseUrl: String) {
+        self.baseUrl = baseUrl
+    }
     
     func setupAuthorization(_ id: String?) {
         configuration.httpAdditionalHeaders?["Authorization"] = id.map { "SDK \($0)" }
         updateSession()
     }
+    
     func setupLanguage(_ value: String?) {
         configuration.httpAdditionalHeaders?["Accept-Language"] = value
         updateSession()
     }
+    
+    func setupBaseUrl(_ value: String) {
+        guard value != self.baseUrl else { return }
+        
+        self.baseUrl = value
+        updateSession()
+    }
+    
     private func updateSession() {
         session = URLSession(
             configuration: configuration,
@@ -43,7 +57,7 @@ final class NetworkManager {
 extension NetworkManager {
     /// Fetch story app
     func getApp(completion: @escaping (Result<SRStoryApp, Error>) -> Void) {
-        guard let request = Self.makeRequest("app", method: .get) else {
+        guard let request = makeRequest("app", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -62,7 +76,7 @@ extension NetworkManager {
     ///   - from: From date
     ///   - to: To date
     func getGroups(from: String? = nil, to: String? = nil, completion: @escaping (Result<[SRStoryGroup], Error>) -> Void) {
-        guard let request = Self.makeRequest("groups", method: .get) else {
+        guard let request = makeRequest("groups", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -82,7 +96,7 @@ extension NetworkManager {
     ///   - from: From date
     ///   - to: To date
     func getGroup(groupId: String, from: String? = nil, to: String? = nil, completion: @escaping (Result<SRStoryGroup, Error>) -> Void) {
-        guard let request = Self.makeRequest("groups/\(groupId)", method: .get) else {
+        guard let request = makeRequest("groups/\(groupId)", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -100,14 +114,15 @@ extension NetworkManager {
     /// - Parameters:
     ///   - groupId: Group identifier
     func getStories(groupId: String, completion: @escaping (Result<[SRStory], Error>) -> Void) {
-        guard let request = Self.makeRequest("groups/\(groupId)/stories", method: .get) else {
+        guard let request = makeRequest("groups/\(groupId)/stories", method: .get) else {
             completion(.failure(SRError.unknownError))
             return
         }
         session.dataTask(with: request) { (data, response, error) in
             do {
                 let stories = try Self.decode([SRStory].self, from: data, response: response, error: error)
-                completion(.success(stories))
+                let activeStories = stories.filter { $0.readyToShow() }
+                completion(.success(activeStories))
             } catch {
                 completion(.failure(error))
             }
@@ -115,7 +130,7 @@ extension NetworkManager {
     }
     
     func sendStatistic(reaction: SRStatistic, completion: @escaping (Result<Bool, Error>) -> Void) {
-        guard var request = Self.makeRequest("reactions", method: .post) else {
+        guard var request = makeRequest("reactions", method: .post) else {
             completion(.failure(SRError.unknownError))
             return
         }
@@ -149,8 +164,9 @@ extension NetworkManager {
         return result
     }
     
-    private static func makeRequest(_ path: String, method: HTTPMethod) -> URLRequest? {
+    private func makeRequest(_ path: String, method: HTTPMethod) -> URLRequest? {
         guard let url = URL(string: "\(baseUrl)\(path)") else { return nil }
+        
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         return request

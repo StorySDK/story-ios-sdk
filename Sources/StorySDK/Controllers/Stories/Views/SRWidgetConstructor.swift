@@ -42,13 +42,12 @@ final class SRWidgetConstructor {
             return SRGiphyView(data: widget, giphyWidget: giphyWidget, loader: loader)
         case .quizOneAnswer(let oneAnswerWidget):
             return QuizOneAnswerView(story: story, data: widget, widget: oneAnswerWidget)
-                                     
-                                     //quizWidget: SRQuizOneAnswerWidget(title: oneAnswerWidget.title, answers: oneAnswerWidget.answers, answersFont: oneAnswerWidget.answersFont))
-//            return QuestionView(story: story, data: widget, questionWidget: SRQuestionWidget(question: questionWidget.title, confirm: "Yes", decline: "No", color: "red"))
         case .quizMultipleImageAnswer(let questionWidget):
             return QuizMultipleImageView(story: story, data: widget, quizWidget: questionWidget)
-        case .quizOpenAnswer(let questionWidget):
-            return QuestionView(story: story, data: widget, questionWidget: SRQuestionWidget(question: questionWidget.title, confirm: "Yes", decline: "No", color: "green"))
+        case .quizMultipleAnswers(let multipleAnswerWidget):
+            return QuizOneAnswerView(story: story, data: widget, widget: multipleAnswerWidget)
+        case .quizOpenAnswer(let openAnswerWidget):
+            return QuizOpenAnswerView(story: story, data: widget, widget: openAnswerWidget, loader: loader)
         case .image:
             fatalError("Unexpected widget type")
         case .unknownWidget(let unknownWidget):

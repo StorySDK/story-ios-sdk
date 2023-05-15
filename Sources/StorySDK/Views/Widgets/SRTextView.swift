@@ -24,6 +24,23 @@ class SRTextView: SRImageWidgetView {
     override func setupView() {
         super.setupView()
         isUserInteractionEnabled = false
+        [label].forEach(contentView.addSubview)
+        
+        switch textWidget.color {
+        case .color(let color, _):
+            label.textColor = color
+        default:
+            label.textColor = SRThemeColor.black.color
+        }
+        
+        label.textAlignment = .center
+        label.font = .regular(ofSize: min(textWidget.fontSize, 36.0))
+        label.text = textWidget.text
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        label.frame = CGRect(x: 0, y: 0, width: bounds.width, height: 100)
     }
     
     override func setupContentLayer(_ layer: CALayer) {

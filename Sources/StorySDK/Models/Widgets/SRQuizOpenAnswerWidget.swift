@@ -9,4 +9,5 @@ import Foundation
 
 public struct SRQuizOpenAnswerWidget: Decodable {
     public var title: String
+    public var fontColor: SRColor
 }

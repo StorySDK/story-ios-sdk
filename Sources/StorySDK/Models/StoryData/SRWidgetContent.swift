@@ -22,6 +22,7 @@ public indirect enum SRWidgetContent: Decodable {
     case image(URL, SRWidgetContent)
     
     case quizOneAnswer(SRQuizOneAnswerWidget)
+    case quizMultipleAnswers(SRQuizOneAnswerWidget)
     case quizMultipleImageAnswer(SRQuizMultipleImageWidget)
     case quizOpenAnswer(SRQuizOpenAnswerWidget)
     
@@ -78,12 +79,15 @@ public indirect enum SRWidgetContent: Decodable {
         case .quizOneAnswer:
             let params = try container.decode(SRQuizOneAnswerWidget.self, forKey: .params)
             return .quizOneAnswer(params)
+        case .quizMultipleAnswers:
+            let params = try container.decode(SRQuizOneAnswerWidget.self, forKey: .params)
+            return .quizOneAnswer(params)
 //        case .quizOneMultipleImage:
 //            let params = try container.decode(SRQuizMultipleImageWidget.self, forKey: .params)
 //            return .quizMultipleImageAnswer(params)
-//        case .quizOpenAnswer:
-//            let params = try container.decode(SRQuizOpenAnswerWidget.self, forKey: .params)
-//            return .quizOpenAnswer(params)
+        case .quizOpenAnswer:
+            let params = try container.decode(SRQuizOpenAnswerWidget.self, forKey: .params)
+            return .quizOpenAnswer(params)
         case .unknown:
             let widget = SRUnknownWidget(title: "Unknown widget type")
             return .unknownWidget(widget)
@@ -112,7 +116,7 @@ enum SRWidgetTypes: String, Decodable {
     case giphy = "giphy"
     case quizOneAnswer = "quiz_one_answer"
     //case quizOneMultipleImage = "quiz_one_multiple_with_image"
-    //case quizOpenAnswer = "quiz_open_answer"
-    //case quizMultipleAnswers = "quiz_multiple_answers"
+    case quizOpenAnswer = "quiz_open_answer"
+    case quizMultipleAnswers = "quiz_multiple_answers"
     case unknown = "unknown"
 }

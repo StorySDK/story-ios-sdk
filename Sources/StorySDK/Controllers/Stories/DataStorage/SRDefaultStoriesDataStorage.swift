@@ -34,6 +34,8 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     weak var widgetResponder: SRWidgetResponder?
     weak var gestureRecognizer: SRStoriesGestureRecognizer?
     
+    var totalScore: Int = 0
+    
     init(sdk: StorySDK = .shared) {
         self.storySdk = sdk
         self.groupInfo = .init(isHidden: !sdk.configuration.needShowTitle)

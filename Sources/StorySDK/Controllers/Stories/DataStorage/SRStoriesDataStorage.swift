@@ -44,6 +44,8 @@ protocol SRStoriesDataStorage: AnyObject {
     func storyId(atIndex index: Int) -> String?
     
     var onFilled: ((Bool) -> Void)? { get set }
+    
+    var totalScore: Int { get set }
 }
 
 protocol SRStoryCell: AnyObject {

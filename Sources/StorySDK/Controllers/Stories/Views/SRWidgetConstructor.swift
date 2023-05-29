@@ -43,9 +43,9 @@ final class SRWidgetConstructor {
         case .quizOneAnswer(let oneAnswerWidget):
             return QuizOneAnswerView(story: story, data: widget, widget: oneAnswerWidget)
         case .quizMultipleImageAnswer(let questionWidget):
-            return QuizMultipleImageView(story: story, data: widget, quizWidget: questionWidget)
+            return QuizMultipleImageView(story: story, data: widget, quizWidget: questionWidget, loader: loader, logger: logger)
         case .quizMultipleAnswers(let multipleAnswerWidget):
-            return QuizOneAnswerView(story: story, data: widget, widget: multipleAnswerWidget)
+            return QuizMultipleAnswerView(story: story, data: widget, widget: multipleAnswerWidget)
         case .quizOpenAnswer(let openAnswerWidget):
             return QuizOpenAnswerView(story: story, data: widget, widget: openAnswerWidget, loader: loader)
         case .image:

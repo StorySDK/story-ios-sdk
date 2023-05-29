@@ -17,4 +17,4 @@ public class SRInteractiveWidgetView: SRWidgetView {
     }
 }
 
-typealias SRInteractiveWidgetDelegate = SRTalkAboutViewDelegate & ChooseAnswerViewDelegate & EmojiReactionViewDelegate & QuestionViewDelegate & SliderViewDelegate & SRClickMeViewDelegate & SRSwipeUpViewDelegate & QuizMultipleImageViewDelegate
+typealias SRInteractiveWidgetDelegate = SRTalkAboutViewDelegate & ChooseAnswerViewDelegate & EmojiReactionViewDelegate & QuestionViewDelegate & SliderViewDelegate & SRClickMeViewDelegate & SRSwipeUpViewDelegate & QuizMultipleImageViewDelegate & QuizOneAnswerViewDelegate

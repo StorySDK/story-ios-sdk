@@ -49,4 +49,8 @@ public enum SRStatisticAction: String, Encodable {
     case open
     /// When a user closes a group
     case close
+    /// Start of quiz
+    case start
+    /// End of quiz
+    case finish
 }

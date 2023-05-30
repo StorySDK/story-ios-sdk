@@ -19,8 +19,14 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
     weak var dataStorage: SRStoriesDataStorage?
     private var currentStory: StoryInfo?
     
+    // TODO: Move flags to a group
+    private var isStarted: Bool
+    private var isFinished: Bool
+    
     init(sdk: StorySDK = .shared) {
         storySdk = sdk
+        isStarted = false
+        isFinished = false
     }
     
     func sendReaction(_ reaction: SRStatistic, completion: ((Result<Bool, Error>) -> Void)? = nil) {
@@ -109,5 +115,23 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
     
     func reportViewDuration(_ storyId: String? = nil, duration: TimeInterval) {
         sendReaction(.init(type: .duration, storyId: storyId, value: "\(duration)"))
+    }
+    
+    func reportQuizStart(time: Date) {
+        if !isStarted {
+            isStarted = true
+            
+            let value = DateFormatter.rfc3339.string(from: Date())
+            sendReaction(.init(type: .start, value: value))
+        }
+    }
+    
+    func reportQuizFinish(time: Date) {
+        if isStarted && !isFinished {
+            isFinished = true
+            
+            let value = DateFormatter.rfc3339.string(from: Date())
+            sendReaction(.init(type: .finish, value: value))
+        }
     }
 }

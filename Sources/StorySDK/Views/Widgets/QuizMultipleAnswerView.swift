@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol QuizMultipleAnswerViewDelegate: AnyObject {
+    func didChooseMultipleAnswer(_ widget: QuizMultipleAnswerView, answer: String, score: SRScore?)
+}
+
 final class QuizMultipleAnswerView: SRInteractiveWidgetView {
     let widget: SRQuizOneAnswerWidget
     
@@ -84,7 +88,7 @@ final class QuizMultipleAnswerView: SRInteractiveWidgetView {
         let scale = widgetScale
         headerLabel.font = .font(family: widget.titleFont.fontFamily,
                                  ofSize: 12.0 * scale, weight: UIFont.Weight(widget.titleFont.fontParams.weight))
-        headerLabel.frame = .init(x: 0, y: 0, width: bounds.width, height: 41 * scale)
+        headerLabel.frame = .init(x: 0, y: 0, width: bounds.width, height: 41)// * scale)
         gradientLayer.frame = headerLabel.frame
         answersView.frame = .init(x: 0, y: headerLabel.frame.maxY, width: bounds.width, height: max(0, bounds.height - headerLabel.frame.maxY))
         var frame = answersView.bounds
@@ -130,13 +134,6 @@ final class QuizMultipleAnswerView: SRInteractiveWidgetView {
             )
             
             innerIndex += 1
-            
-//            answerViews[i].frame = .init(
-//                x: frame.minX + CGFloat(i * (140 + 8)),
-//                y: frame.minY, //+ (height + spacing) * CGFloat(i),
-//                width: /*frame.width*/140,
-//                height: height
-//            )
         }
     }
     
@@ -162,12 +159,12 @@ final class QuizMultipleAnswerView: SRInteractiveWidgetView {
         
         let id = sender.answer.id
         selectAnswer(id)
-        // TODO
-//        if id == widget.correct {
-//            animateCorrectView(id: id)
-//        } else {
-//            animateIncorrectView(id: id)
-//        }
+        
+        sendMessage(id: id, score: sender.answer.score)
+    }
+    
+    private func sendMessage(id: String, score: SRScore?) {
+        delegate?.didChooseMultipleAnswer(self, answer: id, score: score)
     }
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {
@@ -179,9 +176,5 @@ final class QuizMultipleAnswerView: SRInteractiveWidgetView {
         height += CGFloat(max(0, answerViews.count - 1)) * spacing
         height += CGFloat(answerViews.count) * 34 * scale
         return CGSize(width: size.width, height: min(height, size.height))
-    }
-    
-    override func setupWidget(reaction: String) {
-        selectAnswer(reaction)
     }
 }

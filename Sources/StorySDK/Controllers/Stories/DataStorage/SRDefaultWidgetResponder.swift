@@ -16,6 +16,8 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     weak var analytics: SRAnalyticsController?
     private var transition: SRTalkAboutViewTransitionDelegate?
     
+    private var isStarted: Bool = false
+    
     init(sdk: StorySDK = .shared) {
         storySdk = sdk
         super.init()
@@ -51,6 +53,11 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         analytics?.sendWidgetReaction(request, widget: widget)
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
         
+        if !isStarted {
+            isStarted = true
+            analytics?.reportQuizStart(time: Date())
+        }
+        
         if let score = score {
             analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
         }
@@ -74,6 +81,17 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         let request = SRStatistic(type: .answer, value: isYes.questionWidgetString)
         analytics?.sendWidgetReaction(request, widget: widget)
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
+    }
+    
+    // MARK: - QuizMultipleAnswerViewDelegate
+    
+    func didChooseMultipleAnswer(_ widget: QuizMultipleAnswerView, answer: String, score: SRScore?) {
+        let request = SRStatistic(type: .answer, value: answer)
+        analytics?.sendWidgetReaction(request, widget: widget)
+        
+        if let score = score {
+            analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
+        }
     }
     
     func didChooseOneAnswer(score: SRScore?) {

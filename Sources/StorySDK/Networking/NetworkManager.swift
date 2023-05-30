@@ -201,7 +201,7 @@ struct SKResponse<T: Decodable>: Decodable {
     var error: String?
 }
 
-private extension DateFormatter {
+extension DateFormatter {
     static let rfc3339: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"

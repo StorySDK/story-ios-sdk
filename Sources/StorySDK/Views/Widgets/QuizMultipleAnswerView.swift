@@ -11,10 +11,10 @@ final class QuizMultipleAnswerView: SRInteractiveWidgetView {
     let widget: SRQuizOneAnswerWidget
     
     private let headerLabel: UILabel = {
-        let lb = UILabel()
-        lb.font = .bold(ofSize: 12)
-        lb.textAlignment = .center
-        return lb
+        let lbl = UILabel()
+        lbl.textAlignment = .center
+        
+        return lbl
     }()
     
     private let answersView: UIView = {
@@ -82,7 +82,8 @@ final class QuizMultipleAnswerView: SRInteractiveWidgetView {
     override func layoutSubviews() {
         super.layoutSubviews()
         let scale = widgetScale
-        headerLabel.font = .bold(ofSize: 12 * scale)
+        headerLabel.font = .font(family: widget.titleFont.fontFamily,
+                                 ofSize: 12.0 * scale, weight: UIFont.Weight(widget.titleFont.fontParams.weight))
         headerLabel.frame = .init(x: 0, y: 0, width: bounds.width, height: 41 * scale)
         gradientLayer.frame = headerLabel.frame
         answersView.frame = .init(x: 0, y: headerLabel.frame.maxY, width: bounds.width, height: max(0, bounds.height - headerLabel.frame.maxY))
@@ -98,7 +99,8 @@ final class QuizMultipleAnswerView: SRInteractiveWidgetView {
         
         let fontWeight = widget.answersFont.fontParams.weight
         let fontSize = (10 * scale).rounded()
-        let font = UIFont.regular(ofSize: fontSize, weight: .init(rawValue: fontWeight))
+        let font = UIFont.font(family: widget.answersFont.fontFamily,
+                         ofSize: fontSize, weight: .init(rawValue: fontWeight))
         
         var innerIndex = 0
         var y = frame.minY
@@ -113,10 +115,10 @@ final class QuizMultipleAnswerView: SRInteractiveWidgetView {
 //                height: height
 //            )
             
-            x = frame.minX + CGFloat(innerIndex * (140 + 8))
+            x =  CGFloat(innerIndex * (140 + 8)) //frame.minX + CGFloat(innerIndex * (140 + 8))
             if x + 140 > frame.maxX {
                 y += (height + spacing)
-                x = frame.minX
+                x = 0//frame.minX
                 innerIndex = 0
             }
             
@@ -142,7 +144,9 @@ final class QuizMultipleAnswerView: SRInteractiveWidgetView {
         var hasValue = false
         for view in answerViews {
             let currentId = view.answer.id
-            view.wasSelected = currentId == id
+            if currentId == id {
+                view.wasSelected = true
+            }
             // TODO
 //            view.status = currentId == widget.correct ? .valid : .invalid
 //            hasValue = hasValue || view.wasSelected
@@ -153,7 +157,7 @@ final class QuizMultipleAnswerView: SRInteractiveWidgetView {
     @objc func answerClicked(_ sender: EmojiAnswerView) {
         UIView.animate(withDuration: 0.35) {
             sender.backgroundColor = .black
-            sender.titleLabel2.textColor = .white
+            sender.wasSelected = true
         }
         
         let id = sender.answer.id

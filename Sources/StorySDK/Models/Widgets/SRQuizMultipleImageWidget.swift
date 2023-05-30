@@ -10,5 +10,6 @@ import UIKit
 public struct SRQuizMultipleImageWidget: Decodable {
     public var title: String
     public var answers: [SRImageAnswer]
+    public var titleFont: SRAnswersFont
     public var answersFont: SRAnswersFont
 }

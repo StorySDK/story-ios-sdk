@@ -25,11 +25,12 @@ class QuizOpenAnswerView: SRInteractiveWidgetView {
     }()
     
     private let titleLabel: UILabel = {
-        let l = UILabel()
-        l.textAlignment = .center
-        l.numberOfLines = 0
-        l.setContentCompressionResistancePriority(.required, for: .vertical)
-        return l
+        let lbl = UILabel()
+        lbl.textAlignment = .center
+        lbl.numberOfLines = 0
+        lbl.setContentCompressionResistancePriority(.required, for: .vertical)
+        
+        return lbl
     }()
     
     private let textField: UITextField = {
@@ -47,7 +48,7 @@ class QuizOpenAnswerView: SRInteractiveWidgetView {
     }()
     private let textFieldContainer: UIView = {
         let v = UIView()
-        v.backgroundColor = SRThemeColor.black.color.withAlphaComponent(0.15)
+        v.backgroundColor = SRThemeColor.white.color.withAlphaComponent(0.15)
         return v
     }()
     private let gradientLayer: CAGradientLayer = {
@@ -97,7 +98,6 @@ class QuizOpenAnswerView: SRInteractiveWidgetView {
 //        mainView.layer.shadowRadius = 4
         
         textField.delegate = self
-        
         titleLabel.text = widget.title
         
         switch widget.fontColor {
@@ -120,7 +120,9 @@ class QuizOpenAnswerView: SRInteractiveWidgetView {
         gradientLayer.frame = mainView.bounds
         gradientLayer.cornerRadius = mainView.layer.cornerRadius
         
-        titleLabel.font = .regular(ofSize: 14 * scale)
+        titleLabel.font = .font(family: widget.fontFamily,
+                                ofSize: 12.0 * scale, weight: UIFont.Weight(widget.fontParams.weight))
+        
         let padding = 12 * scale
         let textFieldHeight = 34 * scale
         textFieldContainer.frame = .init(x: padding,

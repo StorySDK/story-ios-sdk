@@ -14,6 +14,8 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     
     let storySdk: StorySDK
     var stories: [SRStory] = []
+    var allStories: [SRStory] = []
+    
     var groupInfo: HeaderInfo {
         didSet { onUpdateHeader?(groupInfo) }
     }
@@ -70,7 +72,27 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     
     func setupCell(_ cell: SRStoryCell, index: Int) {
         guard index < stories.count else { return }
-        let story = stories[index]
+        
+        var story: SRStory
+        if index + 1 == stories.count { // last story
+            print(totalScore)
+            
+            let result = allStories.filter {$0.position == index + 1}
+            let defaultStory = result.filter {$0.layerData?.isDefaultLayer == true}.first
+            
+            story = defaultStory ?? allStories[index]
+            
+            for item in result {
+                if let level = item.layerData?.score?.points {
+                    if totalScore >= level {
+                        story = item
+                    }
+                }
+            }
+        } else {
+            story = stories[index]
+        }
+        
         guard let data = story.storyData else { return }
         cell.needShowTitle = storySdk.configuration.needShowTitle
         
@@ -159,6 +181,13 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             .filter { $0.layerData != nil }
             .filter { $0.layerData?.isDefaultLayer == true }
             .sorted(by: { $0.position < $1.position })
+        
+        self.allStories = stories
+            .filter { $0.storyData != nil }
+            .filter { $0.storyData?.status == .active }
+            .filter { $0.layerData != nil }
+            .sorted(by: { $0.position < $1.position })
+        
         guard numberOfItems > 0 else {
             onGotEmptyGroup?()
             return

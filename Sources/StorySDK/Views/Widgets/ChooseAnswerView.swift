@@ -8,7 +8,7 @@
 import UIKit
 
 protocol ChooseAnswerViewDelegate: AnyObject {
-    func didChooseAnswer(_ widget: ChooseAnswerView, answer: String)
+    func didChooseAnswer(_ widget: ChooseAnswerView, answer: String, score: SRScore?)
 }
 
 final class ChooseAnswerView: SRInteractiveWidgetView {
@@ -24,6 +24,7 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
     private let answersView: UIView = {
         let v = UIView()
         v.backgroundColor = .white
+        //v.isUserInteractionEnabled = false
         return v
     }()
     
@@ -34,7 +35,7 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
         l.masksToBounds = true
         return l
     }()
-
+    
     private var answerViews = [AnswerView]()
     
     init(story: SRStory, data: SRWidget, chooseAnswerWidget: SRChooseAnswerWidget) {
@@ -51,8 +52,20 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
         layer.masksToBounds = true
     }
     
+    //private var ans: AnswerView?
+    //var btn: UIButton?
+    
     override func addSubviews() {
         super.addSubviews()
+        
+        //ans = AnswerView(answer: chooseAnswerWidget.answers.first!)
+        
+//        btn = UIButton(type: .system)
+//        btn?.layer.borderColor = UIColor.black.cgColor
+//        btn?.setTitle("Test 123", for: .normal)
+//        btn?.addTarget(self, action: #selector(answerClicked), for: .touchUpInside)
+        
+        //contentView.isUserInteractionEnabled = false
         
         [gradientLayer].forEach(contentView.layer.addSublayer)
         [headerLabel, answersView].forEach(contentView.addSubview)
@@ -63,7 +76,9 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
                 v.tag = index
                 return v
             }
-        answerViews.forEach(answersView.addSubview)
+        answerViews.forEach(contentView.addSubview)
+        
+        //[btn!].forEach(contentView.addSubview)
     }
     
     override func setupView() {
@@ -79,8 +94,18 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
         
         answerViews.forEach { v in
             v.addTarget(self, action: #selector(answerClicked), for: .touchUpInside)
+            //v.addTarget(self, action: #selector(answerClicked), for: .valueChanged)
             answersView.addSubview(v)
         }
+        
+        //ans?.addTarget(self, action: #selector(answerClicked), for: .touchUpInside)
+        
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(test2))
+//        answersView.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func test2() {
+        print("test 12345")
     }
     
     override func layoutSubviews() {
@@ -108,6 +133,8 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
                 height: height
             )
         }
+        
+        //btn?.frame = CGRect(origin: .zero, size: CGSize(width: 200, height: 200))
     }
     
     func selectAnswer(_ id: String) {
@@ -121,13 +148,26 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
         isUserInteractionEnabled = !hasValue
     }
     
+    func selectAnswerIndex(_ index: Int) {
+        var hasValue = false
+//        for view in answerViews {
+//            let currentId = view.answer.id
+//            view.wasSelected = currentId == id
+//            view.status = currentId == chooseAnswerWidget.correct ? .valid : .invalid
+//            hasValue = hasValue || view.wasSelected
+//        }
+//        isUserInteractionEnabled = !hasValue
+    }
+    
     @objc func answerClicked(_ sender: AnswerView) {
-        let id = sender.answer.id
+        let answer = sender.answer
+        let id = answer.id
+        
         selectAnswer(id)
         if id == chooseAnswerWidget.correct {
-            animateCorrectView(id: id)
+            animateCorrectView(id: id, score: answer.score)
         } else {
-            animateIncorrectView(id: id)
+            animateIncorrectView(id: id, score: answer.score)
         }
     }
     
@@ -149,17 +189,17 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
 
 // MARK: - Animations
 extension ChooseAnswerView {
-    private func animateCorrectView(id: String) {
+    private func animateCorrectView(id: String, score: SRScore?) {
         UIView.animate(withDuration: .animationsDuration,
                        animations: { [weak self] in self?.transform = CGAffineTransform(scaleX: 1.3, y: 1.3) },
                        completion: { [weak self] _ in
             UIView.animate(withDuration: .animationsDuration,
                            animations: { self?.transform = CGAffineTransform.identity },
-                           completion: { _ in self?.sendMessage(id: id) })
+                           completion: { _ in self?.sendMessage(id: id, score: score) })
         })
     }
     
-    private func animateIncorrectView(id: String) {
+    private func animateIncorrectView(id: String, score: SRScore?) {
         CATransaction.begin()
         let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
         animation.timingFunction = CAMediaTimingFunction(name: .linear)
@@ -167,27 +207,29 @@ extension ChooseAnswerView {
         animation.duration = 0.5
         animation.isRemovedOnCompletion = true
         layer.add(animation, forKey: "shake")
-        CATransaction.setCompletionBlock { [weak self] in self?.sendMessage(id: id) }
+        CATransaction.setCompletionBlock { [weak self] in self?.sendMessage(id: id, score: score) }
         CATransaction.commit()
     }
 
-    private func sendMessage(id: String) {
-        delegate?.didChooseAnswer(self, answer: id)
+    private func sendMessage(id: String, score: SRScore?) {
+        delegate?.didChooseAnswer(self, answer: id, score: score)
     }
 }
 
 // MARK: - AnswerView
 
-final class AnswerView: UIControl {
+final class AnswerView: UIButton {
     enum Status { case valid, invalid, undefined }
     private let idContainer: UIView = {
         let v = UIView(frame: .zero)
         v.layer.borderWidth = 1
+        //v.isUserInteractionEnabled = false
         return v
     }()
     private let idIconView: UIImageView = {
         let v = UIImageView()
         v.contentMode = .scaleAspectFit
+        //v.isUserInteractionEnabled = false
         return v
     }()
     private let idLabel: UILabel = {
@@ -195,20 +237,22 @@ final class AnswerView: UIControl {
         l.font = .regular(ofSize: 10)
         l.textAlignment = .center
         l.textColor = SRThemeColor.black.color
+        //l.isUserInteractionEnabled = false
         return l
     }()
     
-    private let titleLabel: UILabel = {
+    private let titleLabel2: UILabel = {
         let l = UILabel()
         l.font = .regular(ofSize: 10)
         l.textAlignment = .left
+        //l.isUserInteractionEnabled = false
         return l
     }()
     
     var fontSize: CGFloat = 10 {
         didSet {
             idLabel.font = .regular(ofSize: fontSize)
-            titleLabel.font = .regular(ofSize: fontSize)
+            titleLabel2.font = .regular(ofSize: fontSize)
         }
     }
 
@@ -241,7 +285,7 @@ final class AnswerView: UIControl {
         idIconView.frame = idLabel.frame
         
         let x = idContainer.frame.maxX + 8
-        titleLabel.frame = .init(x: x, y: 0, width: bounds.width - x - 8, height: bounds.height)
+        titleLabel2.frame = .init(x: x, y: 0, width: bounds.width - x - 8, height: bounds.height)
     }
     
     private func prepareUI() {
@@ -249,12 +293,21 @@ final class AnswerView: UIControl {
         layer.borderWidth = 1
         
         [idLabel, idIconView].forEach(idContainer.addSubview)
-        [idContainer, titleLabel].forEach(addSubview)
+        [idContainer, titleLabel2].forEach(addSubview)
         
         idLabel.text = answer.id
-        titleLabel.text = answer.title
+        titleLabel2.text = answer.title
         
         updateStatus()
+        
+        //isUserInteractionEnabled = false
+        
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(test3))
+//        addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func test3() {
+        print("test 3")
     }
     
     func updateStatus() {
@@ -267,7 +320,7 @@ final class AnswerView: UIControl {
             idContainer.layer.borderColor = SRThemeColor.white.cgColor
             idContainer.backgroundColor = SRThemeColor.green.color
             idIconView.tintColor = SRThemeColor.white.color
-            titleLabel.textColor = SRThemeColor.white.color
+            titleLabel2.textColor = SRThemeColor.white.color
             layer.borderColor = SRThemeColor.green.cgColor
         case (.invalid, true):
             backgroundColor = SRThemeColor.red.color
@@ -275,7 +328,7 @@ final class AnswerView: UIControl {
             idContainer.layer.borderColor = SRThemeColor.white.cgColor
             idContainer.backgroundColor = SRThemeColor.white.color
             idIconView.tintColor = SRThemeColor.red.color
-            titleLabel.textColor = SRThemeColor.white.color
+            titleLabel2.textColor = SRThemeColor.white.color
             layer.borderColor = SRThemeColor.red.cgColor
         case (.invalid, false):
             backgroundColor = SRThemeColor.white.color
@@ -283,14 +336,14 @@ final class AnswerView: UIControl {
             idContainer.layer.borderColor = SRThemeColor.red.cgColor
             idContainer.backgroundColor = SRThemeColor.white.color
             idIconView.tintColor = SRThemeColor.red.color
-            titleLabel.textColor = SRThemeColor.black.color
+            titleLabel2.textColor = SRThemeColor.black.color
             layer.borderColor = SRThemeColor.grey.cgColor
         case (.undefined, _):
             backgroundColor = SRThemeColor.white.color
             idIconView.image = nil
             idContainer.layer.borderColor = SRThemeColor.black.cgColor
             idContainer.backgroundColor = SRThemeColor.white.color
-            titleLabel.textColor = SRThemeColor.black.color
+            titleLabel2.textColor = SRThemeColor.black.color
             layer.borderColor = SRThemeColor.grey.cgColor
         }
     }

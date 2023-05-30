@@ -7,8 +7,14 @@
 
 import UIKit
 
+protocol QuizOneAnswerViewDelegate: AnyObject {
+    func didChooseOneAnswer(score: SRScore?)
+}
+
 final class QuizOneAnswerView: SRInteractiveWidgetView {
     let widget: SRQuizOneAnswerWidget
+    
+    private var disabledWidget: Bool = false
     
     private let headerLabel: UILabel = {
         let lb = UILabel()
@@ -20,6 +26,7 @@ final class QuizOneAnswerView: SRInteractiveWidgetView {
     private let answersView: UIView = {
         let v = UIView()
         v.backgroundColor = .clear
+        //v.isUserInteractionEnabled = true
         return v
     }()
     
@@ -111,27 +118,31 @@ final class QuizOneAnswerView: SRInteractiveWidgetView {
         }
     }
     
-    func selectAnswer(_ id: String) {
+    func selectAnswer(_ id: String, score: SRScore?) {
         var hasValue = false
         for view in answerViews {
             let currentId = view.answer.id
             view.wasSelected = currentId == id
-            // TODO
-//            view.status = currentId == widget.correct ? .valid : .invalid
-//            hasValue = hasValue || view.wasSelected
         }
         isUserInteractionEnabled = !hasValue
+        
+        delegate?.didChooseOneAnswer(score: score)
     }
     
     @objc func answerClicked(_ sender: EmojiAnswerView) {
-        let id = sender.answer.id
-        selectAnswer(id)
-        // TODO
-//        if id == widget.correct {
-//            animateCorrectView(id: id)
-//        } else {
-//            animateIncorrectView(id: id)
-//        }
+        guard !disabledWidget else { return }
+        
+        let answer = sender.answer
+        let id = answer.id
+         
+        selectAnswer(id, score: answer.score)
+        
+        UIView.animate(withDuration: 0.35) {
+            sender.backgroundColor = .black
+            sender.wasSelected = true
+        }
+        
+        disabledWidget = true
     }
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {
@@ -146,7 +157,7 @@ final class QuizOneAnswerView: SRInteractiveWidgetView {
     }
     
     override func setupWidget(reaction: String) {
-        selectAnswer(reaction)
+        //selectAnswer(reaction, score: s: 0)
     }
 }
 
@@ -178,66 +189,3 @@ final class QuizOneAnswerView: SRInteractiveWidgetView {
 //        delegate?.didChooseAnswer(self, answer: id)
 //    }
 //}
-
-// MARK: - EmojiAnswerView
-
-final class EmojiAnswerView: UIControl {
-    enum Status { case valid, invalid, undefined }
-    
-    private var emojiViews = [UIImageView]()
-
-    private let titleLabel: UILabel = {
-        let l = UILabel()
-        l.font = .regular(ofSize: 10)
-        l.textAlignment = .center
-        return l
-    }()
-    
-    var font: UIFont? {
-        didSet {
-            titleLabel.font = font ?? .regular(ofSize: 10.0)
-        }
-    }
-
-    let answer: SRAnswerValue
-    let scale: CGFloat
-    
-    var wasSelected: Bool = false
-
-    init(answer: SRAnswerValue, scale: CGFloat) {
-        self.answer = answer
-        self.scale = scale
-        super.init(frame: CGRect.zero)
-        prepareUI()
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        layer.cornerRadius = bounds.height / 2
-        
-        let sz = emojiViews.first?.image?.size ?? CGSize.zero
-        
-        emojiViews.first?.frame = CGRect(x: 4, y: Int(bounds.height - sz.height) / 2, width: Int(sz.width), height: Int(sz.height))
-
-        titleLabel.frame = CGRect(origin: CGPoint.zero, size: CGSize(width: bounds.width, height: bounds.height))
-    }
-
-    private func prepareUI() {
-        backgroundColor = .white
-        addSubview(titleLabel)
-    
-        if let emoji = answer.emoji?.unicode {
-            if let result = UInt32(emoji, radix: 16),
-               let str = UnicodeScalar(result).map({ String($0) }) {
-                titleLabel.text = String(format: "%@  %@", str, answer.title)
-            }
-        }
-        
-        titleLabel.textColor = SRThemeColor.black.color
-    }
-}

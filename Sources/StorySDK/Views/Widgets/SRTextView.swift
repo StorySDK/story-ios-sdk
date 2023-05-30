@@ -34,7 +34,7 @@ class SRTextView: SRImageWidgetView {
         }
         
         label.textAlignment = .center
-        label.font = .regular(ofSize: min(textWidget.fontSize, 36.0))
+        label.font = .regular(fontFamily: textWidget.fontFamily, ofSize: min(textWidget.fontSize, 36.0))
         label.text = textWidget.text
     }
     

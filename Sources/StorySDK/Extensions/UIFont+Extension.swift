@@ -60,4 +60,12 @@ extension UIFont {
     static func medium(ofSize size: CGFloat) -> UIFont {
         getFont(name: "Inter-Medium", size: size)
     }
+    
+    static func regular(fontFamily: String, ofSize size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
+        getFont(name: fontFamily, size: size, weight: weight)
+    }
+    
+    static func font(family: String, ofSize size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
+        getFont(name: family, size: size, weight: weight)
+    }
 }

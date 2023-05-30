@@ -46,10 +46,14 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     
     // MARK: - ChooseAnswerViewDelegate
     
-    func didChooseAnswer(_ widget: ChooseAnswerView, answer: String) {
+    func didChooseAnswer(_ widget: ChooseAnswerView, answer: String, score: SRScore?) {
         let request = SRStatistic(type: .answer, value: answer)
         analytics?.sendWidgetReaction(request, widget: widget)
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
+        
+        if let score = score {
+            analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
+        }
         
         guard answer == widget.chooseAnswerWidget.correct else { return }
         guard let canvas = widget.superview?.superview as? SRStoryCanvasView else { return }
@@ -69,6 +73,13 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     func didChooseQuestionAnswer(_ widget: QuestionView, isYes: Bool) {
         let request = SRStatistic(type: .answer, value: isYes.questionWidgetString)
         analytics?.sendWidgetReaction(request, widget: widget)
+        progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
+    }
+    
+    func didChooseOneAnswer(score: SRScore?) {
+        guard let score = score else { return }
+        
+        analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
     }
     

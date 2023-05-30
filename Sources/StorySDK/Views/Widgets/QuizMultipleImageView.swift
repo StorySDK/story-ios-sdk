@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol QuizMultipleImageViewDelegate: AnyObject {
     func didChooseQuizMultipleImageAnswer(_ widget: QuizMultipleImageView, isYes: Bool)
@@ -18,7 +19,8 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
         let sv = UIStackView()
         sv.axis = .horizontal
         sv.distribution = .fillEqually
-        sv.backgroundColor = SRThemeColor.white.color
+        sv.backgroundColor = .clear//SRThemeColor.white.color
+        sv.spacing = 20
         return sv
     }()
     
@@ -33,6 +35,66 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
         b.tag = 0
         b.tintColor = SRThemeColor.black.color
         return b
+    }()
+    
+    let firstImageView: UIImageView = {
+        let v = UIImageView(frame: .zero)
+        v.contentMode = .scaleAspectFit
+        v.isHidden = true
+        v.isUserInteractionEnabled = false
+        return v
+    }()
+    
+    let secondImageView: UIImageView = {
+        let v = UIImageView(frame: .zero)
+        v.contentMode = .scaleAspectFit
+        v.isHidden = true
+        v.isUserInteractionEnabled = false
+        return v
+    }()
+    
+    //let url: URL?
+    var urls: [URL?] = [URL?]()
+    let logger: SRLogger
+    weak var loader: SRImageLoader?
+    private var loadingTask: Cancellable? {
+        didSet { oldValue?.cancel() }
+    }
+    
+    private var loadingTask2: Cancellable? {
+        didSet { oldValue?.cancel() }
+    }
+    
+    private let firstAnswerLabel: UILabel = {
+        let l = UILabel()
+        l.numberOfLines = 0
+        l.textAlignment = .center
+        l.textColor = SRThemeColor.black.color
+        return l
+    }()
+    
+    private let secondAnswerLabel: UILabel = {
+        let l = UILabel()
+        l.numberOfLines = 0
+        l.textAlignment = .center
+        l.textColor = SRThemeColor.black.color
+        return l
+    }()
+    
+    private let firstView: UIView = {
+        let v = UIView(frame: .zero)
+        v.backgroundColor = SRThemeColor.white.color
+        //b.tag = 0
+        //b.tintColor = SRThemeColor.black.color
+        return v
+    }()
+    
+    private let secondView: UIView = {
+        let v = UIView(frame: .zero)
+        v.backgroundColor = SRThemeColor.white.color
+        //b.tag = 0
+        //b.tintColor = SRThemeColor.black.color
+        return v
     }()
     
     private let noButton: UIButton = {
@@ -50,20 +112,60 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
         return l
     }()
     
-    init(story: SRStory, data: SRWidget, quizWidget: SRQuizMultipleImageWidget) {
+    init(story: SRStory, data: SRWidget, quizWidget: SRQuizMultipleImageWidget, loader: SRImageLoader, logger: SRLogger) {
         self.quizWidget = quizWidget
+        self.urls = quizWidget.answers.map {$0.image?.url }
+        self.loader = loader
+        self.logger = logger
+        
         super.init(story: story, data: data)
+    }
+    
+    private var oldSize = CGSize.zero
+    private func updateImage(url: URL?, imView: UIImageView, _ size: CGSize, completion: @escaping () -> Void) -> Cancellable? {
+        guard let url = url,
+              let loader = loader else {
+                //,
+              //abs(size.width - oldSize.width) > .ulpOfOne,
+              //abs(size.height - oldSize.height) > .ulpOfOne else {
+            completion()
+            return nil
+        }
+        oldSize = size
+        let scale = UIScreen.main.scale
+        let targetSize = CGSize(width: size.width * scale, height: size.height * scale)
+        return loader.load(url, size: targetSize) { [weak self, logger] result in
+            defer { completion() }
+            switch result {
+            case .success(let image):
+                //self?.contentView.isHidden = true
+                imView.isHidden = false
+                imView.image = image
+            case .failure(let error):
+                //self?.contentView.isHidden = false
+                imView.isHidden = true
+                logger.error(error.localizedDescription, logger: .widgets)
+            }
+        }
     }
     
     override func setupView() {
         super.setupView()
+        
+        [firstImageView, firstAnswerLabel].forEach(firstView.addSubview)
+        [secondImageView, secondAnswerLabel].forEach(secondView.addSubview)
+        
         [titleLabel, buttonsView, grayView].forEach(contentView.addSubview)
+        
+        titleLabel.font = .regular(fontFamily: quizWidget.titleFont.fontFamily, ofSize: 12.0)
         titleLabel.text = quizWidget.title
         
         let confirmAnswer = quizWidget.answers.first?.title ?? "First"
         let declineAnswer = quizWidget.answers.last?.title ?? "Last"
         
-        yesButton.setTitle(confirmAnswer, for: .normal)
+        firstAnswerLabel.text = confirmAnswer
+        secondAnswerLabel.text = declineAnswer
+        
         yesButton.addTarget(self, action: #selector(answerTapped(_:)), for: .touchUpInside)
         
         switch quizWidget.answersFont.fontColor {
@@ -75,10 +177,14 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
             noButton.tintColor = SRThemeColor.black.color
         }
         
-        buttonsView.addArrangedSubview(yesButton)
+        //buttonsView.addArrangedSubview(yesButton)
+        buttonsView.addArrangedSubview(firstView)
+        
         noButton.setTitle(declineAnswer, for: .normal)
         noButton.addTarget(self, action: #selector(answerTapped(_:)), for: .touchUpInside)
-        buttonsView.addArrangedSubview(noButton)
+        
+        
+        buttonsView.addArrangedSubview(secondView)
     }
     
     override func setupContentLayer(_ layer: CALayer) {
@@ -91,16 +197,18 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        let scale = widgetScale
-        titleLabel.font = .bold(ofSize: 16 * scale)
-        yesButton.titleLabel?.font = .medium(ofSize: 14 * scale)
-        noButton.titleLabel?.font = .medium(ofSize: 14 * scale)
         
-        let buttonsHeight = 50 * scale
+        let scale = widgetScale
+        
+        titleLabel.font = .font(family: quizWidget.titleFont.fontFamily, ofSize: 12.0 * scale, weight: .init(quizWidget.titleFont.fontParams.weight))
+        firstAnswerLabel.font = .font(family: quizWidget.answersFont.fontFamily, ofSize: 12.0 * scale, weight: .init(quizWidget.answersFont.fontParams.weight))
+        secondAnswerLabel.font = .font(family: quizWidget.answersFont.fontFamily, ofSize: 12.0 * scale, weight: .init(quizWidget.answersFont.fontParams.weight))
+        
+        let buttonsHeight = 150 * scale//50 * scale
         buttonsView.frame = .init(x: 0,
-                                  y: contentView.frame.height - buttonsHeight,
+                                  y: /*contentView.frame.height - buttonsHeight*/75,
                                   width: contentView.frame.width,
-                                  height: buttonsHeight)
+                                  height: contentView.frame.height - 75)
         buttonsView.layer.cornerRadius = 10 * scale
         grayView.frame = .init(x: buttonsView.frame.midX - 0.5,
                                y: buttonsView.frame.minY,
@@ -110,6 +218,23 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
                                  y: 0,
                                  width: contentView.frame.width,
                                  height: buttonsView.frame.minY)
+        
+        firstImageView.frame = .init(x: 8,
+                                     y: 8,
+                                     width: firstView.bounds.width - 2 * 8,
+                                     height: firstView.bounds.width - 2 * 8)
+        secondImageView.frame = .init(x: 8,
+                                      y: 8,
+                                      width: secondView.bounds.width - 2 * 8,
+                                      height: secondView.bounds.width - 2 * 8)
+        
+        firstAnswerLabel.frame = CGRect(x: 0, y: firstView.bounds.height - 30, width: firstView.bounds.width, height: 25)
+        
+        secondAnswerLabel.frame = CGRect(x: 0, y: secondView.bounds.height - 30, width: firstView.bounds.width, height: 25)
+        
+        updateImage(url: urls.first!, imView: firstImageView, bounds.size, completion: {}).map { loadingTask = $0 }
+        
+        updateImage(url: urls.last!, imView: secondImageView, bounds.size, completion: {}).map { loadingTask2 = $0 }
     }
     
     @objc func answerTapped(_ sender: UIButton) {

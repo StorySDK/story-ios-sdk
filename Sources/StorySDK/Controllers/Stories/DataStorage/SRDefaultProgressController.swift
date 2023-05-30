@@ -140,6 +140,10 @@ final class SRDefaultProgressController: NSObject, SRProgressController {
             progress = Float(index) / Float(numberOfItems)
             analytics?.storyDidChanged(to: index, byUser: true)
             onScrollToStory?(index, false)
+            
+            if index + 1 == numberOfItems { // final story
+                print("last story")
+            }
         } else {
             onScrollCompleted?()
         }

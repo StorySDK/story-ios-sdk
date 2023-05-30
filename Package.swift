@@ -25,6 +25,10 @@ let package = Package(
                 .copy("Resources/Fonts/Inter/Inter-Regular.ttf"),
                 .copy("Resources/Fonts/Inter/Inter-SemiBold.ttf"),
                 .copy("Resources/Fonts/Inter/Inter-Medium.ttf"),
+                .copy("Resources/Fonts/Roboto/Roboto-Bold.ttf"),
+                .copy("Resources/Fonts/Roboto/Roboto-Regular.ttf"),
+                .copy("Resources/Fonts/Roboto/Roboto-Medium.ttf"),
+                .copy("Resources/Fonts/Roboto/Roboto-Light.ttf"),
             ]),
     ]
 )

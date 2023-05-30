@@ -134,6 +134,10 @@ protocol SRAnalyticsController: AnyObject {
     func reportSwipeForward(from storyId: String?)
     /// When group or story has been swiped backward
     func reportSwipeBackward(from storyId: String?)
+    
+    func reportQuizStart(time: Date)
+    
+    func reportQuizFinish(time: Date)
 }
 
 typealias SRWidgetResponder = SRWidgetResponderStorage & SRInteractiveWidgetDelegate

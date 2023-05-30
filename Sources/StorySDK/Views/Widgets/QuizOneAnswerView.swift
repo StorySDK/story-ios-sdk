@@ -8,7 +8,7 @@
 import UIKit
 
 protocol QuizOneAnswerViewDelegate: AnyObject {
-    func didChooseOneAnswer(score: SRScore?)
+    func didChooseOneAnswer(_ widget: QuizOneAnswerView, answer: String, score: SRScore?)
 }
 
 final class QuizOneAnswerView: SRInteractiveWidgetView {
@@ -126,7 +126,7 @@ final class QuizOneAnswerView: SRInteractiveWidgetView {
         }
         isUserInteractionEnabled = !hasValue
         
-        delegate?.didChooseOneAnswer(score: score)
+        delegate?.didChooseOneAnswer(self, answer: id, score: score)
     }
     
     @objc func answerClicked(_ sender: EmojiAnswerView) {

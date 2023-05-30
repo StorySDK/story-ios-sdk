@@ -94,11 +94,15 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         }
     }
     
-    func didChooseOneAnswer(score: SRScore?) {
-        guard let score = score else { return }
+    func didChooseOneAnswer(_ widget: QuizOneAnswerView, answer: String, score: SRScore?) {
+        let request = SRStatistic(type: .answer, value: answer)
+        analytics?.sendWidgetReaction(request, widget: widget)
         
-        analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
+        
+        if let score = score {
+            analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
+        }
     }
     
     // MARK: - QuizMultipleImageViewDelegate

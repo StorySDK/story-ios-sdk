@@ -78,6 +78,7 @@ public final class SRStoriesViewController: UIViewController {
             wSelf.viewModel.reportGroupOpen()
         }
         viewModel.onGotEmptyGroup = { [weak self] in
+            print("StorySDK > Warning: group is empty")
             self?.close()
         }
         viewModel.onErrorReceived = { [logger] error in

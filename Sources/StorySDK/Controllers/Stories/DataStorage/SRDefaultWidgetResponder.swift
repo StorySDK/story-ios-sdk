@@ -59,7 +59,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         }
         
         if let score = score {
-            analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
+            analytics?.dataStorage?.totalScore += Int(score.points ?? 0)
         }
         
         guard answer == widget.chooseAnswerWidget.correct else { return }
@@ -90,7 +90,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         analytics?.sendWidgetReaction(request, widget: widget)
         
         if let score = score {
-            analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
+            analytics?.dataStorage?.totalScore += Int(score.points ?? 0)
         }
     }
     
@@ -101,7 +101,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
         
         if let score = score {
-            analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
+            analytics?.dataStorage?.totalScore += Int(score.points ?? 0)
         }
     }
     
@@ -136,8 +136,15 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     
     // MARK: - SRSwipeUpViewDelegate
     
-    func didChooseQuizMultipleImageAnswer(_ widget: QuizMultipleImageView, isYes: Bool) {
+    func didChooseQuizMultipleImageAnswer(_ widget: QuizMultipleImageView, answer: String) {
+        let request = SRStatistic(type: .answer, value: answer)
+        analytics?.sendWidgetReaction(request, widget: widget)
         
+        progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
+        
+//        if let score = score {
+//            analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
+//        }
     }
     
     func didSwipeUp(_ widget: SRSwipeUpView) -> Bool {

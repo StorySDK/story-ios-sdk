@@ -48,6 +48,8 @@ final class SRWidgetConstructor {
             return QuizMultipleAnswerView(story: story, data: widget, widget: multipleAnswerWidget)
         case .quizOpenAnswer(let openAnswerWidget):
             return QuizOpenAnswerView(story: story, data: widget, widget: openAnswerWidget, loader: loader)
+        case .quizRate(let rateWidget):
+            return QuizRateView(story: story, data: widget, widget: rateWidget)
         case .image:
             fatalError("Unexpected widget type")
         case .unknownWidget(let unknownWidget):

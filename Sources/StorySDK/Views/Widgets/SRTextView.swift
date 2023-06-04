@@ -50,7 +50,7 @@ class SRTextView: SRImageWidgetView {
         label.textColor = textColor
         label.textAlignment = alignment
         label.font = UIFont.improvedFont(family: textWidget.fontFamily,
-                                 ofSize: textWidget.fontSize, weight: UIFont.Weight(textWidget.fontParams.weight))
+                                 ofSize: textWidget.fontSize, weight: textWidget.fontParams.weight)
         label.text = textWidget.text
         
         #if DEBUG

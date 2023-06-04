@@ -14,6 +14,13 @@ protocol SRClickMeViewDelegate: AnyObject {
 class SRClickMeView: SRImageWidgetView {
     let clickMeWidget: SRClickMeWidget
     
+    private let headerLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.textAlignment = .center
+        
+        return lbl
+    }()
+    
     init(story: SRStory, data: SRWidget, clickMeWidget: SRClickMeWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
         self.clickMeWidget = clickMeWidget
         super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
@@ -29,11 +36,44 @@ class SRClickMeView: SRImageWidgetView {
     
     override func setupView() {
         super.setupView()
-        let tapgesture = UITapGestureRecognizer(target: self, action: #selector(meClicked(_:)))
-        addGestureRecognizer(tapgesture)
+        contentView.addSubview(headerLabel)
+        
+        var bgColor = UIColor.clear
+        switch clickMeWidget.backgroundColor {
+        case .color(let color, _):
+            bgColor = color
+        default:
+            break
+        }
+        
+        contentView.backgroundColor = bgColor
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(onTap(_:)))
+        addGestureRecognizer(tapGesture)
+        
+        headerLabel.text = clickMeWidget.text
+        
+        var textColor = UIColor.clear
+        switch clickMeWidget.color {
+        case .color(let color, _):
+            textColor = color
+        default:
+            break
+        }
+        
+        headerLabel.textColor = textColor
+        headerLabel.font = .improvedFont(family: clickMeWidget.fontFamily, ofSize: clickMeWidget.fontSize, weight: clickMeWidget.fontParams.weight)
     }
     
-    @objc private func meClicked(_ sender: Any) {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        contentView.frame = CGRect(x: 0, y: 0, width: data.position.realWidth / UIScreen.main.scale, height: data.position.realHeight / UIScreen.main.scale)
+        contentView.layer.cornerRadius = min(clickMeWidget.borderRadius / UIScreen.main.scale, data.position.realHeight / (2 * UIScreen.main.scale))
+        
+        headerLabel.frame = contentView.bounds
+    }
+    
+    @objc private func onTap(_ sender: Any) {
         animateView()
     }
     

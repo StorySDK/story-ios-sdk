@@ -11,9 +11,10 @@ class SRTextView: SRImageWidgetView {
     private let textWidget: SRTextWidget
     
     private lazy var label: UILabel = {
-        let l = UILabel()
-        l.translatesAutoresizingMaskIntoConstraints = false
-        return l
+        let lbl = UILabel()
+        lbl.numberOfLines = 0
+        
+        return lbl
     }()
     
     init(story: SRStory, data: SRWidget, textWidget: SRTextWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
@@ -26,21 +27,41 @@ class SRTextView: SRImageWidgetView {
         isUserInteractionEnabled = false
         [label].forEach(contentView.addSubview)
         
+        let textColor: UIColor
         switch textWidget.color {
         case .color(let color, _):
-            label.textColor = color
+            textColor = color
         default:
-            label.textColor = SRThemeColor.black.color
+            textColor = SRThemeColor.black.color
         }
         
-        label.textAlignment = .center
-        label.font = .regular(fontFamily: textWidget.fontFamily, ofSize: min(textWidget.fontSize, 36.0))
+        let alignment: NSTextAlignment
+        switch textWidget.align {
+        case "left":
+            alignment = .left
+        case "center":
+            alignment = .center
+        case "right":
+            alignment = .right
+        default:
+            alignment = .center
+        }
+        
+        label.textColor = textColor
+        label.textAlignment = alignment
+        label.font = UIFont.improvedFont(family: textWidget.fontFamily,
+                                 ofSize: textWidget.fontSize, weight: UIFont.Weight(textWidget.fontParams.weight))
         label.text = textWidget.text
+        
+        #if DEBUG
+        label.backgroundColor = .systemGreen
+        contentView.backgroundColor = .systemOrange
+        #endif
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        label.frame = CGRect(x: 0, y: 0, width: bounds.width, height: 100)
+        label.frame = CGRect(x: 0, y: 0, width: data.position.realWidth / UIScreen.main.scale, height: data.position.realHeight / UIScreen.main.scale)
     }
     
     override func setupContentLayer(_ layer: CALayer) {

@@ -66,6 +66,16 @@ extension UIFont {
     }
     
     static func font(family: String, ofSize size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
-        getFont(name: family, size: size, weight: weight)
+        return getFont(name: family, size: size, weight: weight)
+    }
+    
+    // TODO: After all replace using of font method to improvedFont method
+    static func improvedFont(family: String, ofSize size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
+        let points = sizeInPoints(size)
+        return getFont(name: family, size: points, weight: weight)
+    }
+    
+    static func sizeInPoints(_ fontSize: Double) -> CGFloat {
+        return CGFloat(fontSize / 3.0)
     }
 }

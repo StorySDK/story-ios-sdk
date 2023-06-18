@@ -142,7 +142,8 @@ class SRTalkAboutView: SRInteractiveWidgetView {
         gradientLayer.frame = mainView.bounds
         gradientLayer.cornerRadius = mainView.layer.cornerRadius
         
-        titleLabel.font = .regular(ofSize: 14 * scale)
+        titleLabel.font = .font(family: talkAboutWidget.fontFamily,
+                                ofSize: 16.0, weight: UIFont.Weight(talkAboutWidget.fontParams.weight))
         let padding = 12 * scale
         let textFieldHeight = 34 * scale
         textFieldContainer.frame = .init(x: padding,

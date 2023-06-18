@@ -60,11 +60,6 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
         
         //ans = AnswerView(answer: chooseAnswerWidget.answers.first!)
         
-//        btn = UIButton(type: .system)
-//        btn?.layer.borderColor = UIColor.black.cgColor
-//        btn?.setTitle("Test 123", for: .normal)
-//        btn?.addTarget(self, action: #selector(answerClicked), for: .touchUpInside)
-        
         //contentView.isUserInteractionEnabled = false
         
         [gradientLayer].forEach(contentView.layer.addSublayer)
@@ -97,15 +92,6 @@ final class ChooseAnswerView: SRInteractiveWidgetView {
             //v.addTarget(self, action: #selector(answerClicked), for: .valueChanged)
             answersView.addSubview(v)
         }
-        
-        //ans?.addTarget(self, action: #selector(answerClicked), for: .touchUpInside)
-        
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(test2))
-//        answersView.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc func test2() {
-        print("test 12345")
     }
     
     override func layoutSubviews() {
@@ -299,15 +285,6 @@ final class AnswerView: UIButton {
         titleLabel2.text = answer.title
         
         updateStatus()
-        
-        //isUserInteractionEnabled = false
-        
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(test3))
-//        addGestureRecognizer(tapGesture)
-    }
-    
-    @objc func test3() {
-        print("test 3")
     }
     
     func updateStatus() {

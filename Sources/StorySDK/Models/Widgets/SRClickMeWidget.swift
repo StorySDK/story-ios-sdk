@@ -7,6 +7,11 @@
 
 import UIKit
 
+public enum WidgetActionType: String, Decodable {
+    case story
+    case link
+}
+
 public struct SRClickMeWidget: Decodable {
     public var fontFamily: String
     public var fontSize: Double
@@ -24,4 +29,6 @@ public struct SRClickMeWidget: Decodable {
     public var borderWidth: Double
     public var borderColor: SRColor?
     public var borderOpacity: Double
+    public var actionType: WidgetActionType?
+    public var storyId: String?
 }

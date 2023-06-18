@@ -10,6 +10,7 @@ import UIKit
 final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     let storySdk: StorySDK
     var containerFrame: SRRect = .zero
+    var onMethodCall: ((String?) -> Void)?
     var presentTalkAbout: ((SRTalkAboutViewController) -> Void)?
     var pauseInterval: DispatchTimeInterval = .seconds(1)
     weak var progress: SRProgressController?
@@ -124,14 +125,27 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     
     // MARK: - SRClickMeViewDelegate
     
-    func didClickedButton(_ widget: SRClickMeView) {
+    func didClickButton(_ widget: SRClickMeView) {
         let request = SRStatistic(type: .click, value: widget.clickMeWidget.url)
         analytics?.sendWidgetReaction(request, widget: widget)
         
-        guard let url = URL(string: widget.clickMeWidget.url) else { return }
-        guard UIApplication.shared.canOpenURL(url) else { return }
-        progress?.pauseAutoscrolling()
-        UIApplication.shared.open(url)
+        let clickMeWidget = widget.clickMeWidget
+        guard let actionType = clickMeWidget.actionType else { return }
+        
+        switch actionType {
+        case .story:
+            // TODO: add scroll to partical story by id
+            progress?.scrollNext()
+        case .link:
+            guard let url = URL(string: clickMeWidget.url) else { return }
+            guard UIApplication.shared.canOpenURL(url) else {
+                onMethodCall?(clickMeWidget.url)
+                return
+            }
+            
+            progress?.pauseAutoscrolling()
+            UIApplication.shared.open(url)
+        }
     }
     
     // MARK: - SRSwipeUpViewDelegate
@@ -141,10 +155,6 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         analytics?.sendWidgetReaction(request, widget: widget)
         
         progress?.pauseAutoscrollingUntil(.now() + pauseInterval)
-        
-//        if let score = score {
-//            analytics?.dataStorage?.totalScore += Int(score.points ?? "0") ?? 0
-//        }
     }
     
     func didSwipeUp(_ widget: SRSwipeUpView) -> Bool {

@@ -13,6 +13,8 @@ public final class SRStoriesViewController: UIViewController {
     private var storiesView: SRStoriesView!
     private let logger: SRLogger
     
+    public weak var delegate: SRStoryWidgetDelegate?
+    
     let tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer()
         gesture.isEnabled = true
@@ -117,11 +119,17 @@ public final class SRStoriesViewController: UIViewController {
         viewModel.resignFirstResponder = { [weak self] in
             self?.view.endEditing(true)
         }
-        tapGesture.addTarget(
-            viewModel.gestureRecognizer,
-            action: #selector(SRStoriesGestureRecognizer.onTap)
-        )
-        storiesView.addGestureRecognizer(tapGesture)
+        viewModel.onMethodCall = { [weak self] selectorName in
+            self?.delegate?.onWidgetMethodCall(selectorName)
+        }
+        
+        if group.type != .onboarding {
+            tapGesture.addTarget(
+                viewModel.gestureRecognizer,
+                action: #selector(SRStoriesGestureRecognizer.onTap)
+            )
+            storiesView.addGestureRecognizer(tapGesture)
+        }
     }
     
     private func loadData() {

@@ -9,7 +9,75 @@ import UIKit
 import Combine
 
 protocol QuizMultipleImageViewDelegate: AnyObject {
-    func didChooseQuizMultipleImageAnswer(_ widget: QuizMultipleImageView, isYes: Bool)
+    func didChooseQuizMultipleImageAnswer(_ widget: QuizMultipleImageView, answer: String)
+}
+
+class QuizImageView: UIButton {
+    var answer: SRAnswerValue?
+    
+    var answerFont: UIFont? {
+        didSet {
+            answerLabel.font = answerFont
+        }
+    }
+    
+    var text: String? {
+        didSet {
+            answerLabel.text = text
+        }
+    }
+    
+    var textColor: UIColor? {
+        didSet {
+            answerLabel.textColor = textColor
+        }
+    }
+    
+    let answerImageView: UIImageView = {
+        let v = UIImageView(frame: .zero)
+        v.contentMode = .scaleAspectFit
+        v.isHidden = true
+        v.isUserInteractionEnabled = false
+        return v
+    }()
+    
+    private let answerLabel: UILabel = {
+        let l = UILabel()
+        l.numberOfLines = 0
+        l.textAlignment = .center
+        l.textColor = SRThemeColor.black.color
+        return l
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: CGRect.zero)
+        prepareUI()
+    }
+    
+    override func layoutSubviews() {
+        let padding = 9.5
+        
+        super.layoutSubviews()
+        answerImageView.frame = .init(x: padding,
+                                     y: padding,
+                                     width: bounds.width - 2 * padding,
+                                      height: bounds.width - 2 * padding)
+        
+        answerLabel.frame = CGRect(x: 0, y: bounds.height - 30, width: bounds.width, height: 25)
+    }
+    
+    private func prepareUI() {
+        layer.cornerRadius = 8.0
+        
+        backgroundColor = SRThemeColor.white.color
+        addSubview(answerImageView)
+        addSubview(answerLabel)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
 
 class QuizMultipleImageView: SRInteractiveWidgetView {
@@ -20,29 +88,9 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
         sv.axis = .horizontal
         sv.distribution = .fillEqually
         sv.backgroundColor = .clear//SRThemeColor.white.color
-        sv.spacing = 20
+        sv.spacing = 11
+        
         return sv
-    }()
-    
-    private let grayView: UIView = {
-        let v = UIView()
-        v.backgroundColor = SRThemeColor.grey.color
-        return v
-    }()
-
-    private let yesButton: UIButton = {
-        let b = UIButton(type: .system)
-        b.tag = 0
-        b.tintColor = SRThemeColor.black.color
-        return b
-    }()
-    
-    let firstImageView: UIImageView = {
-        let v = UIImageView(frame: .zero)
-        v.contentMode = .scaleAspectFit
-        v.isHidden = true
-        v.isUserInteractionEnabled = false
-        return v
     }()
     
     let secondImageView: UIImageView = {
@@ -53,7 +101,6 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
         return v
     }()
     
-    //let url: URL?
     var urls: [URL?] = [URL?]()
     let logger: SRLogger
     weak var loader: SRImageLoader?
@@ -81,27 +128,16 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
         return l
     }()
     
-    private let firstView: UIView = {
-        let v = UIView(frame: .zero)
-        v.backgroundColor = SRThemeColor.white.color
-        //b.tag = 0
-        //b.tintColor = SRThemeColor.black.color
+    private let firstView: QuizImageView = {
+        let v = QuizImageView(frame: .zero)
+        
         return v
     }()
     
-    private let secondView: UIView = {
-        let v = UIView(frame: .zero)
-        v.backgroundColor = SRThemeColor.white.color
-        //b.tag = 0
-        //b.tintColor = SRThemeColor.black.color
+    private let secondView: QuizImageView = {
+        let v = QuizImageView(frame: .zero)
+        
         return v
-    }()
-    
-    private let noButton: UIButton = {
-        let b = UIButton(type: .system)
-        b.tag = 1
-        b.tintColor = SRThemeColor.black.color
-        return b
     }()
     
     private let titleLabel: UILabel = {
@@ -138,11 +174,9 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
             defer { completion() }
             switch result {
             case .success(let image):
-                //self?.contentView.isHidden = true
                 imView.isHidden = false
                 imView.image = image
             case .failure(let error):
-                //self?.contentView.isHidden = false
                 imView.isHidden = true
                 logger.error(error.localizedDescription, logger: .widgets)
             }
@@ -151,11 +185,7 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
     
     override func setupView() {
         super.setupView()
-        
-        [firstImageView, firstAnswerLabel].forEach(firstView.addSubview)
-        [secondImageView, secondAnswerLabel].forEach(secondView.addSubview)
-        
-        [titleLabel, buttonsView, grayView].forEach(contentView.addSubview)
+        [titleLabel, buttonsView].forEach(contentView.addSubview)
         
         titleLabel.font = .regular(fontFamily: quizWidget.titleFont.fontFamily, ofSize: 12.0)
         titleLabel.text = quizWidget.title
@@ -163,28 +193,14 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
         let confirmAnswer = quizWidget.answers.first?.title ?? "First"
         let declineAnswer = quizWidget.answers.last?.title ?? "Last"
         
-        firstAnswerLabel.text = confirmAnswer
-        secondAnswerLabel.text = declineAnswer
+        firstView.text = confirmAnswer
+        secondView.text = declineAnswer
         
-        yesButton.addTarget(self, action: #selector(answerTapped(_:)), for: .touchUpInside)
-        
-        switch quizWidget.answersFont.fontColor {
-        case .color(let color, _):
-            yesButton.tintColor = color
-            noButton.tintColor = color
-        default:
-            yesButton.tintColor = SRThemeColor.black.color
-            noButton.tintColor = SRThemeColor.black.color
-        }
-        
-        //buttonsView.addArrangedSubview(yesButton)
         buttonsView.addArrangedSubview(firstView)
-        
-        noButton.setTitle(declineAnswer, for: .normal)
-        noButton.addTarget(self, action: #selector(answerTapped(_:)), for: .touchUpInside)
-        
-        
         buttonsView.addArrangedSubview(secondView)
+        
+        firstView.addTarget(self, action: #selector(onTapAnswer(_:)), for: .touchUpInside)
+        secondView.addTarget(self, action: #selector(onTapAnswer(_:)), for: .touchUpInside)
     }
     
     override func setupContentLayer(_ layer: CALayer) {
@@ -201,53 +217,38 @@ class QuizMultipleImageView: SRInteractiveWidgetView {
         let scale = widgetScale
         
         titleLabel.font = .font(family: quizWidget.titleFont.fontFamily, ofSize: 12.0 * scale, weight: .init(quizWidget.titleFont.fontParams.weight))
-        firstAnswerLabel.font = .font(family: quizWidget.answersFont.fontFamily, ofSize: 12.0 * scale, weight: .init(quizWidget.answersFont.fontParams.weight))
-        secondAnswerLabel.font = .font(family: quizWidget.answersFont.fontFamily, ofSize: 12.0 * scale, weight: .init(quizWidget.answersFont.fontParams.weight))
+        firstView.answerFont = .font(family: quizWidget.answersFont.fontFamily, ofSize: 12.0 * scale, weight: .init(quizWidget.answersFont.fontParams.weight))
         
+        secondView.answerFont = .font(family: quizWidget.answersFont.fontFamily, ofSize: 12.0 * scale, weight: .init(quizWidget.answersFont.fontParams.weight))
         let buttonsHeight = 150 * scale//50 * scale
         buttonsView.frame = .init(x: 0,
                                   y: /*contentView.frame.height - buttonsHeight*/75,
                                   width: contentView.frame.width,
                                   height: contentView.frame.height - 75)
         buttonsView.layer.cornerRadius = 10 * scale
-        grayView.frame = .init(x: buttonsView.frame.midX - 0.5,
-                               y: buttonsView.frame.minY,
-                               width: 1,
-                               height: buttonsView.frame.height)
         titleLabel.frame = .init(x: 0,
                                  y: 0,
                                  width: contentView.frame.width,
                                  height: buttonsView.frame.minY)
+        updateImage(url: urls.first!, imView: firstView.answerImageView, bounds.size, completion: {}).map { loadingTask = $0 }
         
-        firstImageView.frame = .init(x: 8,
-                                     y: 8,
-                                     width: firstView.bounds.width - 2 * 8,
-                                     height: firstView.bounds.width - 2 * 8)
-        secondImageView.frame = .init(x: 8,
-                                      y: 8,
-                                      width: secondView.bounds.width - 2 * 8,
-                                      height: secondView.bounds.width - 2 * 8)
-        
-        firstAnswerLabel.frame = CGRect(x: 0, y: firstView.bounds.height - 30, width: firstView.bounds.width, height: 25)
-        
-        secondAnswerLabel.frame = CGRect(x: 0, y: secondView.bounds.height - 30, width: firstView.bounds.width, height: 25)
-        
-        updateImage(url: urls.first!, imView: firstImageView, bounds.size, completion: {}).map { loadingTask = $0 }
-        
-        updateImage(url: urls.last!, imView: secondImageView, bounds.size, completion: {}).map { loadingTask2 = $0 }
+        updateImage(url: urls.last!, imView: secondView.answerImageView, bounds.size, completion: {}).map { loadingTask2 = $0 }
     }
     
-    @objc func answerTapped(_ sender: UIButton) {
-        delegate?.didChooseQuizMultipleImageAnswer(self, isYes: sender.tag == 0)
-        let b = sender.tag == 0 ? noButton : yesButton
-        grayView.isHidden = true
-        UIView.animate(withDuration: 0.5, animations: { b.isHidden = true })
+    @objc func onTapAnswer(_ sender: QuizImageView) {
+        if let id = sender.answer?.id {
+            sendMessage(id: id, score: sender.answer?.score)
+        }
+        
+        sender.backgroundColor = SRThemeColor.black.color
+        sender.textColor = .white
+    }
+    
+    private func sendMessage(id: String, score: SRScore?) {
+        delegate?.didChooseQuizMultipleImageAnswer(self, answer: id)
     }
     
     override func setupWidget(reaction: String) {
         isUserInteractionEnabled = false
-        let isTrue = true.questionWidgetString == reaction
-        grayView.isHidden = true
-        (isTrue ? noButton : yesButton).isHidden = true
     }
 }

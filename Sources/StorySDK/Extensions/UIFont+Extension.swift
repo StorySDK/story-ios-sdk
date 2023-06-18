@@ -71,10 +71,25 @@ extension UIFont {
     
     // TODO: After all replace using of font method to improvedFont method
     static func improvedFont(family: String, ofSize size: CGFloat, weight: Double? = nil) -> UIFont {
-        var fontWeight: UIFont.Weight?
+        let fontWeight: UIFont.Weight
         if let weight = weight {
-            fontWeight = UIFont.Weight(weight)
+            switch weight {
+            case 400:
+                fontWeight = .regular
+            case 500:
+                fontWeight = .medium
+            case 600:
+                fontWeight = .semibold
+            case 700:
+                fontWeight = .bold
+            default:
+                fontWeight = .regular
+            }
+        } else {
+            fontWeight = .regular
         }
+        
+        
         
         let points = sizeInPoints(size)
         return getFont(name: family, size: points, weight: fontWeight)

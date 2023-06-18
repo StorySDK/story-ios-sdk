@@ -64,7 +64,10 @@ final class SRStoriesViewModel {
         get { dataStorage.onFilled }
         set { dataStorage.onFilled = newValue }
     }
-    
+    var onMethodCall: ((String?) -> Void)? {
+        get { widgetResponder.onMethodCall }
+        set { widgetResponder.onMethodCall = newValue }
+    }
     var presentTalkAbout: ((SRTalkAboutViewController) -> Void)? {
         get { widgetResponder.presentTalkAbout }
         set { widgetResponder.presentTalkAbout = newValue }

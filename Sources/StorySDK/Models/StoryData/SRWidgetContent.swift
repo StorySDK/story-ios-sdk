@@ -35,11 +35,13 @@ public indirect enum SRWidgetContent: Decodable {
         
         let type = SRWidgetTypes(rawValue: innerType) ?? .unknown
         let content = try SRWidgetContent.decodeType(type, container: container)
-        if let url = try? container.decode(URL.self, forKey: .widgetImage) {
-            self = .image(url, content)
-        } else {
-            self = content
-        }
+        
+        self = content
+//        if let url = try? container.decode(URL.self, forKey: .widgetImage) {
+//            self = .image(url, content)
+//        } else {
+//            self = content
+//        }
     }
     
     private static func decodeType(_ type: SRWidgetTypes, container: KeyedDecodingContainer<CodingKeys>) throws -> SRWidgetContent {

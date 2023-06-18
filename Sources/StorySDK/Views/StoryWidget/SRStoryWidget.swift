@@ -10,7 +10,8 @@ import UIKit
 public protocol SRStoryWidgetDelegate: AnyObject {
     func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget)
     func onWidgetGroupPresent(index: Int, groups: [SRStoryGroup], widget: SRStoryWidget)
-    func onWidgetGroupsLoaded(groups: [SRStoryGroup]) //index: Int, groups: [SRStoryGroup], widget: SRStoryWidget)
+    func onWidgetGroupsLoaded(groups: [SRStoryGroup])
+    func onWidgetMethodCall(_ selectorName: String?)
 }
 
 public extension SRStoryWidgetDelegate {
@@ -165,6 +166,10 @@ public final class SRStoryWidget: UIView {
             widget.delegate?.onWidgetGroupsLoaded(
                 groups: widget.viewModel.groups
                 )
+        }
+        viewModel.onMethodCall = { [weak self] selectorName in
+            guard let widget = self else { return }
+            widget.delegate?.onWidgetMethodCall(selectorName)
         }
     }
     

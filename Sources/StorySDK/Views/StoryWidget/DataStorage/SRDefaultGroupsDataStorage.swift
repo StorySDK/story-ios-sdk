@@ -15,6 +15,8 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     public var onErrorReceived: ((Error) -> Void)?
     public var onPresentGroup: ((Int) -> Void)?
     public var onGroupsLoaded: (() -> Void)?
+    public var onGroupClosed: (() -> Void)?
+    public var onMethodCall: ((String?) -> Void)?
     
     private(set) public var groups: [SRStoryGroup] = []
     private(set) var groupsStyle: SRAppGroupViewSettings {

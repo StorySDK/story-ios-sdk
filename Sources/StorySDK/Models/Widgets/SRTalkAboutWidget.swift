@@ -11,4 +11,6 @@ public struct SRTalkAboutWidget: Decodable {
     public var text: String
     public var image: URL?
     public var color: SRThemeColor
+    public var fontFamily: String
+    public var fontParams: SRFontParamsValue
 }

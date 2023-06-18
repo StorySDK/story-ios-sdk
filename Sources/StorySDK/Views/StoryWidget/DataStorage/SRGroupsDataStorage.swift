@@ -23,6 +23,10 @@ public protocol SRGroupsDataStorage: AnyObject {
     var onPresentGroup: ((Int) -> Void)? { get set }
     /// When all groups are loaded
     var onGroupsLoaded: (() -> Void)? { get set }
+    /// When all groups are closed
+    var onGroupClosed: (() -> Void)? { get set }
+    /// When external custom widget action should be call
+    var onMethodCall: ((String?) -> Void)? { get set }
     /// Configures story layout according used groups style
     func setupLayout(_ layout: SRGroupsLayout)
     /// Configures cell with a group with index

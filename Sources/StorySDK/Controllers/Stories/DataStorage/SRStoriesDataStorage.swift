@@ -118,6 +118,8 @@ protocol SRWidgetResponderStorage: AnyObject {
     var progress: SRProgressController? { get set }
     /// To report about analytics events
     var analytics: SRAnalyticsController? { get set }
+    /// When external custom widget action should be call
+    var onMethodCall: ((String?) -> Void)? { get set }
 }
 
 protocol SRAnalyticsController: AnyObject {

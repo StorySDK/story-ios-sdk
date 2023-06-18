@@ -26,6 +26,14 @@ final class SRGroupsViewModel {
         get { dataStorage.onGroupsLoaded }
         set { dataStorage.onGroupsLoaded = newValue }
     }
+    var onGroupClosed: (() -> Void)? {
+        get { dataStorage.onGroupClosed }
+        set { dataStorage.onGroupClosed = newValue }
+    }
+    var onMethodCall: ((String?) -> Void)? {
+        get { dataStorage.onMethodCall }
+        set { dataStorage.onMethodCall = newValue }
+    }
     
     var groups: [SRStoryGroup] { dataStorage.groups }
     let dataStorage: SRGroupsDataStorage

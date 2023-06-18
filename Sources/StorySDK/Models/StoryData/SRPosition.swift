@@ -10,7 +10,25 @@ import Foundation
 public struct SRPosition: Decodable {
     public var x: Double
     public var y: Double
+    public var width: Double
+    public var height: Double
     public var realWidth: Double
     public var realHeight: Double
     public var rotate: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case x, y, width, height, realWidth, realHeight, rotate
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        x = try container.decode(Double.self, forKey: .x)
+        y = try container.decode(Double.self, forKey: .y)
+        width = try container.decode(Double.self, forKey: .width)
+        height = try container.decode(Double.self, forKey: .height)
+        realWidth = try container.decode(Double.self, forKey: .realWidth)
+        realHeight = try container.decode(Double.self, forKey: .realHeight)
+        rotate = try container.decode(Double.self, forKey: .rotate)
+    }
 }

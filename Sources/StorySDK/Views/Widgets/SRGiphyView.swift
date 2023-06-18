@@ -50,6 +50,10 @@ class SRGiphyView: SRWidgetView {
         alpha = giphyWidget.widgetOpacity / 100
     }
     
+    public override func sizeThatFits(_ size: CGSize) -> CGSize {
+        return CGSize(width: data.position.width / UIScreen.main.scale, height: data.position.height / UIScreen.main.scale)
+    }
+    
     override func removeFromSuperview() {
         super.removeFromSuperview()
         displayLink.invalidate()
@@ -76,6 +80,7 @@ class SRGiphyView: SRWidgetView {
     
     override func draw(_ rect: CGRect) {
         super.draw(rect)
+        
         guard let image = currentImage else { return }
         guard let ctx = UIGraphicsGetCurrentContext() else { return }
         ctx.saveGState()

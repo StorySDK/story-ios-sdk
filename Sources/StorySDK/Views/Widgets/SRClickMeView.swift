@@ -8,7 +8,7 @@
 import UIKit
 
 protocol SRClickMeViewDelegate: AnyObject {
-    func didClickedButton(_ widget: SRClickMeView)
+    func didClickButton(_ widget: SRClickMeView)
 }
 
 class SRClickMeView: SRImageWidgetView {
@@ -67,18 +67,19 @@ class SRClickMeView: SRImageWidgetView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        contentView.frame = CGRect(x: 0, y: 0, width: data.position.realWidth / UIScreen.main.scale, height: data.position.realHeight / UIScreen.main.scale)
         contentView.layer.cornerRadius = min(clickMeWidget.borderRadius / UIScreen.main.scale, data.position.realHeight / (2 * UIScreen.main.scale))
         
         headerLabel.frame = contentView.bounds
     }
     
     @objc private func onTap(_ sender: Any) {
-        animateView()
+        animateView(onCompleted: { [weak self] in
+            guard let wSelf = self else { return }
+            wSelf.delegate?.didClickButton(wSelf)
+        })
     }
     
-    private func animateView() {
-        delegate?.didClickedButton(self)
+    private func animateView(onCompleted: (() -> Void)? ) {
         UIView.animate(
             withDuration: .animationsDuration,
             animations: { [weak self] in
@@ -87,7 +88,10 @@ class SRClickMeView: SRImageWidgetView {
             completion: { [weak self] _ in
                 UIView.animate(
                     withDuration: .animationsDuration,
-                    animations: { self?.transform = .identity }
+                    animations: { self?.transform = .identity },
+                    completion: { _ in
+                        onCompleted?()
+                    }
                 )
             }
         )

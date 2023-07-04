@@ -27,7 +27,7 @@ final class SRNavigationGestureHelper: NSObject, UIGestureRecognizerDelegate {
     @objc func onPanToDismiss(_ gesture: UIPanGestureRecognizer) {
         switch gesture.state {
         case .began:
-            animations.dismiss = animations.makeDismissAnimator(duration: .animationsDuration)
+            animations.dismiss = animations.makeDismissAnimator(duration: SRConstants.animationsDuration)
             animations.dismiss?.pauseAnimation()
         case .ended:
             guard let animator = animations.dismiss else { return }
@@ -53,7 +53,7 @@ final class SRNavigationGestureHelper: NSObject, UIGestureRecognizerDelegate {
             let velocity = gesture.velocity(in: nil).x
             let nextIndex = velocity < 0 ? dataSource.currentIndex + 1 : dataSource.currentIndex - 1
             animations.swipe = animations.makeSwipeAnimator(
-                duration: .animationsDuration,
+                duration: SRConstants.animationsDuration,
                 to: nextIndex,
                 byUser: true
             )

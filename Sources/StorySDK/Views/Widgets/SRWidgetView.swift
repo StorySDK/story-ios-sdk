@@ -15,6 +15,8 @@ public class SRWidgetView: UIView {
         data.positionLimits.minWidth.map { data.position.realWidth / $0 } ?? 1.0
     }
     
+    var loaded: Bool = false
+    
     init(data: SRWidget) {
         self.data = data
         super.init(frame: .zero)

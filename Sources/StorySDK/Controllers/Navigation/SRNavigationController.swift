@@ -82,7 +82,7 @@ public final class SRNavigationController: UIViewController, SRNavigationViewDat
             let scrollNext: () -> Void = { [weak animations] in
                 guard let animations = animations else { return }
                 let animation = animations.makeSwipeAnimator(
-                    duration: .animationsDuration,
+                    duration: SRConstants.groupTransitionAnimationDuration,
                     to: index + 1,
                     byUser: false
                 )

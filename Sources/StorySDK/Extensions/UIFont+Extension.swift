@@ -10,6 +10,10 @@ import UIKit
 extension UIFont {
     class func getFont(name: String, size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
         registerFontsIfNeeded()
+        if name == "System" || name == "San Francisco" {
+            return getSystemFont(size: size, weight: weight)
+        }
+        
         if let font = UIFont(name: name, size: size) {
             if let weight = weight {
                 return font.withWeight(weight)
@@ -17,11 +21,15 @@ extension UIFont {
                 return font
             }
         } else {
-            if let weight = weight {
-                return UIFont.systemFont(ofSize: size, weight: weight)
-            } else {
-                return UIFont.systemFont(ofSize: size)
-            }
+            return getSystemFont(size: size, weight: weight)
+        }
+    }
+    
+    class func getSystemFont(size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
+        if let weight = weight {
+            return UIFont.systemFont(ofSize: size, weight: weight)
+        } else {
+            return UIFont.systemFont(ofSize: size)
         }
     }
 

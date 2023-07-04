@@ -81,13 +81,13 @@ class SRClickMeView: SRImageWidgetView {
     
     private func animateView(onCompleted: (() -> Void)? ) {
         UIView.animate(
-            withDuration: .animationsDuration,
+            withDuration: SRConstants.animationsDuration,
             animations: { [weak self] in
                 self?.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
             },
             completion: { [weak self] _ in
                 UIView.animate(
-                    withDuration: .animationsDuration,
+                    withDuration: SRConstants.animationsDuration,
                     animations: { self?.transform = .identity },
                     completion: { _ in
                         onCompleted?()

@@ -167,4 +167,9 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         UIApplication.shared.open(url)
         return true
     }
+    
+    func didWidgetLoad(_ widget: SRInteractiveWidgetView) {
+        guard let canvas = widget.superview?.superview as? SRStoryCanvasView else { return }
+        canvas.didWidgetLoad(widget)
+    }
 }

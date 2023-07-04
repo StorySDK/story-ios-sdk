@@ -18,7 +18,7 @@ final class SRStoriesGestureRecognizer: NSObject {
         guard let view = gesture.view else { return }
         let updateTransform: (CGFloat) -> Void = { [weak view] ty in
             UIView.animate(
-                withDuration: .animationsDuration,
+                withDuration: SRConstants.animationsDuration,
                 animations: { view?.transform.ty = ty }
             )
         }

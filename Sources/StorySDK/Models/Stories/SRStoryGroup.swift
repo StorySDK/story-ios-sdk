@@ -27,7 +27,7 @@ public struct SRStoryGroup: Decodable {
     public var type: SRStoryGroupType
     public var settings: SRStorySettings?
     public var createdAt: Date
-    public var updatedAt: Date
+    public var updatedAt: Date?
     
     enum CodingKeys: String, CodingKey {
         case id, appId, userId, title, imageUrl, startTime, endTime, active, type, settings, createdAt, updatedAt
@@ -54,11 +54,14 @@ public struct SRStoryGroup: Decodable {
         type = SRStoryGroupType(rawValue: innerType) ?? .unknown
         settings = try? container.decode(SRStorySettings.self, forKey: .settings)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
-        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        updatedAt = try? container.decode(Date.self, forKey: .updatedAt)
     }
     
     public func readyToShow() -> Bool {
         guard type != .unknown else { return false }
+        if StorySDK.shared.configuration.onboardingFilter {
+            guard type != .onboarding else { return false }
+        }
         
         let timestamp = TimeInterval(Date().timeIntervalSince1970 * 1000)
         return active && (settings?.addToStories ?? true) &&

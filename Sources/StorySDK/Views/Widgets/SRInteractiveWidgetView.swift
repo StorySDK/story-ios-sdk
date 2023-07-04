@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol SRWidgetLoadDelegate: AnyObject {
+    func didWidgetLoad(_ widget: SRInteractiveWidgetView)
+}
+
 public class SRInteractiveWidgetView: SRWidgetView {
     let story: SRStory
     weak var delegate: SRInteractiveWidgetDelegate?
@@ -17,4 +21,4 @@ public class SRInteractiveWidgetView: SRWidgetView {
     }
 }
 
-typealias SRInteractiveWidgetDelegate = SRTalkAboutViewDelegate & ChooseAnswerViewDelegate & EmojiReactionViewDelegate & QuestionViewDelegate & SliderViewDelegate & SRClickMeViewDelegate & SRSwipeUpViewDelegate & QuizMultipleImageViewDelegate & QuizOneAnswerViewDelegate & QuizMultipleAnswerViewDelegate
+typealias SRInteractiveWidgetDelegate = SRTalkAboutViewDelegate & ChooseAnswerViewDelegate & EmojiReactionViewDelegate & QuestionViewDelegate & SliderViewDelegate & SRClickMeViewDelegate & SRSwipeUpViewDelegate & QuizMultipleImageViewDelegate & QuizOneAnswerViewDelegate & QuizMultipleAnswerViewDelegate & SRWidgetLoadDelegate

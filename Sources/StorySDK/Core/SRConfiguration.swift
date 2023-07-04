@@ -19,18 +19,21 @@ public struct SRConfiguration {
     /// Filled story progress color
     public var progressColor: UIColor
     
+    public var onboardingFilter: Bool
+    
     /// Available languages for the app.
     /// Try to load all if it's empty
     public private(set) var languages: Set<String> = .init()
     /// Default language choosed for the app
     public private(set) var defaultLanguage: String = "en"
     
-    public init(language: String = Locale.current.languageCode ?? "en",
+    public init(language: String = "en",
                 sdkId: String? = nil,
                 sdkAPIUrl: String = "https://api.storysdk.com/sdk/v1/",
                 storyDuration: TimeInterval = 6.0,
                 needShowTitle: Bool = false,
-                progressColor: UIColor = .init(white: 1, alpha: 1)
+                progressColor: UIColor = .init(white: 1, alpha: 1),
+                onboardingFilter: Bool = true
     ) {
         self.language = language
         self.sdkId = sdkId
@@ -38,6 +41,7 @@ public struct SRConfiguration {
         self.storyDuration = storyDuration
         self.needShowTitle = needShowTitle
         self.progressColor = progressColor
+        self.onboardingFilter = onboardingFilter
     }
     
     mutating func update(localization: SRAppLocalization) {

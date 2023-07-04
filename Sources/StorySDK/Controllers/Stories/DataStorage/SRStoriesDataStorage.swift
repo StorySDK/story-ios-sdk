@@ -125,7 +125,8 @@ protocol SRWidgetResponderStorage: AnyObject {
 protocol SRAnalyticsController: AnyObject {
     var dataStorage: SRStoriesDataStorage? { get set }
     /// Sends information about interaction with the widget
-    func sendWidgetReaction(_ reaction: SRStatistic, widget: SRInteractiveWidgetView)
+    func sendWidgetReaction(_ reaction: SRStatistic,
+                            widget: SRInteractiveWidgetView)
     /// Currently displayed story did changed
     func storyDidChanged(to index: Int, byUser: Bool)
     /// When a user opens the group

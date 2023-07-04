@@ -46,6 +46,8 @@ public protocol SRGroupsCollectionCell: UICollectionViewCell {
     var cancelable: Cancellable? { get set }
     var contentsScale: CGFloat { get }
     func setupStyle(_ style: SRCollectionCellStyle)
+    
+    func makeSkeletonCell()
 }
 
 extension SRGroupsCollectionCell {

@@ -47,16 +47,13 @@ class SRTextView: SRImageWidgetView {
             alignment = .center
         }
         
-        var fontFamily = textWidget.fontFamily
-        if textWidget.fontFamily == "Sanchez" {
-            fontFamily = "System"
-        }
-        
         label.textColor = textColor
         label.textAlignment = alignment
-        label.font = UIFont.improvedFont(family: fontFamily,
+        label.font = UIFont.improvedFont(family: textWidget.fontFamily,
                                          ofSize: textWidget.fontSize, weight: textWidget.fontParams.weight)
         label.text = textWidget.text
+        
+        delegate?.didWidgetLoad(self)
     }
     
     override func layoutSubviews() {

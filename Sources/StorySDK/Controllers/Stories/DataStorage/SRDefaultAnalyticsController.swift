@@ -44,11 +44,13 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
         }
     }
     
-    func sendWidgetReaction(_ reaction: SRStatistic, widget: SRInteractiveWidgetView) {
+    func sendWidgetReaction(_ reaction: SRStatistic,
+                            widget: SRInteractiveWidgetView) {
         let widgetId = widget.data.id
         var reaction = reaction
         reaction.storyId = widget.story.id
         reaction.widgetId = widgetId
+        reaction.locale = storySdk.configuration.language
         
         sendReaction(reaction) { [weak storySdk] result in
             guard case .success = result else { return }

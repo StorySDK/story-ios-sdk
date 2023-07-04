@@ -131,7 +131,7 @@ private final class LoadingBluredView: UIView {
             let isLoading = self?.loadingIndicator.isAnimating ?? false
             guard isLoading else { return }
             UIView.animate(
-                withDuration: .animationsDuration,
+                withDuration: SRConstants.animationsDuration,
                 delay: 0,
                 options: .curveLinear,
                 animations: { self?.blurView.effect = UIBlurEffect(style: .light) }
@@ -142,7 +142,7 @@ private final class LoadingBluredView: UIView {
     
     func stopLoading() {
         UIView.animate(
-            withDuration: .animationsDuration,
+            withDuration: SRConstants.animationsDuration,
             delay: 0,
             options: .curveLinear,
             animations: { [weak blurView] in blurView?.effect = nil },

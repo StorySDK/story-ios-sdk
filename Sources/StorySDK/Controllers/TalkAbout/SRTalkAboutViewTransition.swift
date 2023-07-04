@@ -16,7 +16,7 @@ final class SRTalkAboutViewTransition: NSObject, UIViewControllerAnimatedTransit
     }
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        .animationsDuration
+        SRConstants.animationsDuration
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {

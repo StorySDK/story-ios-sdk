@@ -8,6 +8,6 @@
 import Foundation
 
 struct SRConstants {
-    static let animationsDuration: TimeInterval = 0.2
+    static let animationsDuration: TimeInterval = 0.165
     static let groupTransitionAnimationDuration: TimeInterval = 0.35
 }

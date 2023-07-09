@@ -38,6 +38,8 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     
     var totalScore: Int = 0
     
+    var preloader: SRStoriesPreloader?
+    
     init(sdk: StorySDK = .shared) {
         self.storySdk = sdk
         self.groupInfo = .init(isHidden: !sdk.configuration.needShowTitle)
@@ -62,6 +64,9 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         storySdk.getStories(group) { [weak self] result in
             switch result {
             case .success(let stories):
+                self?.preloader = SRStoriesPreloader(stories: stories)
+                self?.preloader?.preload()
+                
                 self?.updateStories(stories)
             case .failure(let error):
                 self?.onErrorReceived?(error)
@@ -74,24 +79,25 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         guard index < stories.count else { return }
         
         var story: SRStory
-        if index + 1 == stories.count { // last story
-            print(totalScore)
-            
-            let result = allStories.filter {$0.position == index + 1}
-            let defaultStory = result.filter {$0.layerData?.isDefaultLayer == true}.first
-            
-            story = defaultStory ?? allStories[index]
-            
-            for item in result {
-                if let level = item.layerData?.score?.points {
-                    if totalScore >= level {
-                        story = item
-                    }
-                }
-            }
-        } else {
-            story = stories[index]
-        }
+        story = stories[index]
+//        if index + 1 == stories.count { // last story
+//            print(totalScore)
+//
+//            let result = allStories.filter {$0.position == index + 1}
+//            let defaultStory = result.filter {$0.layerData?.isDefaultLayer == true}.first
+//
+//            story = defaultStory ?? allStories[index]
+//
+//            for item in result {
+//                if let level = item.layerData?.score?.points {
+//                    if totalScore >= level {
+//                        story = item
+//                    }
+//                }
+//            }
+//        } else {
+//            story = stories[index]
+//        }
         
         guard let data = story.storyData else { return }
         cell.needShowTitle = storySdk.configuration.needShowTitle

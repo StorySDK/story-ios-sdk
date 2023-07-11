@@ -46,7 +46,20 @@ public class SRImageLoader {
             size: size,
             scale: scale,
             contentMode: contentMode
-        ) { return image }
+        ) {
+            print("Has cache for \(cacheKey)")
+            return image
+        }
+        
+        // try to find local resource in bundle
+        if let shaHash = url.absoluteString.data(using: .utf8)?.sha256().hex() {
+            if let path = Bundle.main.path(forResource: shaHash, ofType: "webp") {
+                if let localImage = UIImage(contentsOfFile: path) {
+                    return localImage.scale(to: size, scale: scale, mode: contentMode)
+                }
+            }
+        }
+        
         let image: UIImage? = try await withCheckedThrowingContinuation { continuation in
             let task = session.dataTask(with: url) { data, response, error in
                 if let data = data {
@@ -71,9 +84,6 @@ public class SRImageLoader {
         } else {
             return nil
         }
-        
-//        cache.saveImage(cacheKey, image: image)
-//        return image.scale(to: size, scale: scale, mode: contentMode)
     }
     
     @discardableResult

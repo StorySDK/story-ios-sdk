@@ -11,18 +11,22 @@ public class SRStoriesPreloader {
     let storySdk: StorySDK
     
     private var stories: [SRStory]
+    private var preloaded: [String: Bool] = [:]
+    
+    private var firstWidgetUrlsToLoad: [URL] = [URL]()
+    private var otherWidgetUrlsToLoad: [URL] = [URL]()
     
     init(sdk: StorySDK = .shared, stories: [SRStory]) {
         self.storySdk = sdk
         self.stories = stories
     }
     
-    func preload() {
-        var firstWidgetUrlsToLoad: [URL] = [URL]()
-        var otherWidgetUrlsToLoad: [URL] = [URL]()
+    func isPreloadRequired() -> Bool {
         var firstWidget = true
         
         for story in stories {
+            preloaded[story.id] = false
+            
             if let data = story.storyData {
                 for widget in data.widgets {
                     print(widget.id.description)
@@ -43,17 +47,33 @@ public class SRStoriesPreloader {
             firstWidget = false
         }
         
-        load(urls: firstWidgetUrlsToLoad, otherUrls: otherWidgetUrlsToLoad)
+        if firstWidgetUrlsToLoad.count > 0 || otherWidgetUrlsToLoad.count > 0 {
+            return true
+        } else {
+            for key in preloaded.keys {
+                preloaded[key] = true
+            }
+            return false
+        }
     }
     
-    private func load(urls: [URL], otherUrls: [URL]) {
+    func preload(completion: @escaping (Bool) -> Void) {
+        load(urls: firstWidgetUrlsToLoad, otherUrls: otherWidgetUrlsToLoad, completion: completion)
+    }
+    
+    private func load(urls: [URL], otherUrls: [URL], completion: @escaping (Bool) -> Void) {
         let size = UIScreen.main.bounds.size
         let scale = UIScreen.main.scale
         
         guard urls.count > 0 else {
-            additionalLoad(urls: otherUrls)
+            completion(true)
+            
+            additionalLoad(urls: otherUrls, completion: completion)
             return
         }
+        
+        let number = urls.count
+        var index = 0
         
         for itemUrl in urls {
             storySdk.imageLoader.load(
@@ -69,12 +89,17 @@ public class SRStoriesPreloader {
                     print(error.localizedDescription)
                 }
                 
-                self?.additionalLoad(urls: otherUrls)
+                index += 1
+                
+                if index == number {
+                    completion(true)
+                    self?.additionalLoad(urls: otherUrls, completion: completion)
+                }
             }
         }
     }
     
-    private func additionalLoad(urls: [URL]) {
+    private func additionalLoad(urls: [URL], completion: @escaping (Bool) -> Void) {
         let size = UIScreen.main.bounds.size
         let scale = UIScreen.main.scale
         
@@ -86,7 +111,7 @@ public class SRStoriesPreloader {
             ) { [weak self] result in
                 switch result {
                 case .success(let image):
-                    print(itemUrl)
+                    print("Additional loaded: \(itemUrl)")
                 case .failure(let error):
                     print(error.localizedDescription)
                 }

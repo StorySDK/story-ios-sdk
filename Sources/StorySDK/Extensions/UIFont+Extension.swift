@@ -5,16 +5,20 @@
 //  Created by MeadowsPhone Team on 07.02.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
-extension UIFont {
-    class func getFont(name: String, size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
+extension StoryFont {
+    class func getFont(name: String, size: CGFloat, weight: StoryFont.Weight? = nil) -> StoryFont {
         registerFontsIfNeeded()
         if name == "System" || name == "San Francisco" {
             return getSystemFont(size: size, weight: weight)
         }
         
-        if let font = UIFont(name: name, size: size) {
+        if let font = StoryFont(name: name, size: size) {
             if let weight = weight {
                 return font.withWeight(weight)
             } else {
@@ -25,17 +29,17 @@ extension UIFont {
         }
     }
     
-    class func getSystemFont(size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
+    class func getSystemFont(size: CGFloat, weight: StoryFont.Weight? = nil) -> StoryFont {
         if let weight = weight {
-            return UIFont.systemFont(ofSize: size, weight: weight)
+            return StoryFont.systemFont(ofSize: size, weight: weight)
         } else {
-            return UIFont.systemFont(ofSize: size)
+            return StoryFont.systemFont(ofSize: size)
         }
     }
 
-    private func withWeight(_ weight: UIFont.Weight) -> UIFont {
+    private func withWeight(_ weight: StoryFont.Weight) -> StoryFont {
         var attributes = fontDescriptor.fontAttributes
-        var traits = (attributes[.traits] as? [UIFontDescriptor.TraitKey: Any]) ?? [:]
+        var traits = (attributes[.traits] as? [StoryFontDescriptor.TraitKey: Any]) ?? [:]
 
         traits[.weight] = weight
 
@@ -43,9 +47,10 @@ extension UIFont {
         attributes[.traits] = traits
         attributes[.family] = familyName
 
-        let descriptor = UIFontDescriptor(fontAttributes: attributes)
+        let descriptor = StoryFontDescriptor(fontAttributes: attributes)
 
-        return UIFont(descriptor: descriptor, size: pointSize)
+        // TODO: handle diff between macOS & iOS
+        return StoryFont(descriptor: descriptor, size: pointSize) ?? StoryFont.getSystemFont(size: pointSize, weight: weight)
     }
 
     private static var fontsRegistered: Bool = false
@@ -56,30 +61,30 @@ extension UIFont {
         fontsRegistered = true
     }
     
-    static func regular(ofSize size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
+    static func regular(ofSize size: CGFloat, weight: StoryFont.Weight? = nil) -> StoryFont {
         getFont(name: "Inter-Regular", size: size, weight: weight)
     }
-    static func semibold(ofSize size: CGFloat) -> UIFont {
+    static func semibold(ofSize size: CGFloat) -> StoryFont {
         getFont(name: "Inter-SemiBold", size: size)
     }
-    static func bold(ofSize size: CGFloat) -> UIFont {
+    static func bold(ofSize size: CGFloat) -> StoryFont {
         getFont(name: "Inter-Bold", size: size)
     }
-    static func medium(ofSize size: CGFloat) -> UIFont {
+    static func medium(ofSize size: CGFloat) -> StoryFont {
         getFont(name: "Inter-Medium", size: size)
     }
     
-    static func regular(fontFamily: String, ofSize size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
+    static func regular(fontFamily: String, ofSize size: CGFloat, weight: StoryFont.Weight? = nil) -> StoryFont {
         getFont(name: fontFamily, size: size, weight: weight)
     }
     
-    static func font(family: String, ofSize size: CGFloat, weight: UIFont.Weight? = nil) -> UIFont {
+    static func font(family: String, ofSize size: CGFloat, weight: StoryFont.Weight? = nil) -> StoryFont {
         return getFont(name: family, size: size, weight: weight)
     }
     
     // TODO: After all replace using of font method to improvedFont method
-    static func improvedFont(family: String, ofSize size: CGFloat, weight: Double? = nil) -> UIFont {
-        let fontWeight: UIFont.Weight
+    static func improvedFont(family: String, ofSize size: CGFloat, weight: Double? = nil) -> StoryFont {
+        let fontWeight: StoryFont.Weight
         if let weight = weight {
             switch weight {
             case 400:

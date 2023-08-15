@@ -5,7 +5,11 @@
 //  Created by Aleksei Cherepanov on 13.05.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 import Combine
 
 open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
@@ -97,20 +101,32 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     
     open func setupCell(_ cell: SRGroupsCollectionCell, index: Int) {
         guard let group = group(with: index) else { return }
+        
+#if os(iOS)
         cell.isPresented = presentedStories[group.id] ?? false
         cell.setupStyle(cellConfig)
-        cell.title = group.title
-        guard let url = group.imageUrl else { return }
+        
+        //cell.title = group.title
+        guard let url = group.imageUrl else {
+            cell.title = group.title
+            return
+        }
+        
         cell.cancelable = storySdk.imageLoader.load(
             url,
             size: groupsStyle.iconSize,
             scale: cell.contentsScale
         ) { [weak self, weak cell] result in
+
+            cell?.title = group.title
             switch result {
-            case .success(let image): cell?.image = image
-            case .failure(let error): self?.onErrorReceived?(error)
+            case .success(let image):
+                cell?.image = image
+            case .failure(let error):
+                self?.onErrorReceived?(error)
             }
         }
+#endif
     }
     
     public func group(with index: Int) -> SRStoryGroup? {

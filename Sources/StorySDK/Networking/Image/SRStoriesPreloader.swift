@@ -5,7 +5,11 @@
 //  Created by Ingvarr Alef on 07.07.2023.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 public class SRStoriesPreloader {
     let storySdk: StorySDK
@@ -62,8 +66,8 @@ public class SRStoriesPreloader {
     }
     
     private func load(urls: [URL], otherUrls: [URL], completion: @escaping (Bool) -> Void) {
-        let size = UIScreen.main.bounds.size
-        let scale = UIScreen.main.scale
+        let size = StoryScreen.screenBounds.size
+        let scale = StoryScreen.screenScale
         
         guard urls.count > 0 else {
             completion(true)
@@ -100,8 +104,8 @@ public class SRStoriesPreloader {
     }
     
     private func additionalLoad(urls: [URL], completion: @escaping (Bool) -> Void) {
-        let size = UIScreen.main.bounds.size
-        let scale = UIScreen.main.scale
+        let size = StoryScreen.screenBounds.size
+        let scale = StoryScreen.screenScale
         
         for itemUrl in urls {
             storySdk.imageLoader.load(

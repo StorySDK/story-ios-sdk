@@ -5,7 +5,11 @@
 //  Created by MeadowsPhone Team on 09.04.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 public struct SRAppGroupView: Codable {
     public var ios: SRAppGroupViewSettings

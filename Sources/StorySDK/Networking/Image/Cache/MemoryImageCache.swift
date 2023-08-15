@@ -5,10 +5,14 @@
 //  Created by Aleksei Cherepanov on 13.05.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 final class MemoryImageCache: ImageCache {
-    let cache = NSCache<NSString, UIImage>()
+    let cache = NSCache<NSString, StoryImage>()
     
     /// NSCache based image cache
     /// - Parameter limit: Cache size limit in Mb. 125 Mb by default
@@ -19,10 +23,10 @@ final class MemoryImageCache: ImageCache {
     func hasImage(_ key: String) -> Bool {
         cache.object(forKey: .init(string: key)) != nil
     }
-    func loadImage(_ key: String) -> UIImage? {
+    func loadImage(_ key: String) -> StoryImage? {
         cache.object(forKey: .init(string: key))
     }
-    func saveImage(_ key: String, image: UIImage) {
+    func saveImage(_ key: String, image: StoryImage) {
         cache.setObject(image, forKey: .init(string: key), cost: image.cacheCost)
     }
     func removeImage(_ key: String) {
@@ -33,9 +37,9 @@ final class MemoryImageCache: ImageCache {
     }
 }
 
-private extension UIImage {
+private extension StoryImage {
     var cacheCost: Int {
-        if let data = pngData() { return data.count }
+        if let data = pngImageData() { return data.count }
         // Aproximate size
         return Int(size.width * size.height * 4)
     }

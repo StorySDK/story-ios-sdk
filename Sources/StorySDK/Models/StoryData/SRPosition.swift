@@ -16,8 +16,10 @@ public struct SRPosition: Decodable {
     public var realHeight: Double
     public var rotate: Double
     
+    public var origin: SROrigin
+    
     enum CodingKeys: String, CodingKey {
-        case x, y, width, height, realWidth, realHeight, rotate
+        case x, y, width, height, realWidth, realHeight, rotate, origin
     }
     
     public init(from decoder: Decoder) throws {
@@ -30,5 +32,7 @@ public struct SRPosition: Decodable {
         realWidth = try container.decode(Double.self, forKey: .realWidth)
         realHeight = try container.decode(Double.self, forKey: .realHeight)
         rotate = try container.decode(Double.self, forKey: .rotate)
+        
+        origin = try container.decode(SROrigin.self, forKey: .origin)
     }
 }

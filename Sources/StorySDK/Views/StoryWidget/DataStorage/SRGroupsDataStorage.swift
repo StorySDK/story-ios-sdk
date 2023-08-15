@@ -5,7 +5,33 @@
 //  Created by Aleksei Cherepanov on 13.05.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+
+    public protocol SRGroupsCollectionCell { //: UICollectionViewCell {
+        var title: String? { get set }
+        var image: StoryImage? { get set }
+        var isPresented: Bool { get set }
+        var cancelable: Cancellable? { get set }
+        var contentsScale: CGFloat { get }
+        func setupStyle(_ style: SRCollectionCellStyle)
+    //
+        func makeSkeletonCell()
+        }
+#elseif os(iOS)
+    import UIKit
+
+    public protocol SRGroupsCollectionCell: UICollectionViewCell {
+        var title: String? { get set }
+        var image: StoryImage? { get set }
+        var isPresented: Bool { get set }
+        var cancelable: Cancellable? { get set }
+        var contentsScale: CGFloat { get }
+        func setupStyle(_ style: SRCollectionCellStyle)
+        
+        func makeSkeletonCell()
+    }
+#endif
 import Combine
 
 public protocol SRGroupsDataStorage: AnyObject {
@@ -39,19 +65,8 @@ public protocol SRGroupsDataStorage: AnyObject {
     func reload()
 }
 
-public protocol SRGroupsCollectionCell: UICollectionViewCell {
-    var title: String? { get set }
-    var image: UIImage? { get set }
-    var isPresented: Bool { get set }
-    var cancelable: Cancellable? { get set }
-    var contentsScale: CGFloat { get }
-    func setupStyle(_ style: SRCollectionCellStyle)
-    
-    func makeSkeletonCell()
-}
-
 extension SRGroupsCollectionCell {
-    var contentsScale: CGFloat { UIScreen.main.scale }
+    var contentsScale: CGFloat { StoryScreen.screenScale }
 }
 
 public protocol SRGroupsLayout: AnyObject {

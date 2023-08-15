@@ -6,7 +6,11 @@
 //
 
 import Foundation
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 import Combine
 
 final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
@@ -30,7 +34,9 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     }
     private(set) var group: SRStoryGroup?
     weak var progress: SRProgressController? {
-        didSet { progress?.activeColor = configuration.progressColor }
+        didSet {
+            progress?.activeColor = configuration.progressColor
+        }
     }
     weak var analytics: SRAnalyticsController?
     weak var widgetResponder: SRWidgetResponder?
@@ -45,11 +51,11 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         self.groupInfo = .init(isHidden: !sdk.configuration.needShowTitle)
     }
     
-    func loadStories(group: SRStoryGroup) {
+    func loadStories(group: SRStoryGroup, asOnboading: Bool = false) {
         self.group = group
-        groupInfo.title = group.title
-        groupInfo.isProhibitToClose = group.settings?.isProhibitToClose ?? false
-        groupInfo.isProgressHidden = group.settings?.isProgressHidden ?? false
+        //groupInfo.title = group.title
+        groupInfo.isProhibitToClose = group.settings?.isProhibitToClose ?? asOnboading
+        groupInfo.isProgressHidden = group.settings?.isProgressHidden ?? asOnboading
         
         if let url = group.imageUrl {
             let height = SRGroupHeaderView.Size.image
@@ -58,6 +64,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
                 size: CGSize(width: height, height: height)
             ) { [weak self] result in
                 guard case .success(let image) = result else { return }
+                
                 self?.groupInfo.icon = image
             }
         }
@@ -65,9 +72,18 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             switch result {
             case .success(let stories):
                 self?.preloader = SRStoriesPreloader(stories: stories)
-                self?.preloader?.preload()
+                let flag = self?.preloader?.isPreloadRequired() ?? false
+                self?.groupInfo.storiesCount = stories.count
                 
-                self?.updateStories(stories)
+                if flag {
+                    self?.preloader?.preload() { result in
+                        self?.groupInfo.title = group.title
+                        self?.updateStories(stories)
+                    }
+                } else {
+                    self?.groupInfo.title = group.title
+                    self?.updateStories(stories)
+                }
             case .failure(let error):
                 self?.onErrorReceived?(error)
                 self?.onGotEmptyGroup?()
@@ -118,11 +134,13 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             (view as? SRInteractiveWidgetView)?.delegate = widgetResponder
             switch view {
             case let swipeUp as SRSwipeUpView:
+#if os(iOS)
                 let gesture = SRSwipeUpGestureRecognizer(
                     widget: swipeUp.swipeUpWidget,
                     target: gestureRecognizer
                 )
                 swipeUp.addGestureRecognizer(gesture)
+#endif
             case let talkAbout as SRTalkAboutView:
                 talkAbout.addTapGesture()
             default:
@@ -133,7 +151,9 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         }
         let id = story.id
         cell.isLoading = true
-        group.notify(queue: .main) { [weak progress, weak cell] in
+        
+        
+        group.notify(queue: .main) { [weak progress, weak cell, weak self] in
             progress?.isLoading[id] = true
             cell?.isLoading = false
         }
@@ -154,23 +174,26 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         index < stories.count ? stories[index].id : nil
     }
     
-    private func setupBackground(_ cell: SRStoryCell, background: BRColor, completion: @escaping () -> Void) {
+    private func setupBackground(_ cell: SRStoryCell?, background: BRColor, completion: (() -> Void)? = nil) {
+        
+        guard let cell = cell else { return }
+        
         switch background {
         case .color(let color, let isFilled):
             onFilled?(isFilled)
             cell.backgroundColors = [color, color]
-            completion()
+            completion?()
         case .gradient(let array, let isFilled):
             onFilled?(isFilled)
             cell.backgroundColors = array
-            completion()
+            completion?()
         case .image(let url, let isFilled):
             onFilled?(isFilled)
-            let size = UIScreen.main.bounds.size
-            let scale = UIScreen.main.scale
+            let size = StoryScreen.screenBounds.size
+            let scale = StoryScreen.screenScale
             storySdk.imageLoader
-                .load(url, size: size, scale: scale, contentMode: .scaleAspectFill) { [weak cell, weak self] result in
-                    defer { completion() }
+                .load(url, size: size, scale: scale, contentMode: StoryViewContentMode.scaleAspectFill) { [weak cell, weak self] result in
+                    defer { completion?() }
                     switch result {
                     case .success(let image): cell?.backgroundImage = image
                     case .failure(let error): self?.onErrorReceived?(error)

@@ -5,86 +5,136 @@
 //  Created by Aleksei Cherepanov on 19.05.2022.
 //
 
-import UIKit
-
 struct WidgetLayout {
     var size: CGSize
     var position: CGPoint
 }
 
-final class SRStoryCanvasView: UIView {
-    private let containerView: UIView = {
-        let v = UIView()
-        v.translatesAutoresizingMaskIntoConstraints = false
-        v.backgroundColor = .clear
-        return v
-    }()
-    private var topOffset: NSLayoutConstraint!
-    private var layoutRects: [SRWidgetView: CGRect] = [:]
-    
-    var keyboardHeight: CGFloat = 0
-    var needShowTitle: Bool = false {
-        didSet { topOffset.constant = needShowTitle ? 64 : 0 }
-    }
-    
-    init(needShowTitle: Bool = false) {
-        self.needShowTitle = needShowTitle
-        super.init(frame: .zero)
-        setupLayout()
-    }
+#if os(macOS)
+    import Cocoa
 
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    func appendWidget(_ widget: SRWidgetView, position: CGRect) {
-        containerView.addSubview(widget)
-        layoutRects[widget] = position
-    }
-    
-    func cleanCanvas() {
-        containerView.subviews.forEach { $0.removeFromSuperview() }
-        layoutRects = [:]
-    }
-    
-    func startConfetti() {
-        let v = ConfettiView(frame: bounds)
-        addSubview(v)
-        v.startConfetti()
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(3)) {
-            v.stopConfetti()
-            v.removeFromSuperview()
+    final class SRStoryCanvasView: StoryView {
+        
+        init(needShowTitle: Bool = false) {
+            super.init(frame: .zero)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        func startConfetti() {
+            
+        }
+        
+        func didWidgetLoad(_ widget: SRInteractiveWidgetView) {
+            
         }
     }
-    
-    private func setupLayout() {
-        addSubview(containerView)
-        topOffset = containerView.topAnchor.constraint(equalTo: topAnchor)
-        NSLayoutConstraint.activate([
-            topOffset,
-            containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            containerView.rightAnchor.constraint(equalTo: rightAnchor),
-            containerView.leftAnchor.constraint(equalTo: leftAnchor),
-        ])
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        let frame = containerView.bounds
-        for (view, rect) in layoutRects {
-            let transform = view.transform
-            view.transform = .identity
-            var size = CGSize(
-                width: frame.width * rect.width,
-                height: frame.height * rect.height
-            )
-            size = view.sizeThatFits(size)
-            let origin = CGPoint(
-                x: frame.width * rect.origin.x,
-                y: frame.height * rect.origin.y
-            )
-            view.frame = .init(origin: origin, size: size)
-            view.transform = transform
+#elseif os(iOS)
+    import UIKit
+
+    final class SRStoryCanvasView: StoryView {
+        private let containerView: UIView = {
+            let v = UIView()
+            v.translatesAutoresizingMaskIntoConstraints = false
+            v.backgroundColor = .clear
+            return v
+        }()
+        private var topOffset: NSLayoutConstraint!
+        private var layoutRects: [SRWidgetView: CGRect] = [:]
+        private var loadingWidgets: [SRWidgetView: Bool] = [:]
+        
+        var keyboardHeight: CGFloat = 0
+        var needShowTitle: Bool = false {
+            didSet { topOffset.constant = needShowTitle ? 59 : 0 }
+        }
+        
+        var readyToShow: Bool {
+            return loadingWidgets.allSatisfy {$0.value == true}
+        }
+        var timer: Timer? {
+            didSet {
+                oldValue?.invalidate()
+                timer?.fire()
+            }
+        }
+        
+        init(needShowTitle: Bool = false) {
+            self.needShowTitle = needShowTitle
+            super.init(frame: .zero)
+            setupLayout()
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        func appendWidget(_ widget: SRWidgetView, position: CGRect) {
+            containerView.addSubview(widget)
+            loadingWidgets[widget] = widget.loaded
+            layoutRects[widget] = position
+        }
+        
+        func cleanCanvas() {
+            containerView.subviews.forEach { $0.removeFromSuperview() }
+            layoutRects = [:]
+        }
+        
+        func startConfetti() {
+            let v = ConfettiView(frame: bounds)
+            addSubview(v)
+            v.startConfetti()
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(3)) {
+                v.stopConfetti()
+                v.removeFromSuperview()
+            }
+        }
+        
+        func didWidgetLoad(_ widget: SRInteractiveWidgetView) {
+            loadingWidgets[widget] = true
+            
+            setNeedsLayout()
+            layoutIfNeeded()
+        }
+        
+        private func setupLayout() {
+            addSubview(containerView)
+            topOffset = containerView.topAnchor.constraint(equalTo: topAnchor)
+            NSLayoutConstraint.activate([
+                topOffset,
+                containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                containerView.rightAnchor.constraint(equalTo: rightAnchor),
+                containerView.leftAnchor.constraint(equalTo: leftAnchor),
+            ])
+        }
+        
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            let t = 0.0//safeAreaInsets.top + safeAreaInsets.bottom
+            let frame = CGRect(origin: .zero,
+                               size: CGSize(width: containerView.bounds.width,
+                                            height: containerView.bounds.height - t))
+            
+            
+            //containerView.bounds //CGRect(origin: .zero, size: CGSize(width: 430, height: 780)) //containerView.bounds
+            if readyToShow {
+                for (view, rect) in layoutRects {
+                    let transform = view.transform
+                    view.transform = .identity
+                    var size = CGSize(
+                        width: frame.width * rect.width,
+                        height: frame.height * rect.height
+                    )
+                    size = view.sizeThatFits(size)
+                    let origin = CGPoint(
+                        x: frame.width * rect.origin.x,
+                        y: frame.height * rect.origin.y
+                    )
+                    view.frame = .init(origin: origin, size: size)
+                    view.transform = transform
+                }
+            }
         }
     }
-}
+#endif

@@ -68,6 +68,10 @@ final class SRStoriesViewModel {
         get { widgetResponder.onMethodCall }
         set { widgetResponder.onMethodCall = newValue }
     }
+    var onStoriesClosed: (() -> Void)? {
+        get { widgetResponder.onStoriesClosed }
+        set { widgetResponder.onStoriesClosed = newValue }
+    }
     var presentTalkAbout: ((SRTalkAboutViewController) -> Void)? {
         get { widgetResponder.presentTalkAbout }
         set { widgetResponder.presentTalkAbout = newValue }
@@ -81,8 +85,8 @@ final class SRStoriesViewModel {
         set { gestureRecognizer.resignFirstResponder = newValue }
     }
     
-    func loadStories(group: SRStoryGroup) {
-        dataStorage.loadStories(group: group)
+    func loadStories(group: SRStoryGroup, asOnboading: Bool = false) {
+        dataStorage.loadStories(group: group, asOnboading: asOnboading)
     }
     
     func setupCell(_ cell: SRStoryCell, index: Int) {

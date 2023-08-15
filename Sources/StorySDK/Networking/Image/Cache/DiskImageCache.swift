@@ -1,12 +1,16 @@
 //
-//  File.swift
-//  
+//  DiskImageCache.swift
+//  StorySDK
 //
 //  Created by Aleksei Cherepanov on 19.05.2022.
 //
 
 import Foundation
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 final class DiskImageCache: ImageCache {
     private let rootDir: URL = FileManager.default.temporaryDirectory.appendingPathComponent(packageBundleId, isDirectory: true)
@@ -23,22 +27,22 @@ final class DiskImageCache: ImageCache {
         return FileManager.default.fileExists(atPath: url.path)
     }
     
-    func loadImage(_ key: String) -> UIImage? {
+    func loadImage(_ key: String) -> StoryImage? {
         guard let url = fileUrl(key) else { return nil }
         do {
             let data = try Data(contentsOf: url)
-            return UIImage(data: data)
+            return StoryImage(data: data)
         } catch {
             logger.error(error.localizedDescription, logger: .imageCache)
             return nil
         }
     }
     
-    func saveImage(_ key: String, image: UIImage) {
+    func saveImage(_ key: String, image: StoryImage) {
         guard let url = fileUrl(key) else { return }
         queue.async { [logger] in
             do {
-                try image.pngData()?.write(to: url)
+                try image.pngImageData()?.write(to: url)
             } catch {
                 logger.error(error.localizedDescription, logger: .imageCache)
             }

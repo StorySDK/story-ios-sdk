@@ -6,7 +6,11 @@
 //
 
 import AVFoundation
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 final class NetworkManager {
     private let configuration: URLSessionConfiguration = {
@@ -149,9 +153,22 @@ extension NetworkManager {
         }.resume()
     }
     
-    private static func decode<T>(_ type: T.Type, from data: Data?, response: URLResponse?, error: Error?) throws -> T where T: Decodable {
+    //private
+    public static func decode<T>(_ type: T.Type, from data: Data?, response: URLResponse?, error: Error?) throws -> T where T: Decodable {
         if let error = error { throw error }
-        guard let data = data, let statusCode = (response as? HTTPURLResponse)?.statusCode else {
+        
+        let statusCode: Int
+        if let response = response {
+            guard let code = (response as? HTTPURLResponse)?.statusCode else {
+                throw SRError.emptyResponse
+            }
+            statusCode = code
+        } else {
+            statusCode = 200
+        }
+        
+        
+        guard let data = data else {
             throw SRError.emptyResponse
         }
         let object = try JSONDecoder.storySdk.decode(SKResponse<T>.self, from: data)

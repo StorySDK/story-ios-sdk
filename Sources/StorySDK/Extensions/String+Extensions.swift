@@ -5,10 +5,15 @@
 //  Created by MeadowsPhone Team on 08.02.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 extension String {
-    func imageFromEmoji(fontSize: CGFloat = 34) -> UIImage? {
+#if os(iOS)
+    func imageFromEmoji(fontSize: CGFloat = 34) -> StoryImage? {
         let font = UIFont.systemFont(ofSize: fontSize)
         let attributes = [NSAttributedString.Key.font: font]
         let string = NSAttributedString(string: self, attributes: attributes)
@@ -18,6 +23,7 @@ extension String {
             string.draw(in: .init(origin: .zero, size: imageSize))
         }
     }
+#endif
     
     func toHexEncodedString(uppercase: Bool = true, prefix: String = "", separator: String = "") -> String {
         return unicodeScalars.map { prefix + .init($0.value, radix: 16, uppercase: uppercase) } .joined(separator: separator)

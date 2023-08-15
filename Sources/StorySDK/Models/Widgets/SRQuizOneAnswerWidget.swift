@@ -5,7 +5,11 @@
 //  Created by Igor Efremov on 04.05.2023.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 public struct SRQuizOneAnswerWidget: Decodable {
     public var title: String

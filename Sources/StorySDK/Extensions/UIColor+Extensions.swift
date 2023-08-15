@@ -5,11 +5,14 @@
 //  Created by MeadowsPhone Team on 06.02.2022.
 //
 
-#if os(iOS)
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
-extension UIColor {
-    static func parse(rawValue: String) -> UIColor? {
+extension StoryColor {
+    static func parse(rawValue: String) -> StoryColor? {
         if rawValue.hasPrefix("#") {
             return .parseHex(rawValue)
         } else if rawValue.hasPrefix("rgba") {
@@ -21,7 +24,7 @@ extension UIColor {
         }
     }
     
-    static func parseHex(_ string: String) -> UIColor? {
+    static func parseHex(_ string: String) -> StoryColor? {
         let array = Array(string)
         let parts: [CGFloat] = stride(from: 1, to: array.count - 1, by: 2)
             .compactMap { i -> CGFloat? in
@@ -32,7 +35,7 @@ extension UIColor {
         return parseParts(parts)
     }
     
-    static func parseRgba(_ string: String) -> UIColor? {
+    static func parseRgba(_ string: String) -> StoryColor? {
         var string = string
         string = "\(string.dropFirst(5).dropLast(1))"
         var parts: [CGFloat] = string.split(separator: ",")
@@ -46,7 +49,7 @@ extension UIColor {
         return parseParts(parts)
     }
     
-    static func parseRgb(_ string: String) -> UIColor? {
+    static func parseRgb(_ string: String) -> StoryColor? {
         var string = string
         string = "\(string.dropFirst(4).dropLast(1))"
         let parts: [CGFloat] = string.split(separator: ",")
@@ -58,7 +61,15 @@ extension UIColor {
         return parseParts(parts)
     }
     
-    static func parseParts(_ parts: [CGFloat]) -> UIColor? {
+    static func rgb(_ value: Int) -> StoryColor {
+        let red: CGFloat = CGFloat((value & 0xff0000) >> 16)
+        let green: CGFloat = CGFloat((value & 0x00ff00) >> 8)
+        let blue: CGFloat = CGFloat(value & 0x0000ff)
+
+        return StoryColor(red: red / 255.0, green: green / 255.0, blue: blue / 255.0, alpha: 1.0)
+    }
+    
+    static func parseParts(_ parts: [CGFloat]) -> StoryColor? {
         guard parts.count >= 3 else { return nil }
         return .init(
             red: parts[0] / 0xff,
@@ -68,5 +79,3 @@ extension UIColor {
         )
     }
 }
-
-#endif

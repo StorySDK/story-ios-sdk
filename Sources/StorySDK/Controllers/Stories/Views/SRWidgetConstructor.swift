@@ -5,7 +5,11 @@
 //  Created by Aleksei Cherepanov on 20.05.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 final class SRWidgetConstructor {
     static func makeWidget(_ widget: SRWidget, story: SRStory, sdk: StorySDK) -> SRWidgetView {
@@ -19,7 +23,27 @@ final class SRWidgetConstructor {
         let logger = sdk.logger
         switch content {
         case .rectangle(let rectangleWidget):
+//            switch rectangleWidget.fillColor {
+//            case .image(let url, let isFilled) {
+//                //content = newContent
+//                imageUrl = url
+//            }
+//            default:
+//                break
+//            }
+            if case .image(let url, let _) = rectangleWidget.fillColor {
+                imageUrl = url
+            }
+            
+            if case .video(let url, let _) = rectangleWidget.fillColor {
+                imageUrl = url
+            }
+            
             return SRRectangleView(story: story, data: widget, rectangleWidget: rectangleWidget, imageUrl: imageUrl, loader: loader, logger: logger)
+        case .imageWidget(let imgWidget):
+            imageUrl = imgWidget.imageUrl
+            
+            return SRImageWidgetView(story: story, data: widget, url: imageUrl, loader: loader, logger: logger)
         case .ellipse(let ellipseWidget):
             return SREllipseView(story: story, data: widget, ellipseWidget: ellipseWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .emoji(let emojiWidget):
@@ -58,17 +82,36 @@ final class SRWidgetConstructor {
     }
     
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
-        let defaultStorySize = CGSize.defaultStory
-        let position = widget.position
-        let x = position.x
+        let defaultStorySize = CGSize.largeStory
+        
+        let screenWidth = StoryScreen.screenBounds.width * StoryScreen.screenNativeScale
+        let screenHeight = defaultStorySize.height
+        
+        var xOffset = (screenWidth - defaultStorySize.width) / 2
+        xOffset = max(xOffset, 0.0)
+        
+        let position = widget.position//.origin
+        var x = position.x + xOffset
         let y = position.y
-        let width = position.realWidth
-        let height = position.realHeight
+        let width = position.width//position.realWidth
+        let height = widget.position.realHeight //realHeight
+        
+        let scaleW = screenWidth / defaultStorySize.width
+        let scaleH = screenHeight / defaultStorySize.height
+        
+        var originalRemainder = defaultStorySize.width - (position.x + width)
+        if fabs(position.x - originalRemainder) < 5 {
+            let center = true
+            
+            x = (screenWidth - width * scaleW) / 2
+        }
+        
+        //var remainder = screenWidth - (x + width * scale)
         return CGRect(
-            x: x / defaultStorySize.width,
-            y: y / defaultStorySize.height,
-            width: width / defaultStorySize.width,
-            height: height / defaultStorySize.width
+            x: x / /*defaultStorySize.width,*/screenWidth,
+            y: y / /*defaultStorySize.height*/screenHeight,
+            width: (width * scaleW) / screenWidth /*defaultStorySize.width*/ /*screenWidth*/,
+            height: (height * scaleH) / screenHeight/*defaultStorySize.width*/ /*defaultStorySize.height*/
         )
     }
 }

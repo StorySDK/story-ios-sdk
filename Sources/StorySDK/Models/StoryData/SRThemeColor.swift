@@ -5,7 +5,11 @@
 //  Created by Aleksei Cherepanov on 23.05.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 public enum SRThemeColor: Decodable {
     case purple, blue, darkBlue, white, green, orange, orangeRed, yellow
@@ -30,30 +34,30 @@ public enum SRThemeColor: Decodable {
         }
     }
     
-    public var color: UIColor {
+    public var color: StoryColor {
         switch self {
-        case .purple: // #ae13ab
-            return UIColor(red: 0.68, green: 0.07, blue: 0.67, alpha: 1.00)
-        case .blue: // #00b2ff
-            return UIColor(red: 0.00, green: 0.70, blue: 1.00, alpha: 1.00)
-        case .darkBlue: // #366efe
-            return UIColor(red: 0.21, green: 0.43, blue: 1.00, alpha: 1.00)
-        case .white: // #ffffff
-            return UIColor(red: 1.00, green: 1.00, blue: 1.00, alpha: 1.00)
-        case .green: // #44d937
-            return UIColor(red: 0.27, green: 0.85, blue: 0.22, alpha: 1.00)
-        case .orange: // #ffa93d
-            return UIColor(red: 1.00, green: 0.66, blue: 0.24, alpha: 1.00)
-        case .orangeRed: // #ff4c25
-            return UIColor(red: 1.00, green: 0.30, blue: 0.15, alpha: 1.00)
-        case .yellow: // #f3cc00
-            return UIColor(red: 0.95, green: 0.80, blue: 0.00, alpha: 1.00)
-        case .black: // #05051d
-            return UIColor(red: 0.02, green: 0.02, blue: 0.11, alpha: 1.00)
-        case .red: // #d62727
-            return UIColor(red: 0.84, green: 0.15, blue: 0.15, alpha: 1.00)
-        case .grey: // #dddbde
-            return UIColor(red: 0.87, green: 0.86, blue: 0.87, alpha: 1.00)
+        case .purple:
+            return StoryColor.rgb(0xae13ab)
+        case .blue:
+            return StoryColor.rgb(0x00b2ff)
+        case .darkBlue:
+            return StoryColor.rgb(0x366efe)
+        case .white:
+            return StoryColor.rgb(0xffffff)
+        case .green:
+            return StoryColor.rgb(0x44d937)
+        case .orange:
+            return StoryColor.rgb(0xffa93d)
+        case .orangeRed:
+            return StoryColor.rgb(0xff4c25)
+        case .yellow:
+            return StoryColor.rgb(0xf3cc00)
+        case .black:
+            return StoryColor.rgb(0x05051d)
+        case .red:
+            return StoryColor.rgb(0xd62727)
+        case .grey:
+            return StoryColor.rgb(0xdddbde)
         case .custom:
             return .white
         }
@@ -61,11 +65,11 @@ public enum SRThemeColor: Decodable {
     
     public var cgColor: CGColor { color.cgColor }
     
-    public var gradient: [UIColor] {
+    public var gradient: [StoryColor] {
         switch self {
         case .purple:
-            let from = UIColor(red: 0.68, green: 0.07, blue: 0.67, alpha: 1.00)
-            let to = UIColor(red: 0.54, green: 0.05, blue: 0.92, alpha: 1.00)
+            let from = StoryColor.rgb(0xae13ab)
+            let to = StoryColor(red: 0.54, green: 0.05, blue: 0.92, alpha: 1.00)
             return [from, to]
         default:
             let color = self.color

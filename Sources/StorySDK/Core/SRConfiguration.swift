@@ -5,7 +5,11 @@
 //  Created by Aleksei Cherepanov on 12.05.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 public struct SRConfiguration {
     public var language = "en"
@@ -17,7 +21,7 @@ public struct SRConfiguration {
     /// Show title for stories
     public var needShowTitle: Bool
     /// Filled story progress color
-    public var progressColor: UIColor
+    public var progressColor: StoryColor
     
     public var onboardingFilter: Bool
     
@@ -32,8 +36,8 @@ public struct SRConfiguration {
                 sdkAPIUrl: String = "https://api.storysdk.com/sdk/v1/",
                 storyDuration: TimeInterval = 6.0,
                 needShowTitle: Bool = false,
-                progressColor: UIColor = .init(white: 1, alpha: 1),
-                onboardingFilter: Bool = true
+                progressColor: StoryColor = .init(white: 1, alpha: 1),
+                onboardingFilter: Bool = false
     ) {
         self.language = language
         self.sdkId = sdkId

@@ -5,7 +5,11 @@
 //  Created by Aleksei Cherepanov on 25.05.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 protocol SRWidgetLoadDelegate: AnyObject {
     func didWidgetLoad(_ widget: SRInteractiveWidgetView)

@@ -7,7 +7,11 @@
 
 import Foundation
 import Combine
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 protocol SRStoriesDataStorage: AnyObject {
     /// Current Story group
@@ -33,7 +37,7 @@ protocol SRStoriesDataStorage: AnyObject {
     /// Updates header view
     var onUpdateHeader: ((HeaderInfo) -> Void)? { get set }
     /// Load stories for the group
-    func loadStories(group: SRStoryGroup)
+    func loadStories(group: SRStoryGroup, asOnboading: Bool)
     /// Configures cell with a story with index
     func setupCell(_ cell: SRStoryCell, index: Int)
     /// Prepare cell for displaying
@@ -49,8 +53,8 @@ protocol SRStoriesDataStorage: AnyObject {
 }
 
 protocol SRStoryCell: AnyObject {
-    var backgroundColors: [UIColor]? { get set }
-    var backgroundImage: UIImage? { get set }
+    var backgroundColors: [StoryColor]? { get set }
+    var backgroundImage: StoryImage? { get set }
     var cancellables: Set<AnyCancellable> { get set }
     var needShowTitle: Bool { get set }
     var isLoading: Bool { get set }
@@ -62,7 +66,7 @@ protocol SRStoryCell: AnyObject {
 protocol SRProgressComponent: AnyObject {
     var numberOfItems: Int { get set }
     var progress: Float { get set }
-    var activeColor: UIColor { get set }
+    var activeColor: StoryColor { get set }
     var animationDuration: TimeInterval { get set }
 }
 
@@ -74,7 +78,7 @@ protocol SRProgressController: AnyObject {
     /// Number of components
     var numberOfItems: Int { get set }
     /// Progress bar tint color
-    var activeColor: UIColor? { get set }
+    var activeColor: StoryColor? { get set }
     /// It’s used when the progress bar needs to be updated
     var onProgressUpdated: ((Float) -> Void)? { get set }
     /// When we need to scroll to the next story
@@ -120,6 +124,9 @@ protocol SRWidgetResponderStorage: AnyObject {
     var analytics: SRAnalyticsController? { get set }
     /// When external custom widget action should be call
     var onMethodCall: ((String?) -> Void)? { get set }
+    // TODO: Desc
+    var onStoriesClosed: (() -> Void)? { get set }
+    
 }
 
 protocol SRAnalyticsController: AnyObject {
@@ -148,8 +155,9 @@ typealias SRWidgetResponder = SRWidgetResponderStorage & SRInteractiveWidgetDele
 struct HeaderInfo {
     var title: String?
     var duration: String?
-    var icon: UIImage?
+    var icon: StoryImage?
     var isHidden: Bool
     var isProhibitToClose: Bool = false
     var isProgressHidden: Bool = false
+    var storiesCount: Int = 0
 }

@@ -5,9 +5,15 @@
 //  Created by Aleksei Cherepanov on 24.05.2022.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
+    var onStoriesClosed: (() -> Void)?
+    
     let storySdk: StorySDK
     var containerFrame: SRRect = .zero
     var onMethodCall: ((String?) -> Void)?
@@ -25,7 +31,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
     }
     
     // MARK: - SRTalkAboutViewDelegate
-    
+#if os(iOS)
     func needShowKeyboard(_ widget: SRTalkAboutView) {
         widget.endEditing(true)
         let vc = SRTalkAboutViewController(
@@ -46,7 +52,11 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         progress?.pauseAutoscrolling()
         presentTalkAbout?(vc)
     }
-    
+#elseif os(macOS)
+    func needShowKeyboard(_ widget: SRTalkAboutView) {
+        
+    }
+#endif
     // MARK: - ChooseAnswerViewDelegate
     
     func didChooseAnswer(_ widget: ChooseAnswerView, answer: String, score: SRScore?) {
@@ -137,14 +147,17 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
             // TODO: add scroll to partical story by id
             progress?.scrollNext()
         case .link:
-            guard let url = URL(string: clickMeWidget.url) else { return }
-            guard UIApplication.shared.canOpenURL(url) else {
+            guard let url = URL(string: clickMeWidget.url) else {
+                progress?.scrollNext()
+                return
+            }
+            guard StoryWorkspace.shared.canOpen(url) else {
                 onMethodCall?(clickMeWidget.url)
                 return
             }
             
             progress?.pauseAutoscrolling()
-            UIApplication.shared.open(url)
+            StoryWorkspace.shared.open(url)
         }
     }
     
@@ -162,9 +175,9 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         analytics?.sendWidgetReaction(request, widget: widget)
         
         guard let url = URL(string: widget.swipeUpWidget.url) else { return false }
-        guard UIApplication.shared.canOpenURL(url) else { return false }
+        guard StoryWorkspace.shared.canOpen(url) else { return false }
         progress?.pauseAutoscrolling()
-        UIApplication.shared.open(url)
+        StoryWorkspace.shared.open(url)
         return true
     }
     

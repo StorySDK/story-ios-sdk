@@ -5,7 +5,11 @@
 //  Created by Igor Efremov on 09.05.2023.
 //
 
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 
 public struct SRQuizMultipleImageWidget: Decodable {
     public var title: String

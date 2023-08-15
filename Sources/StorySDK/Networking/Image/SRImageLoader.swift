@@ -6,10 +6,14 @@
 //
 
 import Foundation
-import UIKit
+#if os(macOS)
+    import Cocoa
+#elseif os(iOS)
+    import UIKit
+#endif
 import Combine
 
-public typealias SRImageLoaderTask = Task<UIImage, Error>
+public typealias SRImageLoaderTask = Task<StoryImage, Error>
 
 public class SRImageLoader {
     private let cache: DefaultImageCache
@@ -24,8 +28,8 @@ public class SRImageLoader {
     public func load(_ url: URL,
                      size: CGSize,
                      scale: CGFloat = 1,
-                     contentMode: UIView.ContentMode = .scaleAspectFill,
-                     completion: @escaping (Result<UIImage?, Error>) -> Void) -> Cancellable {
+                     contentMode: StoryContentMode = StoryViewContentMode.scaleAspectFill,
+                     completion: @escaping (Result<StoryImage?, Error>) -> Void) -> Cancellable {
         Task {
             do {
                 let image = try await load(url, size: size, scale: scale, contentMode: contentMode)
@@ -39,7 +43,7 @@ public class SRImageLoader {
     public func load(_ url: URL,
                      size: CGSize,
                      scale: CGFloat = 1,
-                     contentMode: UIView.ContentMode = .scaleAspectFill) async throws -> UIImage? {
+                     contentMode: StoryContentMode = StoryViewContentMode.scaleAspectFill) async throws -> StoryImage? {
         let cacheKey = url.absoluteString
         if let image = await cache.loadImage(
             cacheKey,
@@ -53,17 +57,17 @@ public class SRImageLoader {
         
         // try to find local resource in bundle
         if let shaHash = url.absoluteString.data(using: .utf8)?.sha256().hex() {
-            if let path = Bundle.main.path(forResource: shaHash, ofType: "webp") {
-                if let localImage = UIImage(contentsOfFile: path) {
-                    return localImage.scale(to: size, scale: scale, mode: contentMode)
-                }
-            }
+//            if let path = Bundle.main.path(forResource: shaHash, ofType: "mp4") {
+//                if let localImage = StoryImage(contentsOfFile: path) {
+//                    return localImage.scale(to: size, scale: scale, mode: contentMode)
+//                }
+//            }
         }
         
-        let image: UIImage? = try await withCheckedThrowingContinuation { continuation in
+        let image: StoryImage? = try await withCheckedThrowingContinuation { continuation in
             let task = session.dataTask(with: url) { data, response, error in
                 if let data = data {
-                    if let image = UIImage(data: data) {
+                    if let image = StoryImage(data: data) {
                         continuation.resume(returning: image)
                     } else {
                         continuation.resume(returning: nil)

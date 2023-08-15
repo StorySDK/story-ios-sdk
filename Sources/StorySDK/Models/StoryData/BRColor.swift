@@ -1,8 +1,8 @@
 //
-//  SRColor.swift
+//  BRColor.swift
 //  StorySDK
 //
-//  Created by MeadowsPhone Team on 10.04.2022.
+//  Created by Igor Efremov on 11.07.2023.
 //
 
 #if os(macOS)
@@ -11,11 +11,10 @@
     import UIKit
 #endif
 
-public enum SRColor: Decodable {
+public enum BRColor: Decodable {
     case color(StoryColor, Bool)
     case gradient([StoryColor], Bool)
     case image(URL, Bool)
-    case video(URL, Bool)
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -30,7 +29,7 @@ public enum SRColor: Decodable {
             guard let color = StoryColor.parse(rawValue: rawColor) else {
                 throw SRError.unknownColor(rawColor)
             }
-            self = .color(color, isFilled)
+            self = BRColor.color(color, isFilled)
         case "gradient":
             let rawColors = try container.decode([String].self, forKey: .value)
             var colors: [StoryColor] = []
@@ -40,20 +39,17 @@ public enum SRColor: Decodable {
                 }
                 colors.append(color)
             }
-            self = .gradient(colors, isFilled)
+            self = BRColor.gradient(colors, isFilled)
         case "image":
             let url = try container.decode(URL.self, forKey: .value)
-            self = .image(url, isFilled)
-        case "video":
-            let url = try container.decode(URL.self, forKey: .value)
-            self = .video(url, isFilled)
+            self = BRColor.image(url, isFilled)
         default:
             throw SRError.unknownType
         }
     }
 }
 
-extension SRColor {
+extension BRColor {
     enum CodingKeys: String, CodingKey {
         case type, value, isFilled
     }

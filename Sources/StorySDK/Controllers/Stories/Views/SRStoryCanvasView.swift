@@ -111,26 +111,25 @@ struct WidgetLayout {
         
         override func layoutSubviews() {
             super.layoutSubviews()
-            let t = 0.0//safeAreaInsets.top + safeAreaInsets.bottom
             let frame = CGRect(origin: .zero,
                                size: CGSize(width: containerView.bounds.width,
-                                            height: containerView.bounds.height - t))
-            
-            
-            //containerView.bounds //CGRect(origin: .zero, size: CGSize(width: 430, height: 780)) //containerView.bounds
+                                            height: containerView.bounds.height))
             if readyToShow {
                 for (view, rect) in layoutRects {
                     let transform = view.transform
                     view.transform = .identity
                     var size = CGSize(
                         width: frame.width * rect.width,
-                        height: frame.height * rect.height
+                        height: round(frame.height * rect.height)
                     )
                     size = view.sizeThatFits(size)
                     let origin = CGPoint(
                         x: frame.width * rect.origin.x,
-                        y: frame.height * rect.origin.y
+                        y:
+                            frame.height * rect.origin.y < 150 ? frame.height * rect.origin.y + 54.0 * StoryScreen.screenNativeScale :
+                        frame.height * rect.origin.y
                     )
+                    
                     view.frame = .init(origin: origin, size: size)
                     view.transform = transform
                 }

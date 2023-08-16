@@ -85,13 +85,15 @@
         
         override func layoutSubviews() {
             super.layoutSubviews()
-            contentView.layer.cornerRadius = min(clickMeWidget.borderRadius / StoryScreen.screenScale, data.position.realHeight / (2 * StoryScreen.screenScale))
-            
-            headerLabel.frame = contentView.bounds
-            
             if gradientColors.count > 1 && !gradientSetup && contentView.frame.width > .ulpOfOne {
                 contentView.setGradientBackground(top: gradientColors.first ?? bgColor, bottom: gradientColors.last ?? bgColor)
                 gradientSetup = true
+            }
+            
+            if contentView.bounds.width > .ulpOfOne {
+                contentView.layer.cornerRadius = min(clickMeWidget.borderRadius / 2, contentView.bounds.height / 2)
+                
+                headerLabel.frame = contentView.bounds
             }
         }
         

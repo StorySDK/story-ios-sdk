@@ -171,7 +171,9 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     }
     
     func storyId(atIndex index: Int) -> String? {
-        index < stories.count ? stories[index].id : nil
+        guard index >= 0 else { return nil }
+        
+        return index < stories.count ? stories[index].id : nil
     }
     
     private func setupBackground(_ cell: SRStoryCell?, background: BRColor, completion: (() -> Void)? = nil) {

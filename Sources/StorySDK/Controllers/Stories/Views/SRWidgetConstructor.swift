@@ -88,13 +88,21 @@ final class SRWidgetConstructor {
         let screenHeight = defaultStorySize.height
         
         var xOffset = (screenWidth - defaultStorySize.width) / 2
+        
         xOffset = max(xOffset, 0.0)
         
         let position = widget.position//.origin
         var x = position.x + xOffset
         let y = position.y
-        let width = position.width//position.realWidth
-        let height = widget.position.realHeight //realHeight
+        let width: CGFloat = widget.position.origin.width
+        let height: CGFloat
+        
+        switch widget.content {
+        case .imageWidget(_):
+            height = widget.position.origin.height / 3
+        default:
+            height = widget.position.origin.height
+        }
         
         let scaleW = screenWidth / defaultStorySize.width
         let scaleH = screenHeight / defaultStorySize.height
@@ -106,7 +114,6 @@ final class SRWidgetConstructor {
             x = (screenWidth - width * scaleW) / 2
         }
         
-        //var remainder = screenWidth - (x + width * scale)
         return CGRect(
             x: x / /*defaultStorySize.width,*/screenWidth,
             y: y / /*defaultStorySize.height*/screenHeight,

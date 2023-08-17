@@ -57,11 +57,13 @@ public class SRImageLoader {
         
         // try to find local resource in bundle
         if let shaHash = url.absoluteString.data(using: .utf8)?.sha256().hex() {
-//            if let path = Bundle.main.path(forResource: shaHash, ofType: "mp4") {
-//                if let localImage = StoryImage(contentsOfFile: path) {
-//                    return localImage.scale(to: size, scale: scale, mode: contentMode)
-//                }
-//            }
+            if let path = Bundle.main.path(forResource: shaHash, ofType: "webp") {
+                if let localImage = StoryImage(contentsOfFile: path) {
+                    return localImage.scale(to: size, scale: scale, mode: contentMode)
+                }
+            } else {
+                print("cached image not found")
+            }
         }
         
         let image: StoryImage? = try await withCheckedThrowingContinuation { continuation in

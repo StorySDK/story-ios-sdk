@@ -39,20 +39,20 @@ extension StorySDK {
 extension StorySDK {
     public func getGroups(from: String? = nil, to: String? = nil, completion: @escaping (Result<[SRStoryGroup], Error>) -> Void) {
         
-//        if let sdkId = configuration.sdkId {
-//            do {
-//                if let bundlePath = Bundle.main.path(forResource: sdkId + "-groups",
-//                                                     ofType: "json"),
-//                    let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
-//                    let result = try NetworkManager.decode([SRStoryGroup].self, from: jsonData, response: nil, error: nil)
-//                    completion(.success(result))
-//
-//                    return
-//                }
-//            } catch {
-//                print(error)
-//            }
-//        }
+        if let sdkId = configuration.sdkId {
+            do {
+                if let bundlePath = Bundle.main.path(forResource: sdkId + "-groups",
+                                                     ofType: "json"),
+                    let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
+                    let result = try NetworkManager.decode([SRStoryGroup].self, from: jsonData, response: nil, error: nil)
+                    completion(.success(result))
+
+                    return
+                }
+            } catch {
+                print(error)
+            }
+        }
         
         network.getGroups(from: from, to: to, completion: completion)
     }
@@ -66,24 +66,21 @@ extension StorySDK {
 
 extension StorySDK {
     public func getStories(_ group: SRStoryGroup, completion: @escaping (Result<[SRStory], Error>) -> Void) {
-        
-        //let onboarding = "649bc574ca4c393822237865" // TODO: Make as param
-        //let onboarding = "64b5f91040f9916a7d76b311" // TODO: Make as param
-        
-//        if onboarding == group.id {
-//            do {
-//                if let bundlePath = Bundle.main.path(forResource: onboarding,
-//                                                     ofType: "json"),
-//                    let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
-//                    let result = try NetworkManager.decode([SRStory].self, from: jsonData, response: nil, error: nil)
-//                    completion(.success(result))
-//
-//                    return
-//                }
-//            } catch {
-//                print(error)
-//            }
-//        }
+        if let bundlePath = Bundle.main.path(forResource: group.id, ofType: "json") {
+            print("Found cached group")
+            do {
+                if let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
+                    let result = try NetworkManager.decode([SRStory].self, from: jsonData, response: nil, error: nil)
+                    completion(.success(result))
+                    
+                    return
+                }
+            } catch {
+                print(error)
+            }
+        } else {
+            print("Not found")
+        }
         
         network.getStories(groupId: group.id, completion: completion)
     }

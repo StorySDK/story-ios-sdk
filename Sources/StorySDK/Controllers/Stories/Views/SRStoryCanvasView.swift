@@ -126,7 +126,7 @@ struct WidgetLayout {
                     let origin = CGPoint(
                         x: frame.width * rect.origin.x,
                         y:
-                            frame.height * rect.origin.y < 150 ? frame.height * rect.origin.y + 54.0 * StoryScreen.screenNativeScale :
+                            frame.height * rect.origin.y < 162.0 ? frame.height * rect.origin.y + 54.0 * StoryScreen.screenNativeScale :
                         frame.height * rect.origin.y
                     )
                     

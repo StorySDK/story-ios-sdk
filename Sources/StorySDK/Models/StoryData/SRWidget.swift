@@ -11,10 +11,11 @@ public struct SRWidget: Decodable {
     public var id: String
     public var position: SRPosition
     public var positionLimits: SRPositionLimits
+    public var positionByResolutions: SRPositionByResolutions
     public var content: SRWidgetContent
     
     enum CodingKeys: String, CodingKey {
-        case id, position, positionLimits, content
+        case id, position, positionLimits, positionByResolutions, content
     }
     
     public init(from decoder: Decoder) throws {
@@ -23,6 +24,7 @@ public struct SRWidget: Decodable {
         id = try container.decode(String.self, forKey: .id)
         position = try container.decode(SRPosition.self, forKey: .position)
         positionLimits = try container.decode(SRPositionLimits.self, forKey: .positionLimits)
+        positionByResolutions = try container.decode(SRPositionByResolutions.self, forKey: .positionByResolutions)
         content = try container.decode(SRWidgetContent.self, forKey: .content)
     }
 }

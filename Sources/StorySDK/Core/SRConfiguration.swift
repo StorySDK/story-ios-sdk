@@ -31,9 +31,15 @@ public struct SRConfiguration {
     /// Default language choosed for the app
     public private(set) var defaultLanguage: String = "en"
     
+    #if STAGE
+    private static let SDK_API_URL = "https://api.storysdk.com/sdk/v1/"
+    #else
+    private static let SDK_API_URL = "https://api.diffapp.link/sdk/v1/"
+    #endif
+    
     public init(language: String = "en",
                 sdkId: String? = nil,
-                sdkAPIUrl: String = "https://api.storysdk.com/sdk/v1/",
+                sdkAPIUrl: String? = nil,
                 storyDuration: TimeInterval = 6.0,
                 needShowTitle: Bool = false,
                 progressColor: StoryColor = .init(white: 1, alpha: 1),
@@ -41,7 +47,7 @@ public struct SRConfiguration {
     ) {
         self.language = language
         self.sdkId = sdkId
-        self.sdkAPIUrl = sdkAPIUrl
+        self.sdkAPIUrl = sdkAPIUrl ?? SRConfiguration.SDK_API_URL
         self.storyDuration = storyDuration
         self.needShowTitle = needShowTitle
         self.progressColor = progressColor

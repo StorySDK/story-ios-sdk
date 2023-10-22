@@ -91,18 +91,17 @@ final class SRWidgetConstructor {
         
         xOffset = max(xOffset, 0.0)
         
-        let position = widget.position//.origin
-        var x = position.x + xOffset
-        let y = position.y
-        let width: CGFloat = widget.position.origin.width
-        let height: CGFloat
+        guard let position = widget.positionByResolutions.res360x640 else {
+            return CGRect.zero
+        }  //widget.position
         
-        switch widget.content {
-        case .imageWidget(_):
-            height = widget.position.origin.height / 3
-        default:
-            height = widget.position.origin.height
-        }
+        //.origin
+        
+        var x: CGFloat = position.x + xOffset
+        let y: CGFloat = position.y
+        let width: CGFloat = position.origin.width
+        
+        let height = widget.position.origin.height
         
         let scaleW = screenWidth / defaultStorySize.width
         let scaleH = screenHeight / defaultStorySize.height
@@ -125,5 +124,5 @@ final class SRWidgetConstructor {
 
 extension CGSize {
     static let defaultStory = CGSize(width: 1080, height: 1920)
-    static let largeStory = CGSize(width: 1080, height: 2338)
+    static let largeStory = CGSize(width: 360, height: 779)
 }

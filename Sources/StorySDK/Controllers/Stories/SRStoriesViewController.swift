@@ -190,6 +190,12 @@
         }
         
         @objc func close() {
+            if let groupSettings = group.settings {
+                if groupSettings.isProhibitToClose {
+                    return
+                }
+            }
+            
             viewModel.reportGroupClose()
             dismiss(animated: true)
             

@@ -24,7 +24,10 @@ import Combine
     public class SRImageWidgetView: SRInteractiveWidgetView {
         let imageView: UIImageView = {
             let v = UIImageView(frame: .zero)
-            v.contentMode = .scaleAspectFill//.scaleAspectFit
+//            v.layer.borderColor = UIColor.black.cgColor
+//            v.layer.borderWidth = 2.0
+            
+            v.contentMode = .scaleAspectFit  //.scaleAspectFill//.scaleAspectFit
             v.isHidden = true
             v.isUserInteractionEnabled = false
             return v
@@ -54,6 +57,10 @@ import Combine
             
             addSubviews()
             
+            if StorySDK.shared.debugMode {
+                backgroundColor = .magenta
+            }
+            
             if let vUrl = url {
                 if vUrl.pathExtension == "mp4" {
                     playVideo(url: vUrl)
@@ -68,19 +75,59 @@ import Combine
             setUpPlayerContainerView()
             
             playerView = PlayerView()
+            
+            
+            
+            //return
+            
             playerContainerView.addSubview(playerView)
             
-            playerView.translatesAutoresizingMaskIntoConstraints = false
-            playerView.leadingAnchor.constraint(equalTo: playerContainerView.leadingAnchor).isActive = true
-            //playerView.trailingAnchor.constraint(equalTo: playerContainerView.topAnchor).isActive = true
-            playerView.trailingAnchor.constraint(equalTo: playerContainerView.trailingAnchor).isActive = true
-            playerView.heightAnchor.constraint(equalTo: playerContainerView.widthAnchor, multiplier: 16/9).isActive = true
-            playerView.centerYAnchor.constraint(equalTo: playerContainerView.centerYAnchor).isActive = true
+            //playerView.translatesAutoresizingMaskIntoConstraints = false
+            
+            
+            if let videoFrame = data.positionByResolutions.res360x640 {
+//                playerView.heightAnchor.constraint(equalToConstant: videoFrame.realHeight * StoryScreen.screenNativeScale).isActive = true
+//                playerView.widthAnchor.constraint(equalToConstant: videoFrame.realWidth * StoryScreen.screenNativeScale).isActive = true
+                
+//                playerView.frame = CGRect(origin: CGPoint.zero,
+//                                          size: CGSize(width: videoFrame.realWidth * StoryScreen.screenNativeScale,
+//                                                                             height: videoFrame.realHeight * StoryScreen.screenNativeScale))
+                
+                // TODO: Rewrite it !!!
+                let fullWidth = StoryScreen.screenBounds.width
+                let fullHeight = StoryScreen.screenBounds.width
+                
+                let x = (fullWidth - videoFrame.realWidth) / 2
+                
+                playerView.frame = CGRect(origin: CGPoint(x: x, y: 0),
+                                          size: CGSize(width: videoFrame.realWidth,
+                                                                             height: videoFrame.realHeight))
+            }
+            
+//            playerView.frame = CGRect(origin: CGPoint.zero,
+//                                      size: CGSize(width: videoFrame.realWidth,
+//                                                                         height: videoFrame.realHeight))
+            
+//            playerView.topAnchor.constraint(equalTo: playerContainerView.topAnchor).isActive = true
+//            playerView.leadingAnchor.constraint(equalTo: playerContainerView.leadingAnchor).isActive = true
+//            //playerView.trailingAnchor.constraint(equalTo: playerContainerView.topAnchor).isActive = true
+//            playerView.trailingAnchor.constraint(equalTo: playerContainerView.trailingAnchor).isActive = true
+            
+            //playerView.heightAnchor.constraint(equalTo: playerContainerView.heightAnchor).isActive = true
+            //playerView.widthAnchor.constraint(equalTo: playerContainerView.widthAnchor).isActive = true
+            
+//            if let videoFrame = data.positionByResolutions.res360x640 {
+//                playerView.heightAnchor.constraint(equalToConstant: videoFrame.realHeight * StoryScreen.screenNativeScale).isActive = true
+//                playerView.widthAnchor.constraint(equalToConstant: videoFrame.realWidth * StoryScreen.screenNativeScale).isActive = true
+//            }
+            
+            //playerView.heightAnchor.constraint(equalTo: playerContainerView.widthAnchor, multiplier: 16/9).isActive = true
+            //playerView.centerYAnchor.constraint(equalTo: playerContainerView.centerYAnchor).isActive = true
         }
         
         //var playerLooper: AVPlayerLooper?
           
-        func playVideo(url: URL) {
+        private func playVideo(url: URL) {
             //guard let url = URL(string: url) else { return }
             //self?.
             //playerLooper = AVPlayerLooper(player: playerView.player, templateItem: playerView.playerItem!)
@@ -88,17 +135,24 @@ import Combine
         }
         
         private func setUpPlayerContainerView() {
+            //return
+            
             playerContainerView = UIView()
-            playerContainerView.backgroundColor = .clear
+            playerContainerView.backgroundColor = .clear//.green//.clear
             
             addSubview(playerContainerView)
             
             playerContainerView.translatesAutoresizingMaskIntoConstraints = false
             playerContainerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-            playerContainerView.topAnchor.constraint(equalTo: topAnchor, constant: 44).isActive = true
+//            playerContainerView.topAnchor.constraint(equalTo: topAnchor, constant: 44).isActive = true
+            
+            //playerContainerView.topAnchor.constraint(equalTo: topAnchor, constant: 0).isActive = true
+            
             playerContainerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
             //playerContainerView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 1.0).isActive = true
-            playerContainerView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.5).isActive = true
+            
+            //playerContainerView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.5).isActive = true
+            
             playerContainerView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor).isActive = true
         }
         

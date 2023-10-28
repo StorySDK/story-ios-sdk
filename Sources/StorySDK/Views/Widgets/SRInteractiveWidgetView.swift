@@ -22,6 +22,8 @@ public class SRInteractiveWidgetView: SRWidgetView {
     init(story: SRStory, data: SRWidget) {
         self.story = story
         super.init(data: data)
+        
+        //backgroundColor = .blue.withAlphaComponent(0.3)
     }
 }
 

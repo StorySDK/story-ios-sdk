@@ -118,16 +118,23 @@ struct WidgetLayout {
                 for (view, rect) in layoutRects {
                     let transform = view.transform
                     view.transform = .identity
+                    
+                    
+                    var h: CGFloat
+                    if !view.data.positionLimits.isResizableY {
+                        h = view.data.positionByResolutions.res360x640!.realHeight
+                    } else {
+                        h = round(frame.height * rect.height)
+                    }
+                    
                     var size = CGSize(
                         width: frame.width * rect.width,
-                        height: round(frame.height * rect.height)
+                        height: h
                     )
                     size = view.sizeThatFits(size)
                     let origin = CGPoint(
                         x: frame.width * rect.origin.x,
-                        y:
-                            frame.height * rect.origin.y < 162.0 ? frame.height * rect.origin.y + 54.0 * StoryScreen.screenNativeScale :
-                        frame.height * rect.origin.y
+                        y: frame.height * rect.origin.y
                     )
                     
                     view.frame = .init(origin: origin, size: size)

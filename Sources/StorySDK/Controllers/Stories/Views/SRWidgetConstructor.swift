@@ -44,6 +44,10 @@ final class SRWidgetConstructor {
             imageUrl = imgWidget.imageUrl
             
             return SRImageWidgetView(story: story, data: widget, url: imageUrl, loader: loader, logger: logger)
+        case .videoWidget(let imgWidget):
+            imageUrl = imgWidget.videoUrl
+            
+            return SRImageWidgetView(story: story, data: widget, url: imageUrl, loader: loader, logger: logger)
         case .ellipse(let ellipseWidget):
             return SREllipseView(story: story, data: widget, ellipseWidget: ellipseWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .emoji(let emojiWidget):
@@ -82,14 +86,17 @@ final class SRWidgetConstructor {
     }
     
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
-        let defaultStorySize = CGSize.largeStory
+        let defaultStorySize = CGSize.smallStory
+        
+        
+        let limitY = !widget.positionLimits.isResizableY
         
         let screenWidth = StoryScreen.screenBounds.width * StoryScreen.screenNativeScale
-        let screenHeight = defaultStorySize.height
+        let screenHeight = defaultStorySize.height * StoryScreen.screenNativeScale
         
         var xOffset = (screenWidth - defaultStorySize.width) / 2
         
-        xOffset = max(xOffset, 0.0)
+        xOffset = 0.0 //max(xOffset, 0.0)
         
         guard let position = widget.positionByResolutions.res360x640 else {
             return CGRect.zero
@@ -97,8 +104,8 @@ final class SRWidgetConstructor {
         
         //.origin
         
-        var x: CGFloat = position.x + xOffset
-        let y: CGFloat = position.y
+        var x: CGFloat = (position.x + xOffset) * StoryScreen.screenNativeScale
+        let y: CGFloat = position.y * StoryScreen.screenNativeScale
         let width: CGFloat = position.origin.width
         
         let height = widget.position.origin.height
@@ -113,11 +120,19 @@ final class SRWidgetConstructor {
             x = (screenWidth - width * scaleW) / 2
         }
         
+        var newHeight: CGFloat
+        if limitY {
+            //let t = 0
+            newHeight = (height * scaleH) / (defaultStorySize.height * StoryScreen.screenNativeScale)
+        } else {
+            newHeight = (height * scaleH) / screenHeight
+        }
+        
         return CGRect(
             x: x / /*defaultStorySize.width,*/screenWidth,
             y: y / /*defaultStorySize.height*/screenHeight,
             width: (width * scaleW) / screenWidth /*defaultStorySize.width*/ /*screenWidth*/,
-            height: (height * scaleH) / screenHeight/*defaultStorySize.width*/ /*defaultStorySize.height*/
+            height: newHeight //(height * scaleH) / screenHeight/*defaultStorySize.width*/ /*defaultStorySize.height*/
         )
     }
 }
@@ -125,4 +140,6 @@ final class SRWidgetConstructor {
 extension CGSize {
     static let defaultStory = CGSize(width: 1080, height: 1920)
     static let largeStory = CGSize(width: 360, height: 779)
+    
+    static let smallStory = CGSize(width: 360, height: 640)
 }

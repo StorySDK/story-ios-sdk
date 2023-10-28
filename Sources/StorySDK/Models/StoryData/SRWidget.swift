@@ -22,9 +22,16 @@ public struct SRWidget: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         id = try container.decode(String.self, forKey: .id)
-        position = try container.decode(SRPosition.self, forKey: .position)
+        
+        //position = try container.decode(SRPosition.self, forKey: .position)
         positionLimits = try container.decode(SRPositionLimits.self, forKey: .positionLimits)
         positionByResolutions = try container.decode(SRPositionByResolutions.self, forKey: .positionByResolutions)
+        
+        
+        position = positionByResolutions.res360x640! //try container.decode(SRPosition.self, forKey: .position)
+        
+        print("Widget ID = \(id)")
+        
         content = try container.decode(SRWidgetContent.self, forKey: .content)
     }
 }

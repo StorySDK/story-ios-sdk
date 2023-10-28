@@ -109,6 +109,6 @@ extension StoryFont {
     }
     
     static func sizeInPoints(_ fontSize: Double) -> CGFloat {
-        return CGFloat(fontSize / 3.0)
+        fontSize
     }
 }

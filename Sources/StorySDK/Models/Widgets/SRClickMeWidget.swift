@@ -14,6 +14,7 @@
 public enum WidgetActionType: String, Decodable {
     case story
     case link
+    case custom
 }
 
 public struct SRClickMeWidget: Decodable {
@@ -35,4 +36,5 @@ public struct SRClickMeWidget: Decodable {
     public var borderOpacity: Double
     public var actionType: WidgetActionType?
     public var storyId: String?
+    public var customFields: SRCustomFields?
 }

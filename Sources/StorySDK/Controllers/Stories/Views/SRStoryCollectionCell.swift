@@ -109,6 +109,10 @@ import Combine
             canvasView.appendWidget(widget, position: position)
         }
         
+        func widgets() -> [SRWidgetView]? {
+            canvasView.widgets()
+        }
+        
         func presentParticles() {
             let v = ConfettiView(frame: bounds)
             contentView.addSubview(v)

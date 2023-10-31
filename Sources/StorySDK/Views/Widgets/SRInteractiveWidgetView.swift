@@ -23,7 +23,7 @@ public class SRInteractiveWidgetView: SRWidgetView {
         self.story = story
         super.init(data: data)
         
-        //backgroundColor = .blue.withAlphaComponent(0.3)
+        backgroundColor = .clear
     }
 }
 

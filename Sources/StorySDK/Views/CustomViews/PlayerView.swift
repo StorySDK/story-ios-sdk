@@ -27,6 +27,16 @@
         //private
         var playerItem: AVPlayerItem?
         
+        var identifier: String?
+        
+        var stopped: Bool = false
+        
+        init(identifier: String) {
+            self.identifier = identifier
+            self.stopped = false
+            super.init(frame: .zero)
+        }
+        
         override init(frame: CGRect) {
             super.init(frame: frame)
         }
@@ -110,22 +120,48 @@
         }
         
         func play(with url: URL) {
+
+            
             setUpAsset(with: url) { [weak self] (asset: AVAsset) in
                 self?.setUpPlayerItem(with: asset)
                 self?.loopVideo()
             }
         }
         
+        func stopVideo() {
+            stopped = true
+        }
+        
+        func restartVideo() {
+            stopped = false
+            player?.seek(to: .zero)
+            player?.play()
+        }
+        
         func loopVideo() {//videoPlayer: AVPlayer) {
-            NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player?.currentItem, queue: nil) { [weak self] notification in
+            let sdk = StorySDK.shared
+            sdk.logger.debug("loopVideo")
+            
+            NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+                                                   object: player?.currentItem, queue: nil) { [weak self] notification in
+            if self?.stopped == true {
+                print("current player \(self?.identifier) is stopped")
+                return
+            }
+         
+              NSLog("Player \(self?.identifier) seek to zero")
               self?.player?.seek(to: .zero)
               self?.player?.play()
           }
         }
         
         deinit {
+            let sdk = StorySDK.shared
+            sdk.logger.debug("deinit of PlayerView")
+            
             playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
-            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+                                                      object: nil)
             //print("deinit of PlayerView")
         }
     }

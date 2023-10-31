@@ -163,11 +163,23 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         guard let id = storyId(atIndex: index) else { return }
         if progress?.isLoading[id] ?? false { return }
         progress?.isLoading[id] = false
+        
+        guard let ws = cell.widgets() else { return }
+        for item in ws {
+            print("Widget willDisplay: \(item.data.id)")
+            (item as? SRImageWidgetView)?.playerView?.restartVideo()
+        }
     }
     
     func endDisplaying(_ cell: SRStoryCell, index: Int) {
         guard let id = storyId(atIndex: index) else { return }
         progress?.isLoading[id] = nil
+        
+        guard let ws = cell.widgets() else { return }
+        for item in ws {
+            print("Widget endDisplaying: \(item.data.id)")
+            (item as? SRImageWidgetView)?.playerView?.stopVideo()
+        }
     }
     
     func storyId(atIndex index: Int) -> String? {

@@ -283,8 +283,10 @@
             self.layer.sublayers?.forEach { $0.opacity = 0 }
             switch self {
             case let label as UILabel:
-                
                 label.textColor = .clear
+                
+                // TODO: Check & remove it
+                
     //            let layer: CALayer = {
     //                if let l = label.layer.sublayers?.first(where: { $0.cornerRadius == 8 }) {
     //                    return l

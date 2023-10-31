@@ -38,6 +38,7 @@ struct WidgetLayout {
         private let containerView: UIView = {
             let v = UIView()
             v.translatesAutoresizingMaskIntoConstraints = false
+            v.backgroundColor = .clear // .blue.withAlphaComponent(0.3)
             v.backgroundColor = .clear
             return v
         }()
@@ -47,7 +48,9 @@ struct WidgetLayout {
         
         var keyboardHeight: CGFloat = 0
         var needShowTitle: Bool = false {
-            didSet { topOffset.constant = needShowTitle ? 59 : 0 }
+            didSet {
+                topOffset.constant = 0// needShowTitle ? 59 : 0
+            }
         }
         
         var readyToShow: Bool {
@@ -74,6 +77,10 @@ struct WidgetLayout {
             containerView.addSubview(widget)
             loadingWidgets[widget] = widget.loaded
             layoutRects[widget] = position
+        }
+        
+        func widgets() -> [SRWidgetView]? {
+            containerView.subviews.filter { $0.isKind(of: SRWidgetView.self) } as? [SRWidgetView]
         }
         
         func cleanCanvas() {
@@ -122,7 +129,12 @@ struct WidgetLayout {
                     
                     var h: CGFloat
                     if !view.data.positionLimits.isResizableY {
-                        h = view.data.positionByResolutions.res360x640!.realHeight
+                        let positionRes: SRPosition?
+                        if CGSize.isSmallStories() {
+                            h = view.data.positionByResolutions.res360x640!.realHeight
+                        } else {
+                            h = view.data.positionByResolutions.res360x780!.realHeight
+                        }
                     } else {
                         h = round(frame.height * rect.height)
                     }

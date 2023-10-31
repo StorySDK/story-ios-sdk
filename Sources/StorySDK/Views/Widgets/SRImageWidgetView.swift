@@ -34,7 +34,8 @@ import Combine
         }()
         
         var playerContainerView: UIView!
-        private var playerView: PlayerView!
+        //private
+        var playerView: PlayerView!
         
         let url: URL?
         let logger: SRLogger
@@ -53,9 +54,8 @@ import Combine
                 self.loaded = true
             }
             
-            playerView = PlayerView()
-            
-            addSubviews()
+//            playerView = PlayerView(identifier: data.id)
+//            addSubviews()
             
             if StorySDK.shared.debugMode {
                 backgroundColor = .magenta
@@ -68,61 +68,42 @@ import Combine
             }
         }
         
+        deinit {
+            let sdk = StorySDK.shared
+            sdk.logger.debug("deinit of SRImageWidgetView")
+        }
+        
         override func addSubviews() {
             super.addSubviews()
             [imageView].forEach(addSubview)
             
-            setUpPlayerContainerView()
-            
-            playerView = PlayerView()
-            
-            
-            
-            //return
-            
-            playerContainerView.addSubview(playerView)
-            
-            //playerView.translatesAutoresizingMaskIntoConstraints = false
-            
-            
-            if let videoFrame = data.positionByResolutions.res360x640 {
-//                playerView.heightAnchor.constraint(equalToConstant: videoFrame.realHeight * StoryScreen.screenNativeScale).isActive = true
-//                playerView.widthAnchor.constraint(equalToConstant: videoFrame.realWidth * StoryScreen.screenNativeScale).isActive = true
-                
-//                playerView.frame = CGRect(origin: CGPoint.zero,
-//                                          size: CGSize(width: videoFrame.realWidth * StoryScreen.screenNativeScale,
-//                                                                             height: videoFrame.realHeight * StoryScreen.screenNativeScale))
-                
-                // TODO: Rewrite it !!!
-                let fullWidth = StoryScreen.screenBounds.width
-                let fullHeight = StoryScreen.screenBounds.width
-                
-                let x = (fullWidth - videoFrame.realWidth) / 2
-                
-                playerView.frame = CGRect(origin: CGPoint(x: x, y: 0),
-                                          size: CGSize(width: videoFrame.realWidth,
-                                                                             height: videoFrame.realHeight))
+            if let vUrl = url {
+                if vUrl.pathExtension == "mp4" {
+                    setUpPlayerContainerView()
+                    
+                    playerView = PlayerView(identifier: data.id)
+                    playerContainerView.addSubview(playerView)
+                    
+                    let videoFramePosition: SRPosition?
+                    if CGSize.isSmallStories() {
+                        videoFramePosition = data.positionByResolutions.res360x640
+                    } else {
+                        videoFramePosition = data.positionByResolutions.res360x780
+                    }
+                    
+                    if let videoFrame = videoFramePosition {
+                        // TODO: Rewrite it !!!
+                        let fullWidth = StoryScreen.screenBounds.width
+                        let fullHeight = StoryScreen.screenBounds.width
+                        
+                        let x = (fullWidth - videoFrame.realWidth) / 2
+                        
+                        playerView.frame = CGRect(origin: CGPoint(x: x, y: 0),
+                                                  size: CGSize(width: videoFrame.realWidth,
+                                                                                     height: videoFrame.realHeight))
+                    }
+                }
             }
-            
-//            playerView.frame = CGRect(origin: CGPoint.zero,
-//                                      size: CGSize(width: videoFrame.realWidth,
-//                                                                         height: videoFrame.realHeight))
-            
-//            playerView.topAnchor.constraint(equalTo: playerContainerView.topAnchor).isActive = true
-//            playerView.leadingAnchor.constraint(equalTo: playerContainerView.leadingAnchor).isActive = true
-//            //playerView.trailingAnchor.constraint(equalTo: playerContainerView.topAnchor).isActive = true
-//            playerView.trailingAnchor.constraint(equalTo: playerContainerView.trailingAnchor).isActive = true
-            
-            //playerView.heightAnchor.constraint(equalTo: playerContainerView.heightAnchor).isActive = true
-            //playerView.widthAnchor.constraint(equalTo: playerContainerView.widthAnchor).isActive = true
-            
-//            if let videoFrame = data.positionByResolutions.res360x640 {
-//                playerView.heightAnchor.constraint(equalToConstant: videoFrame.realHeight * StoryScreen.screenNativeScale).isActive = true
-//                playerView.widthAnchor.constraint(equalToConstant: videoFrame.realWidth * StoryScreen.screenNativeScale).isActive = true
-//            }
-            
-            //playerView.heightAnchor.constraint(equalTo: playerContainerView.widthAnchor, multiplier: 16/9).isActive = true
-            //playerView.centerYAnchor.constraint(equalTo: playerContainerView.centerYAnchor).isActive = true
         }
         
         //var playerLooper: AVPlayerLooper?

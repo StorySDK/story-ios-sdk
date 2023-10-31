@@ -86,10 +86,15 @@ final class SRWidgetConstructor {
     }
     
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
-        let defaultStorySize = CGSize.smallStory
+        let defaultStorySize = CGSize.defaultOnboardingSize()
+        var limitY = !widget.positionLimits.isResizableY
         
-        
-        let limitY = !widget.positionLimits.isResizableY
+        switch widget.content {
+        case .clickMe(_):
+            limitY = true
+        default:
+            break
+        }
         
         let screenWidth = StoryScreen.screenBounds.width * StoryScreen.screenNativeScale
         let screenHeight = defaultStorySize.height * StoryScreen.screenNativeScale
@@ -98,17 +103,24 @@ final class SRWidgetConstructor {
         
         xOffset = 0.0 //max(xOffset, 0.0)
         
-        guard let position = widget.positionByResolutions.res360x640 else {
+        //defaultStorySize == .largeStory
+        
+        let positionRes: SRPosition?
+        if CGSize.isSmallStories() {
+            positionRes = widget.positionByResolutions.res360x640
+        } else {
+            positionRes = widget.positionByResolutions.res360x780
+        }
+        
+        guard let position = positionRes else {
             return CGRect.zero
-        }  //widget.position
-        
-        //.origin
-        
+        }
+    
         var x: CGFloat = (position.x + xOffset) * StoryScreen.screenNativeScale
         let y: CGFloat = position.y * StoryScreen.screenNativeScale
-        let width: CGFloat = position.origin.width
+        let width: CGFloat = position.realWidth //origin.width
         
-        let height = widget.position.origin.height
+        let height = widget.position.realHeight// origin.height
         
         let scaleW = screenWidth / defaultStorySize.width
         let scaleH = screenHeight / defaultStorySize.height
@@ -124,6 +136,8 @@ final class SRWidgetConstructor {
         if limitY {
             //let t = 0
             newHeight = (height * scaleH) / (defaultStorySize.height * StoryScreen.screenNativeScale)
+            
+            //newHeight = (height * scaleH) / (defaultStorySize.height * StoryScreen.screenNativeScale)
         } else {
             newHeight = (height * scaleH) / screenHeight
         }
@@ -139,7 +153,32 @@ final class SRWidgetConstructor {
 
 extension CGSize {
     static let defaultStory = CGSize(width: 1080, height: 1920)
-    static let largeStory = CGSize(width: 360, height: 779)
     
+    static let largeStory = CGSize(width: 360, height: 780)
     static let smallStory = CGSize(width: 360, height: 640)
+    
+    static func defaultOnboardingSize() -> CGSize {
+        let w = UIScreen.main.bounds.width
+        let h = UIScreen.main.bounds.height
+        
+        let largeRatio: CGFloat = largeStory.height / largeStory.width
+        let smallRatio: CGFloat = smallStory.height / smallStory.width
+        
+        let deviceRatio: CGFloat = h / w
+            
+        if abs(largeRatio - deviceRatio) < 0.005 {
+            return largeStory
+            //return UIScreen.main.bounds.size
+        } else if abs(smallRatio - deviceRatio) < 0.005 {
+            return smallStory
+        } else {
+            return largeStory
+        }
+    }
+    
+    static func isSmallStories() -> Bool {
+        let test = defaultOnboardingSize() == .smallStory
+        
+        return test
+    }
 }

@@ -60,6 +60,9 @@ protocol SRStoryCell: AnyObject {
     var isLoading: Bool { get set }
     
     func appendWidget(_ widget: SRWidgetView, position: CGRect)
+    
+    func widgets() -> [SRWidgetView]?
+    
     func presentParticles()
 }
 

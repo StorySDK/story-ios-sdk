@@ -38,6 +38,11 @@
             super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
         }
         
+        deinit {
+            let sdk = StorySDK.shared
+            sdk.logger.debug("deinit of SRClickMeView")
+        }
+        
         override func setupContentLayer(_ layer: CALayer) {
             layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
             layer.shadowOpacity = 1
@@ -91,10 +96,13 @@
             }
             
             if contentView.bounds.width > .ulpOfOne {
-                contentView.layer.cornerRadius = min(clickMeWidget.borderRadius / 2, contentView.bounds.height / 2)
-                
+                contentView.layer.cornerRadius = calcCorrectRadius(contentView, widget: clickMeWidget)
                 headerLabel.frame = contentView.bounds
             }
+        }
+        
+        private func calcCorrectRadius(_ button: UIView, widget: SRClickMeWidget) -> CGFloat {
+            min(widget.borderRadius, button.bounds.height / 2)
         }
         
         @objc private func onTap(_ sender: Any) {

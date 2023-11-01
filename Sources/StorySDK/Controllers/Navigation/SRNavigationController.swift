@@ -58,7 +58,7 @@
         }
         
         public override func viewDidLayoutSubviews() {
-            var frame = view.bounds//.inset(by: view.safeAreaInsets)
+            var frame = view.bounds.inset(by: view.safeAreaInsets)
             let maxHeight = frame.height
             let storySize = CGSize.defaultStory
             frame.size.height = min(maxHeight, storySize.height * frame.width / storySize.width)

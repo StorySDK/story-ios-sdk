@@ -39,20 +39,20 @@ extension StorySDK {
 extension StorySDK {
     public func getGroups(from: String? = nil, to: String? = nil, completion: @escaping (Result<[SRStoryGroup], Error>) -> Void) {
         
-        if let sdkId = configuration.sdkId {
-            do {
-                if let bundlePath = Bundle.main.path(forResource: sdkId + "-groups",
-                                                     ofType: "json"),
-                    let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
-                    let result = try NetworkManager.decode([SRStoryGroup].self, from: jsonData, response: nil, error: nil)
-                    completion(.success(result))
-
-                    return
-                }
-            } catch {
-                print(error)
-            }
-        }
+//        if let sdkId = configuration.sdkId {
+//            do {
+//                if let bundlePath = Bundle.main.path(forResource: sdkId + "-groups",
+//                                                     ofType: "json"),
+//                    let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
+//                    let result = try NetworkManager.decode([SRStoryGroup].self, from: jsonData, response: nil, error: nil)
+//                    completion(.success(result))
+//
+//                    return
+//                }
+//            } catch {
+//                print(error)
+//            }
+//        }
         
         network.getGroups(from: from, to: to, completion: completion)
     }
@@ -71,7 +71,10 @@ extension StorySDK {
             do {
                 if let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
                     let result = try NetworkManager.decode([SRStory].self, from: jsonData, response: nil, error: nil)
-                    completion(.success(result))
+                    let activeStories = result.filter { $0.readyToShow() }
+                    completion(.success(activeStories))
+                    
+                    //completion(.success(result))
                     
                     return
                 }

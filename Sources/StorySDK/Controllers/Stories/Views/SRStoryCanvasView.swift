@@ -38,8 +38,8 @@ struct WidgetLayout {
         private let containerView: UIView = {
             let v = UIView()
             v.translatesAutoresizingMaskIntoConstraints = false
-            v.backgroundColor = .clear // .blue.withAlphaComponent(0.3)
             v.backgroundColor = .clear
+            // .blue.withAlphaComponent(0.3)
             return v
         }()
         private var topOffset: NSLayoutConstraint!
@@ -117,6 +117,12 @@ struct WidgetLayout {
         }
         
         override func layoutSubviews() {
+            let window = UIApplication.shared.windows.first
+            
+            let top = window?.safeAreaInsets.top ?? 0
+            let btm = window?.safeAreaInsets.bottom ?? 0
+            
+            
             super.layoutSubviews()
             let frame = CGRect(origin: .zero,
                                size: CGSize(width: containerView.bounds.width,
@@ -128,7 +134,7 @@ struct WidgetLayout {
                     
                     
                     var h: CGFloat
-                    if !view.data.positionLimits.isResizableY {
+                    if !view.data.positionLimits.isResizableY || view.isKind(of: SRClickMeView.self) {
                         let positionRes: SRPosition?
                         if CGSize.isSmallStories() {
                             h = view.data.positionByResolutions.res360x640!.realHeight
@@ -146,7 +152,7 @@ struct WidgetLayout {
                     size = view.sizeThatFits(size)
                     let origin = CGPoint(
                         x: frame.width * rect.origin.x,
-                        y: frame.height * rect.origin.y
+                        y: (frame.height - top) * rect.origin.y
                     )
                     
                     view.frame = .init(origin: origin, size: size)

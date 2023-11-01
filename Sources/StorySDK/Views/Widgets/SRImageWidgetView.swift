@@ -54,16 +54,21 @@ import Combine
                 self.loaded = true
             }
             
-//            playerView = PlayerView(identifier: data.id)
-//            addSubviews()
-            
             if StorySDK.shared.debugMode {
                 backgroundColor = .magenta
             }
             
             if let vUrl = url {
                 if vUrl.pathExtension == "mp4" {
-                    playVideo(url: vUrl)
+                    var videoURL: URL = vUrl
+                    
+                    if let shaHash = vUrl.absoluteString.data(using: .utf8)?.sha256().hex() {
+                        if let fileURL = Bundle.main.url(forResource: shaHash, withExtension: "mp4") {
+                            videoURL = fileURL
+                        }
+                    }
+                    
+                    playVideo(url: videoURL)
                 }
             }
         }
@@ -119,7 +124,7 @@ import Combine
             //return
             
             playerContainerView = UIView()
-            playerContainerView.backgroundColor = .clear//.green//.clear
+            playerContainerView.backgroundColor = .clear
             
             addSubview(playerContainerView)
             

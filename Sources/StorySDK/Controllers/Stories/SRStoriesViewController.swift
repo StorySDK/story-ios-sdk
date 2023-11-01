@@ -62,7 +62,11 @@
                 widgetResponder: widgetResponder,
                 analytics: analyticsController
             )
+            
             super.init(nibName: nil, bundle: nil)
+            
+            
+            self.view.backgroundColor = UIColor.parseHex("#22142F")
             modalPresentationStyle = .overFullScreen
             isModalInPresentation = true
         }

@@ -66,7 +66,7 @@
             super.init(nibName: nil, bundle: nil)
             
             
-            self.view.backgroundColor = UIColor.parseHex("#22142F")
+            view.backgroundColor = UIColor.parseHex("#0D1338")
             modalPresentationStyle = .overFullScreen
             isModalInPresentation = true
         }

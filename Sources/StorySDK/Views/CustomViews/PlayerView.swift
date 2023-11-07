@@ -31,6 +31,8 @@
         
         var stopped: Bool = false
         
+        var nObserver: NSObjectProtocol?
+        
         init(identifier: String) {
             self.identifier = identifier
             self.stopped = false
@@ -120,12 +122,11 @@
         }
         
         func play(with url: URL) {
-
-            
             setUpAsset(with: url) { [weak self] (asset: AVAsset) in
                 self?.setUpPlayerItem(with: asset)
-                self?.loopVideo()
             }
+            
+            loopVideo()
         }
         
         func stopVideo() {
@@ -138,31 +139,32 @@
             player?.play()
         }
         
-        func loopVideo() {//videoPlayer: AVPlayer) {
+        func loopVideo() {
             let sdk = StorySDK.shared
             sdk.logger.debug("loopVideo")
             
-            NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
-                                                   object: player?.currentItem, queue: nil) { [weak self] notification in
-            if self?.stopped == true {
-                print("current player \(self?.identifier) is stopped")
-                return
+            nObserver = NotificationCenter.default.addObserver(
+                forName: .AVPlayerItemDidPlayToEndTime,
+                object: player?.currentItem,
+                queue: .main
+            ) { [weak self] notification in
+                if self?.stopped == true {
+                    print("current player \(self?.identifier) is stopped")
+                    return
+                }
+             
+                print("Player \(self?.identifier) seek to zero")
+                    
+                self?.player?.seek(to: .zero)
+                self?.player?.play()
             }
-         
-              NSLog("Player \(self?.identifier) seek to zero")
-              self?.player?.seek(to: .zero)
-              self?.player?.play()
-          }
         }
         
         deinit {
-            let sdk = StorySDK.shared
-            sdk.logger.debug("deinit of PlayerView")
-            
             playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
-            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
-                                                      object: nil)
-            //print("deinit of PlayerView")
+            NotificationCenter.default.removeObserver(nObserver)
+            
+            print("deinit of PlayerView")
         }
     }
 #endif

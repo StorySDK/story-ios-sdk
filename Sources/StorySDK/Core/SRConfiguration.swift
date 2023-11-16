@@ -32,9 +32,9 @@ public struct SRConfiguration {
     public private(set) var defaultLanguage: String = "en"
     
     #if STAGE
-    private static let SDK_API_URL = "https://api.storysdk.com/sdk/v1/"
-    #else
     private static let SDK_API_URL = "https://api.diffapp.link/sdk/v1/"
+    #else
+    private static let SDK_API_URL = "https://api.storysdk.com/sdk/v1/"
     #endif
     
     public init(language: String = "en",

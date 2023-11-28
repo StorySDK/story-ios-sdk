@@ -169,6 +169,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
             
             guard StoryWorkspace.shared.canOpen(url) else {
                 onMethodCall?(customAction)
+                progress?.scrollNext()
                 return
             }
         }

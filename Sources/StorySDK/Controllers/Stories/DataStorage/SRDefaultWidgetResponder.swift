@@ -145,6 +145,8 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         switch actionType {
         case .story:
             // TODO: add scroll to partical story by id
+            
+            onMethodCall?("scrollNext")
             progress?.scrollNext()
         case .link:
             guard let url = URL(string: clickMeWidget.url) else {

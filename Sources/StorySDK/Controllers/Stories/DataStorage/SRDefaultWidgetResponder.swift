@@ -148,6 +148,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
             progress?.scrollNext()
         case .link:
             guard let url = URL(string: clickMeWidget.url) else {
+                onMethodCall?("scrollNext")
                 progress?.scrollNext()
                 return
             }

@@ -47,7 +47,10 @@
         
         var asOnboarding: Bool = false
         
-        public init(_ group: SRStoryGroup, sdk: StorySDK = .shared, asOnboarding: Bool = false) {
+        public init(_ group: SRStoryGroup,
+                    sdk: StorySDK = .shared,
+                    asOnboarding: Bool = false,
+                    backgroundColor: UIColor = UIColor.black ) {
             self.group = group
             self.logger = sdk.logger
             let dataStorage = SRDefaultStoriesDataStorage(sdk: sdk)
@@ -66,7 +69,7 @@
             super.init(nibName: nil, bundle: nil)
             
             
-            view.backgroundColor = UIColor.parseHex("#0D1338")
+            view.backgroundColor = backgroundColor
             modalPresentationStyle = .overFullScreen
             isModalInPresentation = true
         }

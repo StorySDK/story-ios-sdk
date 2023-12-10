@@ -22,19 +22,17 @@ import Combine
     import AVFoundation
 
     public class SRImageWidgetView: SRInteractiveWidgetView {
+        internal static let supportedVideoExt = "mp4"
+        
         let imageView: UIImageView = {
             let v = UIImageView(frame: .zero)
-//            v.layer.borderColor = UIColor.black.cgColor
-//            v.layer.borderWidth = 2.0
-            
-            v.contentMode = .scaleAspectFit  //.scaleAspectFill//.scaleAspectFit
+            v.contentMode = .scaleAspectFit
             v.isHidden = true
             v.isUserInteractionEnabled = false
             return v
         }()
         
         var playerContainerView: UIView!
-        //private
         var playerView: PlayerView!
         
         let url: URL?
@@ -59,11 +57,11 @@ import Combine
             }
             
             if let vUrl = url {
-                if vUrl.pathExtension == "mp4" {
+                if SRImageWidgetView.supportedVideoExt == vUrl.pathExtension  {
                     var videoURL: URL = vUrl
                     
                     if let shaHash = vUrl.absoluteString.data(using: .utf8)?.sha256().hex() {
-                        if let fileURL = Bundle.main.url(forResource: shaHash, withExtension: "mp4") {
+                        if let fileURL = Bundle.main.url(forResource: shaHash, withExtension: SRImageWidgetView.supportedVideoExt) {
                             videoURL = fileURL
                         }
                     }
@@ -83,7 +81,7 @@ import Combine
             [imageView].forEach(addSubview)
             
             if let vUrl = url {
-                if vUrl.pathExtension == "mp4" {
+                if SRImageWidgetView.supportedVideoExt == vUrl.pathExtension {
                     setUpPlayerContainerView()
                     
                     playerView = PlayerView(identifier: data.id)
@@ -97,32 +95,22 @@ import Combine
                     }
                     
                     if let videoFrame = videoFramePosition {
-                        // TODO: Rewrite it !!!
-                        let fullWidth = StoryScreen.screenBounds.width
-                        let fullHeight = StoryScreen.screenBounds.width
+                        let coeff = StoryScreen.screenBounds.width / videoFrame.realWidth
+                        let fullHeight = ceil(videoFrame.realHeight * coeff)
                         
-                        let x = (fullWidth - videoFrame.realWidth) / 2
-                        
-                        playerView.frame = CGRect(origin: CGPoint(x: x, y: 0),
-                                                  size: CGSize(width: videoFrame.realWidth,
-                                                                                     height: videoFrame.realHeight))
+                        playerView.frame = CGRect(origin: .zero,
+                                                  size: CGSize(width: StoryScreen.screenBounds.width,
+                                                                                     height: fullHeight))
                     }
                 }
             }
         }
-        
-        //var playerLooper: AVPlayerLooper?
           
         private func playVideo(url: URL) {
-            //guard let url = URL(string: url) else { return }
-            //self?.
-            //playerLooper = AVPlayerLooper(player: playerView.player, templateItem: playerView.playerItem!)
             playerView.play(with: url)
         }
         
         private func setUpPlayerContainerView() {
-            //return
-            
             playerContainerView = UIView()
             playerContainerView.backgroundColor = .clear
             
@@ -130,15 +118,7 @@ import Combine
             
             playerContainerView.translatesAutoresizingMaskIntoConstraints = false
             playerContainerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-//            playerContainerView.topAnchor.constraint(equalTo: topAnchor, constant: 44).isActive = true
-            
-            //playerContainerView.topAnchor.constraint(equalTo: topAnchor, constant: 0).isActive = true
-            
             playerContainerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-            //playerContainerView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 1.0).isActive = true
-            
-            //playerContainerView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.5).isActive = true
-            
             playerContainerView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor).isActive = true
         }
         

@@ -25,6 +25,8 @@
         private lazy var label: UILabel = {
             let lbl = UILabel()
             lbl.numberOfLines = 0
+//            lbl.layer.borderWidth = 1.0
+//            lbl.layer.borderColor = UIColor.green.cgColor
             
             return lbl
         }()
@@ -61,8 +63,17 @@
             
             label.textColor = textColor
             label.textAlignment = alignment
+            
+            var fontSize = textWidget.fontSize
+            if data.positionLimits.isResizableX {
+                let defaultStorySize = CGSize.defaultOnboardingSize()
+                let xCoeff = StoryScreen.screenBounds.width / defaultStorySize.width
+                
+                fontSize = round(textWidget.fontSize * xCoeff)
+            }
+            
             label.font = UIFont.improvedFont(family: textWidget.fontFamily,
-                                             ofSize: textWidget.fontSize, weight: textWidget.fontParams.weight)
+                                             ofSize: fontSize, weight: textWidget.fontParams.weight)
             label.text = textWidget.text
             
             delegate?.didWidgetLoad(self)
@@ -73,22 +84,8 @@
             label.frame = bounds
         }
         
-        override func sizeThatFits(_ size: CGSize) -> CGSize {
-            guard let font = label.font else { return size }
-            
-            let str: NSString = NSString(string: label.text ?? "")
-            let modifiedSize = str.boundingRect(with: CGSize(width: size.width, height: CGFloat.greatestFiniteMagnitude), options: .usesLineFragmentOrigin, attributes: [.font: font], context: nil)
-            
-            return CGSize(width: size.width, height: max(modifiedSize.height, size.height))
-        }
-        
         override func setupContentLayer(_ layer: CALayer) {
             layer.masksToBounds = true
-    //        layer.cornerRadius = 8 * widgetScale
-    //        layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
-    //        layer.shadowOpacity = 1
-    //        layer.shadowOffset = .zero
-    //        layer.shadowRadius = 4
         }
     }
 #endif

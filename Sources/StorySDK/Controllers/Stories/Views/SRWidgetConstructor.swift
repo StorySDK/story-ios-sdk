@@ -87,23 +87,24 @@ final class SRWidgetConstructor {
     
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
         let defaultStorySize = CGSize.defaultOnboardingSize()
+        
+        var limitX = !widget.positionLimits.isResizableX
         var limitY = !widget.positionLimits.isResizableY
         
         switch widget.content {
         case .clickMe(_):
+            limitX = true
             limitY = true
         default:
             break
         }
         
         let screenWidth = StoryScreen.screenBounds.width * StoryScreen.screenNativeScale
-        let screenHeight = defaultStorySize.height * StoryScreen.screenNativeScale
+        let screenHeight = StoryScreen.screenBounds.height * StoryScreen.screenNativeScale
         
         var xOffset = (screenWidth - defaultStorySize.width) / 2
         
         xOffset = 0.0 //max(xOffset, 0.0)
-        
-        //defaultStorySize == .largeStory
         
         let positionRes: SRPosition?
         if CGSize.isSmallStories() {
@@ -117,36 +118,47 @@ final class SRWidgetConstructor {
         }
     
         var x: CGFloat = (position.x + xOffset) * StoryScreen.screenNativeScale
-        let y: CGFloat = position.y * StoryScreen.screenNativeScale
-        let width: CGFloat = position.realWidth //origin.width
+        var y: CGFloat = position.y * StoryScreen.screenNativeScale
         
+        var width: CGFloat = position.realWidth //origin.width
         let height = widget.position.realHeight// origin.height
         
-        let scaleW = screenWidth / defaultStorySize.width
+        var scaleW = screenWidth / defaultStorySize.width
         let scaleH = screenHeight / defaultStorySize.height
         
-        var originalRemainder = defaultStorySize.width - (position.x + width)
-        if fabs(position.x - originalRemainder) < 5 {
-            let center = true
-            
-            x = (screenWidth - width * scaleW) / 2
+        let xCoeff = StoryScreen.screenBounds.width / defaultStorySize.width
+        let yCoeff = StoryScreen.screenBounds.height / defaultStorySize.height
+        
+        switch widget.content {
+        case .rectangle(_):
+            break
+        default:
+            y = y * yCoeff
+        }
+        
+        if widget.positionLimits.isResizableX && !limitX {
+            width = round(width * xCoeff)
+            x = ((StoryScreen.screenBounds.width - width) / 2) * StoryScreen.screenNativeScale
+            scaleW = scaleW / xCoeff
+        } else {
+            var originalRemainder = defaultStorySize.width - (position.x + width)
+            if fabs(position.x - originalRemainder) < 5 {
+                x = (screenWidth - width * scaleW) / 2
+            }
         }
         
         var newHeight: CGFloat
         if limitY {
-            //let t = 0
             newHeight = (height * scaleH) / (defaultStorySize.height * StoryScreen.screenNativeScale)
-            
-            //newHeight = (height * scaleH) / (defaultStorySize.height * StoryScreen.screenNativeScale)
         } else {
             newHeight = (height * scaleH) / screenHeight
         }
         
         return CGRect(
-            x: x / /*defaultStorySize.width,*/screenWidth,
-            y: y / /*defaultStorySize.height*/screenHeight,
-            width: (width * scaleW) / screenWidth /*defaultStorySize.width*/ /*screenWidth*/,
-            height: newHeight //(height * scaleH) / screenHeight/*defaultStorySize.width*/ /*defaultStorySize.height*/
+            x: x / screenWidth,
+            y: y / screenHeight,
+            width: (width * scaleW) / screenWidth,
+            height: newHeight
         )
     }
 }

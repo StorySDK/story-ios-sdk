@@ -59,12 +59,16 @@ public struct SRStoryGroup: Decodable {
     
     public func readyToShow() -> Bool {
         guard type != .unknown else { return false }
-//        if StorySDK.shared.configuration.onboardingFilter {
-//            guard type != .onboarding else { return false }
-//        }
         
-        let timestamp = TimeInterval(Date().timeIntervalSince1970 * 1000)
-        return active
+        if StorySDK.shared.configuration.onboardingFilter {
+            if type == .onboarding {
+                return false
+            }
+        }
+        
+        return active || type == .onboarding
+        
+//        let timestamp = TimeInterval(Date().timeIntervalSince1970 * 1000)
 //        return active && /*(settings?.addToStories ?? true) &&*/
 //            (startTime < timestamp) && (timestamp < endTime)
     }

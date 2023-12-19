@@ -49,7 +49,7 @@ struct WidgetLayout {
         var keyboardHeight: CGFloat = 0
         var needShowTitle: Bool = false {
             didSet {
-                topOffset.constant = 0// needShowTitle ? 59 : 0
+                topOffset.constant = needShowTitle ? 59 : 0
             }
         }
         

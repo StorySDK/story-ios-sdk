@@ -31,6 +31,8 @@ let package = Package(
                 .copy("Resources/Fonts/Roboto/Roboto-Medium.ttf"),
                 .copy("Resources/Fonts/Roboto/Roboto-Light.ttf"),
                 .copy("Resources/Fonts/Montserrat/Montserrat-Bold.ttf"),
+                .copy("Resources/Fonts/SFCompactRounded/SF-Compact-Rounded-Regular.otf"),
+                .copy("Resources/Fonts/SFCompactRounded/SF-Compact-Rounded-Bold.ttf")
             ]),
     ]
 )

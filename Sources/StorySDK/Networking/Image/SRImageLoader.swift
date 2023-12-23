@@ -62,7 +62,13 @@ public class SRImageLoader {
                     return localImage.scale(to: size, scale: scale, mode: contentMode)
                 }
             } else {
-                print("cached image not found")
+                if let path = Bundle.main.path(forResource: shaHash, ofType: "png") {
+                    if let localImage = StoryImage(contentsOfFile: path) {
+                        return localImage.scale(to: size, scale: scale, mode: contentMode)
+                    }
+                } else {
+                    print("cached image not found")
+                }
             }
         }
         

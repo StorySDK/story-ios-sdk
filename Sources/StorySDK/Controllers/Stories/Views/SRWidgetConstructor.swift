@@ -103,8 +103,7 @@ final class SRWidgetConstructor {
         let screenHeight = StoryScreen.screenBounds.height * StoryScreen.screenNativeScale
         
         var xOffset = (screenWidth - defaultStorySize.width) / 2
-        
-        xOffset = 0.0 //max(xOffset, 0.0)
+        xOffset = 0.0
         
         let positionRes: SRPosition?
         if CGSize.isSmallStories() {
@@ -113,11 +112,23 @@ final class SRWidgetConstructor {
             positionRes = widget.positionByResolutions.res360x780
         }
         
+        var tempX: CGFloat = 0
+        if let thePR = positionRes {
+            let pos = thePR.x + thePR.width
+            if (pos > defaultStorySize.width / 2) && (thePR.x >= defaultStorySize.width / 2) {
+                tempX = (((StoryScreen.screenBounds.width - defaultStorySize.width) / defaultStorySize.width) * thePR.x) / 1.5
+            }
+            
+            if (pos > defaultStorySize.width / 2) && (thePR.x < defaultStorySize.width / 2) {
+                tempX = (((StoryScreen.screenBounds.width - defaultStorySize.width) / defaultStorySize.width) * thePR.x) / 1
+            }
+        }
+        
         guard let position = positionRes else {
             return CGRect.zero
         }
     
-        var x: CGFloat = (position.x + xOffset) * StoryScreen.screenNativeScale
+        var x: CGFloat = (position.x + xOffset) * StoryScreen.screenNativeScale + tempX * StoryScreen.screenNativeScale
         var y: CGFloat = position.y * StoryScreen.screenNativeScale
         
         var width: CGFloat = position.realWidth //origin.width
@@ -148,6 +159,8 @@ final class SRWidgetConstructor {
         }
         
         var newHeight: CGFloat
+        var newWidth: CGFloat
+        
         if limitY {
             newHeight = (height * scaleH) / (defaultStorySize.height * StoryScreen.screenNativeScale)
         } else {

@@ -143,6 +143,11 @@ final class SRWidgetConstructor {
         switch widget.content {
         case .rectangle(_):
             break
+        case .videoWidget(_):
+            let hRatio = StoryScreen.screenBounds.height / defaultStorySize.height
+            let diffHeight = height * (hRatio - 1.0)
+            
+            y = y - (diffHeight * StoryScreen.screenNativeScale) / 2.0
         default:
             y = y * yCoeff
         }
@@ -159,8 +164,6 @@ final class SRWidgetConstructor {
         }
         
         var newHeight: CGFloat
-        var newWidth: CGFloat
-        
         if limitY {
             newHeight = (height * scaleH) / (defaultStorySize.height * StoryScreen.screenNativeScale)
         } else {

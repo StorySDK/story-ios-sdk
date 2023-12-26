@@ -25,8 +25,6 @@
         private lazy var label: UILabel = {
             let lbl = UILabel()
             lbl.numberOfLines = 0
-//            lbl.layer.borderWidth = 1.0
-//            lbl.layer.borderColor = UIColor.green.cgColor
             
             return lbl
         }()

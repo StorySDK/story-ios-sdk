@@ -125,6 +125,7 @@ import Combine
         public override func layoutSubviews() {
             super.layoutSubviews()
             imageView.frame = bounds
+            updateImage(bounds.size, completion: {}).map { loadingTask = $0 }
         }
         
         override func loadData(_ completion: @escaping () -> Void) -> Cancellable? {

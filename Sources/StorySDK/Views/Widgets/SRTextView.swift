@@ -63,27 +63,15 @@
             label.textAlignment = alignment
             
             var fontSize = textWidget.fontSize
-            if data.positionLimits.isResizableX {
-                let defaultStorySize = CGSize.defaultOnboardingSize()
-                let xCoeff = StoryScreen.screenBounds.width / defaultStorySize.width
-                
-                fontSize = round(textWidget.fontSize * xCoeff)
-            }
-            
             label.font = UIFont.improvedFont(family: textWidget.fontFamily,
                                              ofSize: fontSize, weight: textWidget.fontParams.weight)
             label.text = textWidget.text
-            
             delegate?.didWidgetLoad(self)
         }
         
         override func layoutSubviews() {
             super.layoutSubviews()
             label.frame = bounds
-        }
-        
-        override func setupContentLayer(_ layer: CALayer) {
-            layer.masksToBounds = true
         }
     }
 #endif

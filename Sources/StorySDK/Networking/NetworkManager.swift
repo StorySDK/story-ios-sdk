@@ -184,7 +184,7 @@ extension NetworkManager {
     private func makeRequest(_ path: String, method: HTTPMethod) -> URLRequest? {
         guard let url = URL(string: "\(baseUrl)\(path)") else { return nil }
         
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: url, timeoutInterval: 10.0)
         request.httpMethod = method.rawValue
         return request
     }

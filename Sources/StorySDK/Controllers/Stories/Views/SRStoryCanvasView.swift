@@ -145,6 +145,12 @@ struct WidgetLayout {
                         h = round(frame.height * rect.height)
                     }
                     
+                    if let v = view as? SRImageWidgetView {
+                        if v.isVideo() {
+                            h = round(frame.height * rect.height)
+                        }
+                    }
+                    
                     var size = CGSize(
                         width: frame.width * rect.width,
                         height: h

@@ -76,33 +76,25 @@ import Combine
             sdk.logger.debug("deinit of SRImageWidgetView")
         }
         
+        public func isVideo() -> Bool {
+            if let vUrl = url {
+                if SRImageWidgetView.supportedVideoExt == vUrl.pathExtension {
+                    return true
+                }
+            }
+            
+            return false
+        }
+        
         override func addSubviews() {
             super.addSubviews()
             [imageView].forEach(addSubview)
             
-            if let vUrl = url {
-                if SRImageWidgetView.supportedVideoExt == vUrl.pathExtension {
-                    setUpPlayerContainerView()
-                    
-                    playerView = PlayerView(identifier: data.id)
-                    playerContainerView.addSubview(playerView)
-                    
-                    let videoFramePosition: SRPosition?
-                    if CGSize.isSmallStories() {
-                        videoFramePosition = data.positionByResolutions.res360x640
-                    } else {
-                        videoFramePosition = data.positionByResolutions.res360x780
-                    }
-                    
-                    if let videoFrame = videoFramePosition {
-                        let coeff = StoryScreen.screenBounds.width / videoFrame.realWidth
-                        let fullHeight = ceil(videoFrame.realHeight * coeff)
-                        
-                        playerView.frame = CGRect(origin: .zero,
-                                                  size: CGSize(width: StoryScreen.screenBounds.width,
-                                                                                     height: fullHeight))
-                    }
-                }
+            if isVideo() {
+                setUpPlayerContainerView()
+                
+                playerView = PlayerView(identifier: data.id)
+                playerContainerView.addSubview(playerView)
             }
         }
           
@@ -120,11 +112,14 @@ import Combine
             playerContainerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
             playerContainerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
             playerContainerView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor).isActive = true
+            playerContainerView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
         }
         
         public override func layoutSubviews() {
             super.layoutSubviews()
             imageView.frame = bounds
+            playerView?.frame = playerContainerView.bounds
+            
             updateImage(bounds.size, completion: {}).map { loadingTask = $0 }
         }
         

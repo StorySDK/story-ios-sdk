@@ -12,6 +12,9 @@
 #endif
 
 final class SRWidgetConstructor {
+    static var lastPositionAbsoluteY: CGFloat = 0.0
+    static var lastPositionDY: CGFloat = 0.0
+    
     static func makeWidget(_ widget: SRWidget, story: SRStory, sdk: StorySDK) -> SRWidgetView {
         var content = widget.content
         var imageUrl: URL?
@@ -23,14 +26,6 @@ final class SRWidgetConstructor {
         let logger = sdk.logger
         switch content {
         case .rectangle(let rectangleWidget):
-//            switch rectangleWidget.fillColor {
-//            case .image(let url, let isFilled) {
-//                //content = newContent
-//                imageUrl = url
-//            }
-//            default:
-//                break
-//            }
             if case .image(let url, let _) = rectangleWidget.fillColor {
                 imageUrl = url
             }
@@ -91,10 +86,16 @@ final class SRWidgetConstructor {
         var limitX = !widget.positionLimits.isResizableX
         var limitY = !widget.positionLimits.isResizableY
         
+        var stretchByWidth = false
+        
         switch widget.content {
         case .clickMe(_):
             limitX = true
             limitY = true
+        case .text(_):
+            limitY = true
+        case .videoWidget(_):
+            stretchByWidth = true
         default:
             break
         }
@@ -109,54 +110,52 @@ final class SRWidgetConstructor {
             positionRes = widget.positionByResolutions.res360x780
         }
         
-        var tempX: CGFloat = 0
-        if let thePR = positionRes {
-            let pos = thePR.x + thePR.width
-            if (pos > defaultStorySize.width / 2) && (thePR.x >= defaultStorySize.width / 2) {
-                tempX = (((StoryScreen.screenBounds.width - defaultStorySize.width) / defaultStorySize.width) * thePR.x) / 1.5
-            }
-            
-            if (pos > defaultStorySize.width / 2) && (thePR.x < defaultStorySize.width / 2) {
-                tempX = (((StoryScreen.screenBounds.width - defaultStorySize.width) / defaultStorySize.width) * thePR.x) / 1
-            }
-        }
-        
         guard let position = positionRes else {
             return CGRect.zero
         }
-    
-        var x: CGFloat = position.x
         
-        let dx = (position.x / defaultStorySize.width)
-        let dy = (position.y / defaultStorySize.height)
+        var dx = (position.x / defaultStorySize.width)
+        var dy = (position.y / defaultStorySize.height)
         
-        var y: CGFloat = dy * (StoryScreen.screenBounds.height * StoryScreen.screenNativeScale)
+        if (dy < lastPositionDY) {
+            let betweenItems = position.y - lastPositionAbsoluteY
+            let dh = betweenItems / defaultStorySize.height
+            
+            dy = lastPositionDY + dh
+        }
         
         var width: CGFloat = position.realWidth
         let height = widget.position.realHeight
         
-        var scaleW = screenWidth / defaultStorySize.width
-        let scaleH = screenHeight / defaultStorySize.height
+        let xCoeff = min(StoryScreen.screenBounds.width / defaultStorySize.width, 2.0)
         
-        let xCoeff = StoryScreen.screenBounds.width / defaultStorySize.width
-        let yCoeff = StoryScreen.screenBounds.height / defaultStorySize.height
-        
-        switch widget.content {
-        case .rectangle(_):
-            break
-        case .videoWidget(_):
-            let hRatio = StoryScreen.screenBounds.height / defaultStorySize.height
-            let diffHeight = height * (hRatio - 1.0)
-        default:
-            break
+        if stretchByWidth {
+            width = ((width * xCoeff) / StoryScreen.screenBounds.width) * width
         }
-        
+
         var newHeight: CGFloat = height
         var newWidth: CGFloat = min(width, defaultStorySize.width)
         
         if limitY {
-            newHeight = newHeight / (StoryScreen.screenBounds.height / defaultStorySize.height)
+            let old = newHeight
+            newHeight = max(old, newHeight / (StoryScreen.screenBounds.height / defaultStorySize.height))
         }
+        
+        if stretchByWidth {
+            newHeight = ((height * xCoeff) / StoryScreen.screenBounds.height) * defaultStorySize.height
+            dx = (1 - (newWidth / defaultStorySize.width)) / 2
+        }
+        
+        lastPositionAbsoluteY = position.y + position.realHeight
+        
+        let offsetBetween: CGFloat
+        if stretchByWidth {
+            offsetBetween = newHeight / defaultStorySize.height
+        } else {
+            offsetBetween = position.realHeight / StoryScreen.screenBounds.height
+        }
+        
+        lastPositionDY = dy + offsetBetween
         
         return CGRect(
             x: dx,

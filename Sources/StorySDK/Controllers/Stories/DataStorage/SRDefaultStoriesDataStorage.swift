@@ -124,7 +124,11 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             setupBackground(cell, background: background) { group.leave() }
         }
         
-        for widget in data.widgets {
+        let sortedWidgets = data.widgets.sorted(by: { $0.position.y < $1.position.y })
+        SRWidgetConstructor.lastPositionAbsoluteY = 0.0
+        SRWidgetConstructor.lastPositionDY = 0.0
+        
+        for widget in sortedWidgets {
             let view = SRWidgetConstructor.makeWidget(widget, story: story, sdk: storySdk)
             group.enter()
             view.loadData({ group.leave() })?.store(in: &cell.cancellables)

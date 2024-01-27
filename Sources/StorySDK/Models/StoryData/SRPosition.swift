@@ -28,7 +28,9 @@ public struct SRPosition: Decodable {
         x = try container.decode(Double.self, forKey: .x)
         y = try container.decode(Double.self, forKey: .y)
         width = try container.decode(Double.self, forKey: .width)
-        height = try container.decode(Double.self, forKey: .height)
+        
+        height = try container.decode(Double.self, forKey: .realHeight)
+        
         realWidth = try container.decode(Double.self, forKey: .realWidth)
         realHeight = try container.decode(Double.self, forKey: .realHeight)
         rotate = try container.decode(Double.self, forKey: .rotate)

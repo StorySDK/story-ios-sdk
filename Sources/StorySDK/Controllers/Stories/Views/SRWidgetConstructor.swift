@@ -12,6 +12,9 @@
 #endif
 
 final class SRWidgetConstructor {
+    static var lastPositionAbsoluteY: CGFloat = 0.0
+    static var lastPositionDY: CGFloat = 0.0
+    
     static func makeWidget(_ widget: SRWidget, story: SRStory, sdk: StorySDK) -> SRWidgetView {
         var content = widget.content
         var imageUrl: URL?
@@ -23,14 +26,6 @@ final class SRWidgetConstructor {
         let logger = sdk.logger
         switch content {
         case .rectangle(let rectangleWidget):
-//            switch rectangleWidget.fillColor {
-//            case .image(let url, let isFilled) {
-//                //content = newContent
-//                imageUrl = url
-//            }
-//            default:
-//                break
-//            }
             if case .image(let url, let _) = rectangleWidget.fillColor {
                 imageUrl = url
             }
@@ -42,6 +37,10 @@ final class SRWidgetConstructor {
             return SRRectangleView(story: story, data: widget, rectangleWidget: rectangleWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .imageWidget(let imgWidget):
             imageUrl = imgWidget.imageUrl
+            
+            return SRImageWidgetView(story: story, data: widget, url: imageUrl, loader: loader, logger: logger)
+        case .videoWidget(let imgWidget):
+            imageUrl = imgWidget.videoUrl
             
             return SRImageWidgetView(story: story, data: widget, url: imageUrl, loader: loader, logger: logger)
         case .ellipse(let ellipseWidget):
@@ -82,48 +81,102 @@ final class SRWidgetConstructor {
     }
     
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
-        let defaultStorySize = CGSize.largeStory
+        let defaultStorySize = CGSize.defaultOnboardingSize()
         
-        let screenWidth = StoryScreen.screenBounds.width * StoryScreen.screenNativeScale
-        let screenHeight = defaultStorySize.height
+        var limitX = !widget.positionLimits.isResizableX
+        var limitY = !widget.positionLimits.isResizableY
         
-        var xOffset = (screenWidth - defaultStorySize.width) / 2
-        
-        xOffset = max(xOffset, 0.0)
-        
-        let position = widget.position//.origin
-        var x = position.x + xOffset
-        let y = position.y
-        let width: CGFloat = widget.position.origin.width
-        let height: CGFloat
+        var stretchByWidth = false
         
         switch widget.content {
-        case .imageWidget(_):
-            height = widget.position.origin.height / 3
+        case .clickMe(_):
+            limitX = true
+            limitY = true
+        case .text(_):
+            limitY = true
+        case .videoWidget(_):
+            stretchByWidth = true
         default:
-            height = widget.position.origin.height
+            break
         }
         
-        let scaleW = screenWidth / defaultStorySize.width
-        let scaleH = screenHeight / defaultStorySize.height
+        let screenWidth = StoryScreen.screenBounds.width * StoryScreen.screenNativeScale
+        let screenHeight = StoryScreen.screenBounds.height * StoryScreen.screenNativeScale
         
-        var originalRemainder = defaultStorySize.width - (position.x + width)
-        if fabs(position.x - originalRemainder) < 5 {
-            let center = true
+        let positionRes: SRPosition?
+        if CGSize.isSmallStories() {
+            positionRes = widget.positionByResolutions.res360x640
+        } else {
+            positionRes = widget.positionByResolutions.res360x780
+        }
+        
+        guard let position = positionRes else {
+            return CGRect.zero
+        }
+        
+        var dx = (position.x / defaultStorySize.width)
+        var dy = (position.y / defaultStorySize.height)
+        
+        if (dy < lastPositionDY) {
+            let betweenItems = position.y - lastPositionAbsoluteY
+            let dh = betweenItems / defaultStorySize.height
             
-            x = (screenWidth - width * scaleW) / 2
+            dy = lastPositionDY + dh
         }
+        
+        var width: CGFloat = position.realWidth
+        let height = widget.position.realHeight
+        
+        let xCoeff = min(StoryScreen.screenBounds.width / defaultStorySize.width, 2.0)
+        
+        if stretchByWidth {
+            width = ((width * xCoeff) / StoryScreen.screenBounds.width) * width
+        }
+
+        var newHeight: CGFloat = height
+        var newWidth: CGFloat = min(width, defaultStorySize.width)
+        
+        if limitY {
+            let old = newHeight
+            newHeight = max(old, newHeight / (StoryScreen.screenBounds.height / defaultStorySize.height))
+        }
+        
+        if stretchByWidth {
+            newHeight = ((height * xCoeff) / StoryScreen.screenBounds.height) * defaultStorySize.height
+            dx = (1 - (newWidth / defaultStorySize.width)) / 2
+        }
+        
+        lastPositionAbsoluteY = position.y + position.realHeight
+        
+        let offsetBetween: CGFloat
+        if stretchByWidth {
+            offsetBetween = newHeight / defaultStorySize.height
+        } else {
+            offsetBetween = position.realHeight / StoryScreen.screenBounds.height
+        }
+        
+        lastPositionDY = dy + offsetBetween
         
         return CGRect(
-            x: x / /*defaultStorySize.width,*/screenWidth,
-            y: y / /*defaultStorySize.height*/screenHeight,
-            width: (width * scaleW) / screenWidth /*defaultStorySize.width*/ /*screenWidth*/,
-            height: (height * scaleH) / screenHeight/*defaultStorySize.width*/ /*defaultStorySize.height*/
+            x: dx,
+            y: dy,
+            width: newWidth / defaultStorySize.width,
+            height: newHeight / defaultStorySize.height
         )
     }
 }
 
 extension CGSize {
     static let defaultStory = CGSize(width: 1080, height: 1920)
-    static let largeStory = CGSize(width: 1080, height: 2338)
+    
+    static let largeStory = CGSize(width: 360, height: 780)
+    static let smallStory = CGSize(width: 360, height: 640)
+    
+    static func defaultOnboardingSize() -> CGSize {
+        smallStory
+    }
+    
+    static func isSmallStories() -> Bool {
+        defaultOnboardingSize() == .smallStory
+    }
 }

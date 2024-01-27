@@ -57,7 +57,11 @@ extension StoryFont {
     static func registerFontsIfNeeded() {
         guard !fontsRegistered else { return }
         guard let fontURLs = Bundle.module.urls(forResourcesWithExtension: "ttf", subdirectory: nil) else { return }
+        let otfFontURLs = Bundle.module.urls(forResourcesWithExtension: "otf", subdirectory: nil)
+        
         fontURLs.forEach({ CTFontManagerRegisterFontsForURL($0 as CFURL, .process, nil) })
+        otfFontURLs?.forEach({ CTFontManagerRegisterFontsForURL($0 as CFURL, .process, nil) })
+        
         fontsRegistered = true
     }
     
@@ -109,6 +113,6 @@ extension StoryFont {
     }
     
     static func sizeInPoints(_ fontSize: Double) -> CGFloat {
-        return CGFloat(fontSize / 3.0)
+        fontSize
     }
 }

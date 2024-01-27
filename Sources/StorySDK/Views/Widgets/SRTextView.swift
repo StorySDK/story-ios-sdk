@@ -61,34 +61,17 @@
             
             label.textColor = textColor
             label.textAlignment = alignment
-            label.font = UIFont.improvedFont(family: textWidget.fontFamily,
-                                             ofSize: textWidget.fontSize, weight: textWidget.fontParams.weight)
-            label.text = textWidget.text
             
+            var fontSize = textWidget.fontSize
+            label.font = UIFont.improvedFont(family: textWidget.fontFamily,
+                                             ofSize: fontSize, weight: textWidget.fontParams.weight)
+            label.text = textWidget.text
             delegate?.didWidgetLoad(self)
         }
         
         override func layoutSubviews() {
             super.layoutSubviews()
             label.frame = bounds
-        }
-        
-        override func sizeThatFits(_ size: CGSize) -> CGSize {
-            guard let font = label.font else { return size }
-            
-            let str: NSString = NSString(string: label.text ?? "")
-            let modifiedSize = str.boundingRect(with: CGSize(width: size.width, height: CGFloat.greatestFiniteMagnitude), options: .usesLineFragmentOrigin, attributes: [.font: font], context: nil)
-            
-            return CGSize(width: size.width, height: max(modifiedSize.height, size.height))
-        }
-        
-        override func setupContentLayer(_ layer: CALayer) {
-            layer.masksToBounds = true
-    //        layer.cornerRadius = 8 * widgetScale
-    //        layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
-    //        layer.shadowOpacity = 1
-    //        layer.shadowOffset = .zero
-    //        layer.shadowRadius = 4
         }
     }
 #endif

@@ -145,9 +145,12 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         switch actionType {
         case .story:
             // TODO: add scroll to partical story by id
+            
+            onMethodCall?("scrollNext")
             progress?.scrollNext()
         case .link:
             guard let url = URL(string: clickMeWidget.url) else {
+                onMethodCall?("scrollNext")
                 progress?.scrollNext()
                 return
             }
@@ -158,6 +161,20 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
             
             progress?.pauseAutoscrolling()
             StoryWorkspace.shared.open(url)
+        case .custom:
+            guard let customAction = clickMeWidget.customFields?.ios else {
+                return
+            }
+            
+            guard let url = URL(string: customAction) else {
+                return
+            }
+            
+            guard StoryWorkspace.shared.canOpen(url) else {
+                onMethodCall?(customAction)
+                progress?.scrollNext()
+                return
+            }
         }
     }
     

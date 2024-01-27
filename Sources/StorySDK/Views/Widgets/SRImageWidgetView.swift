@@ -22,16 +22,18 @@ import Combine
     import AVFoundation
 
     public class SRImageWidgetView: SRInteractiveWidgetView {
+        internal static let supportedVideoExt = "mp4"
+        
         let imageView: UIImageView = {
             let v = UIImageView(frame: .zero)
-            v.contentMode = .scaleAspectFill//.scaleAspectFit
+            v.contentMode = .scaleAspectFill
             v.isHidden = true
             v.isUserInteractionEnabled = false
             return v
         }()
         
         var playerContainerView: UIView!
-        private var playerView: PlayerView!
+        var playerView: PlayerView!
         
         let url: URL?
         let logger: SRLogger
@@ -50,40 +52,53 @@ import Combine
                 self.loaded = true
             }
             
-            playerView = PlayerView()
-            
-            addSubviews()
+            if StorySDK.shared.debugMode {
+                backgroundColor = .magenta
+            }
             
             if let vUrl = url {
-                if vUrl.pathExtension == "mp4" {
-                    playVideo(url: vUrl)
+                if SRImageWidgetView.supportedVideoExt == vUrl.pathExtension  {
+                    var videoURL: URL = vUrl
+                    
+                    if let shaHash = vUrl.absoluteString.data(using: .utf8)?.sha256().hex() {
+                        if let fileURL = Bundle.main.url(forResource: shaHash, withExtension: SRImageWidgetView.supportedVideoExt) {
+                            videoURL = fileURL
+                        }
+                    }
+                    
+                    playVideo(url: videoURL)
                 }
             }
+        }
+        
+        deinit {
+            let sdk = StorySDK.shared
+            sdk.logger.debug("deinit of SRImageWidgetView")
+        }
+        
+        public func isVideo() -> Bool {
+            if let vUrl = url {
+                if SRImageWidgetView.supportedVideoExt == vUrl.pathExtension {
+                    return true
+                }
+            }
+            
+            return false
         }
         
         override func addSubviews() {
             super.addSubviews()
             [imageView].forEach(addSubview)
             
-            setUpPlayerContainerView()
-            
-            playerView = PlayerView()
-            playerContainerView.addSubview(playerView)
-            
-            playerView.translatesAutoresizingMaskIntoConstraints = false
-            playerView.leadingAnchor.constraint(equalTo: playerContainerView.leadingAnchor).isActive = true
-            //playerView.trailingAnchor.constraint(equalTo: playerContainerView.topAnchor).isActive = true
-            playerView.trailingAnchor.constraint(equalTo: playerContainerView.trailingAnchor).isActive = true
-            playerView.heightAnchor.constraint(equalTo: playerContainerView.widthAnchor, multiplier: 16/9).isActive = true
-            playerView.centerYAnchor.constraint(equalTo: playerContainerView.centerYAnchor).isActive = true
+            if isVideo() {
+                setUpPlayerContainerView()
+                
+                playerView = PlayerView(identifier: data.id)
+                playerContainerView.addSubview(playerView)
+            }
         }
-        
-        //var playerLooper: AVPlayerLooper?
           
-        func playVideo(url: URL) {
-            //guard let url = URL(string: url) else { return }
-            //self?.
-            //playerLooper = AVPlayerLooper(player: playerView.player, templateItem: playerView.playerItem!)
+        private func playVideo(url: URL) {
             playerView.play(with: url)
         }
         
@@ -95,16 +110,16 @@ import Combine
             
             playerContainerView.translatesAutoresizingMaskIntoConstraints = false
             playerContainerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-            playerContainerView.topAnchor.constraint(equalTo: topAnchor, constant: 44).isActive = true
             playerContainerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-            //playerContainerView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 1.0).isActive = true
-            playerContainerView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.5).isActive = true
             playerContainerView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor).isActive = true
+            playerContainerView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
         }
         
         public override func layoutSubviews() {
             super.layoutSubviews()
             imageView.frame = bounds
+            playerView?.frame = playerContainerView.bounds
+            
             updateImage(bounds.size, completion: {}).map { loadingTask = $0 }
         }
         

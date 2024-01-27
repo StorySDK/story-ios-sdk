@@ -110,7 +110,7 @@
         }()
         private let contentView: UIView = {
             let v = UIView(frame: StoryScreen.screenBounds)
-            v.layer.cornerRadius = 10
+            v.layer.cornerRadius = 0
             v.layer.masksToBounds = true
             return v
         }()
@@ -187,18 +187,12 @@
             } else {
                 if isFilled {
                     contentView.frame = bounds
-                    /*contentView.frame = .init(
-                        x: 0,
-                        y: safeAreaInsets.top,
-                        width: bounds.width,
-                        height: bounds.height - safeAreaInsets.top - safeAreaInsets.bottom
-                    )*/
                 } else {
                     contentView.frame = .init(
                         x: 0,
-                        y: safeAreaInsets.top,
+                        y: 0,
                         width: bounds.width,
-                        height: bounds.height - safeAreaInsets.top - safeAreaInsets.bottom
+                        height: bounds.height
                     )
                 }
             }
@@ -210,7 +204,6 @@
                 height: closeButton.frame.maxY + closeButton.frame.height
             )
             
-            //let test = contentView.bounds.insetBy(dx: 0, dy: (safeAreaInsets.top + safeAreaInsets.bottom)/2)
             collectionView.frame = contentView.bounds
             loadingIndicator.center = center
         }

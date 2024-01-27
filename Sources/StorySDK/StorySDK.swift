@@ -29,6 +29,8 @@ public final class StorySDK: NSObject {
     let imageLoader: SRImageLoader
     var userDefaults: SRUserDefaults = SRMemoryUserDefaults()
     
+    public let debugMode = false
+    
     public init(configuration: SRConfiguration = .init(),
                 imageLoader: SRImageLoader = StorySDK.imageLoader) {
         self.configuration = configuration

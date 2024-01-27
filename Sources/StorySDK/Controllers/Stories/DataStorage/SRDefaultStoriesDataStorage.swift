@@ -124,7 +124,11 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             setupBackground(cell, background: background) { group.leave() }
         }
         
-        for widget in data.widgets {
+        let sortedWidgets = data.widgets.sorted(by: { $0.position.y < $1.position.y })
+        SRWidgetConstructor.lastPositionAbsoluteY = 0.0
+        SRWidgetConstructor.lastPositionDY = 0.0
+        
+        for widget in sortedWidgets {
             let view = SRWidgetConstructor.makeWidget(widget, story: story, sdk: storySdk)
             group.enter()
             view.loadData({ group.leave() })?.store(in: &cell.cancellables)
@@ -150,7 +154,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             cell.appendWidget(view, position: position)
         }
         let id = story.id
-        cell.isLoading = true
+        //cell.isLoading = true
         
         
         group.notify(queue: .main) { [weak progress, weak cell, weak self] in
@@ -163,11 +167,23 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         guard let id = storyId(atIndex: index) else { return }
         if progress?.isLoading[id] ?? false { return }
         progress?.isLoading[id] = false
+        
+        guard let ws = cell.widgets() else { return }
+        for item in ws {
+            print("Widget willDisplay: \(item.data.id)")
+            (item as? SRImageWidgetView)?.playerView?.restartVideo()
+        }
     }
     
     func endDisplaying(_ cell: SRStoryCell, index: Int) {
         guard let id = storyId(atIndex: index) else { return }
         progress?.isLoading[id] = nil
+        
+        guard let ws = cell.widgets() else { return }
+        for item in ws {
+            print("Widget endDisplaying: \(item.data.id)")
+            (item as? SRImageWidgetView)?.playerView?.stopVideo()
+        }
     }
     
     func storyId(atIndex index: Int) -> String? {

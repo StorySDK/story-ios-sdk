@@ -47,7 +47,10 @@
         
         var asOnboarding: Bool = false
         
-        public init(_ group: SRStoryGroup, sdk: StorySDK = .shared, asOnboarding: Bool = false) {
+        public init(_ group: SRStoryGroup,
+                    sdk: StorySDK = .shared,
+                    asOnboarding: Bool = false,
+                    backgroundColor: UIColor = UIColor.black ) {
             self.group = group
             self.logger = sdk.logger
             let dataStorage = SRDefaultStoriesDataStorage(sdk: sdk)
@@ -62,7 +65,11 @@
                 widgetResponder: widgetResponder,
                 analytics: analyticsController
             )
+            
             super.init(nibName: nil, bundle: nil)
+            
+            
+            view.backgroundColor = backgroundColor
             modalPresentationStyle = .overFullScreen
             isModalInPresentation = true
         }
@@ -190,6 +197,12 @@
         }
         
         @objc func close() {
+            if let groupSettings = group.settings {
+                if groupSettings.isProhibitToClose {
+                    return
+                }
+            }
+            
             viewModel.reportGroupClose()
             dismiss(animated: true)
             

@@ -39,6 +39,7 @@ struct WidgetLayout {
             let v = UIView()
             v.translatesAutoresizingMaskIntoConstraints = false
             v.backgroundColor = .clear
+            // .blue.withAlphaComponent(0.3)
             return v
         }()
         private var topOffset: NSLayoutConstraint!
@@ -47,7 +48,9 @@ struct WidgetLayout {
         
         var keyboardHeight: CGFloat = 0
         var needShowTitle: Bool = false {
-            didSet { topOffset.constant = needShowTitle ? 59 : 0 }
+            didSet {
+                topOffset.constant = needShowTitle ? 59 : 0
+            }
         }
         
         var readyToShow: Bool {
@@ -74,6 +77,10 @@ struct WidgetLayout {
             containerView.addSubview(widget)
             loadingWidgets[widget] = widget.loaded
             layoutRects[widget] = position
+        }
+        
+        func widgets() -> [SRWidgetView]? {
+            containerView.subviews.filter { $0.isKind(of: SRWidgetView.self) } as? [SRWidgetView]
         }
         
         func cleanCanvas() {
@@ -110,6 +117,12 @@ struct WidgetLayout {
         }
         
         override func layoutSubviews() {
+            let window = UIApplication.shared.windows.first
+            
+            let top = window?.safeAreaInsets.top ?? 0
+            let btm = window?.safeAreaInsets.bottom ?? 0
+            
+            
             super.layoutSubviews()
             let frame = CGRect(origin: .zero,
                                size: CGSize(width: containerView.bounds.width,
@@ -118,16 +131,34 @@ struct WidgetLayout {
                 for (view, rect) in layoutRects {
                     let transform = view.transform
                     view.transform = .identity
+                    
+                    
+                    var h: CGFloat
+                    if !view.data.positionLimits.isResizableY || view.isKind(of: SRClickMeView.self) {
+                        let positionRes: SRPosition?
+                        if CGSize.isSmallStories() {
+                            h = view.data.positionByResolutions.res360x640!.realHeight
+                        } else {
+                            h = view.data.positionByResolutions.res360x780!.realHeight
+                        }
+                    } else {
+                        h = round(frame.height * rect.height)
+                    }
+                    
+                    if let v = view as? SRImageWidgetView {
+                        if v.isVideo() {
+                            h = round(frame.height * rect.height)
+                        }
+                    }
+                    
                     var size = CGSize(
                         width: frame.width * rect.width,
-                        height: round(frame.height * rect.height)
+                        height: h
                     )
                     size = view.sizeThatFits(size)
                     let origin = CGPoint(
                         x: frame.width * rect.origin.x,
-                        y:
-                            frame.height * rect.origin.y < 162.0 ? frame.height * rect.origin.y + 54.0 * StoryScreen.screenNativeScale :
-                        frame.height * rect.origin.y
+                        y: (frame.height - top) * rect.origin.y
                     )
                     
                     view.frame = .init(origin: origin, size: size)

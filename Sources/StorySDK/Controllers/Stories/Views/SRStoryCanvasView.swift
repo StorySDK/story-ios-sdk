@@ -119,7 +119,7 @@ struct WidgetLayout {
         override func layoutSubviews() {
             let window = UIApplication.shared.windows.first
             
-            let top = window?.safeAreaInsets.top ?? 0
+            let top = 0.0//window?.safeAreaInsets.top ?? 0
             let btm = window?.safeAreaInsets.bottom ?? 0
             
             
@@ -151,6 +151,14 @@ struct WidgetLayout {
                         }
                     }
                     
+                    if !view.isKind(of: SRClickMeView.self) {
+                        if let v = view as? SRImageWidgetView {
+                            if v.imageView != nil {
+                                h = round(frame.height * rect.height)
+                            }
+                        }
+                    }
+
                     var size = CGSize(
                         width: frame.width * rect.width,
                         height: h

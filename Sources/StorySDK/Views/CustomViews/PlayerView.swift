@@ -8,7 +8,7 @@
 #if os(macOS)
     import Cocoa
 
-    final class PlayerView: UIView {
+    final class PlayerView: StoryView {
         override init(frame: NSRect) {
             super.init(frame: frame)
         }

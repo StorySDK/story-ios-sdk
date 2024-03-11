@@ -55,6 +55,7 @@ protocol SRStoriesDataStorage: AnyObject {
 protocol SRStoryCell: AnyObject {
     var backgroundColors: [StoryColor]? { get set }
     var backgroundImage: StoryImage? { get set }
+    var backgroundVideo: URL? { get set }
     var cancellables: Set<AnyCancellable> { get set }
     var needShowTitle: Bool { get set }
     var isLoading: Bool { get set }

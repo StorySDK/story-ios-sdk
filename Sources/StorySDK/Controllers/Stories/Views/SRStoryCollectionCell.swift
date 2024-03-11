@@ -23,6 +23,7 @@ import Combine
     }
 #elseif os(iOS)
     import UIKit
+    import AVFoundation
 
     class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
         var backgroundColors: [UIColor]? {
@@ -42,6 +43,25 @@ import Combine
                 backgroundImageView.isHidden = newValue == nil
             }
         }
+        
+        var backgroundVideo: URL? {
+            get { nil }
+            set {
+                if let url = newValue {
+                    player = AVPlayer(url: url)
+                    backgroundVideoLayer.player = player
+                    player?.play()
+                    
+                    if let thePlayer = player {
+                        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: thePlayer.currentItem, queue: .main) { _ in
+                            thePlayer.seek(to: CMTime.zero)
+                            thePlayer.play()
+                        }
+                    }
+                }
+            }
+        }
+
         var needShowTitle: Bool {
             get { canvasView.needShowTitle }
             set { canvasView.needShowTitle = newValue }
@@ -65,6 +85,14 @@ import Combine
             v.isUserInteractionEnabled = false
             return v
         }()
+        
+        private var player: AVPlayer?
+        private let backgroundVideoLayer: AVPlayerLayer = {
+            let l = AVPlayerLayer(player: nil)
+            l.videoGravity = .resizeAspectFill
+            return l
+        }()
+        
         private let canvasView = SRStoryCanvasView()
         private let loadingView = LoadingBluredView()
         
@@ -84,12 +112,15 @@ import Combine
             cancellables = .init()
             backgroundColors = nil
             backgroundImage = nil
+            backgroundVideo = nil
             canvasView.cleanCanvas()
             isLoading = false
         }
         
         private func setupView() {
             contentView.layer.addSublayer(backgroundLayer)
+            contentView.layer.addSublayer(backgroundVideoLayer)
+            
             backgroundView = backgroundImageView
             [canvasView, loadingView].forEach(contentView.addSubview)
         }
@@ -97,6 +128,7 @@ import Combine
         override func layoutSubviews() {
             super.layoutSubviews()
             backgroundLayer.frame = bounds
+            backgroundVideoLayer.frame = bounds
             canvasView.frame = bounds
             loadingView.frame = bounds
         }

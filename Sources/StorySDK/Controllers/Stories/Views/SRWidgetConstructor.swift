@@ -18,6 +18,8 @@ final class SRWidgetConstructor {
     static var lastPositionResY: CGFloat = 0.0
     static var closestItemsByYPosition: CGFloat = 5.0
     
+    static var currentStoryId: String?
+    
     static func makeWidget(_ widget: SRWidget, story: SRStory, sdk: StorySDK) -> SRWidgetView {
         var content = widget.content
         var imageUrl: URL?
@@ -86,6 +88,14 @@ final class SRWidgetConstructor {
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
         let defaultStorySize = CGSize.defaultOnboardingSize()
         
+        if currentStoryId != story.id {
+            lastPositionAbsoluteY = 0.0
+            lastPositionDY = 0.0
+            lastPositionResY = 0.0
+            
+            currentStoryId = story.id
+        }
+        
         var limitX = !widget.positionLimits.isResizableX
         var limitY = !widget.positionLimits.isResizableY
         
@@ -123,9 +133,11 @@ final class SRWidgetConstructor {
         if abs(lastPositionResY - position.y) > closestItemsByYPosition {
             if (dy < lastPositionDY) {
                 let betweenItems = position.y - lastPositionAbsoluteY
-                let dh = betweenItems / defaultStorySize.height
-                
-                dy = lastPositionDY + dh
+                if betweenItems > 0 {
+                    let dh = betweenItems / defaultStorySize.height
+                    
+                    dy = lastPositionDY + dh
+                }
             }
         }
         

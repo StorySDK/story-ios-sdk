@@ -218,6 +218,10 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
                     }
                 }
                 .store(in: &cell.cancellables)
+        case .video(let url, let isFilled):
+            onFilled?(isFilled)
+            cell.backgroundVideo = url
+            completion?()
         }
     }
     

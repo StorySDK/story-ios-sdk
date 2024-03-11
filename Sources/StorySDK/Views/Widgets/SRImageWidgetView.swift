@@ -150,6 +150,7 @@ import Combine
                     self?.contentView.isHidden = true
                     self?.imageView.isHidden = false
                     self?.imageView.image = image
+                    self?.imageView.frame = CGRect(origin: .zero, size: targetSize)
                 case .failure(let error as CancellationError):
                     logger.error(error.localizedDescription, logger: .widgets)
                 case .failure(let error):

@@ -26,6 +26,8 @@ import Combine
     import AVFoundation
 
     class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
+        internal static let supportedVideoExt = "mp4"
+        
         var backgroundColors: [UIColor]? {
             didSet {
                 if let colors = backgroundColors, colors.count > 1 {
@@ -47,8 +49,28 @@ import Combine
         var backgroundVideo: URL? {
             get { nil }
             set {
-                if let url = newValue {
-                    player = AVPlayer(url: url)
+                if let remoteUrl = newValue {
+                    var mp4LocalUrl: URL?
+                    if let shaHash = remoteUrl.absoluteString.data(using: .utf8)?.sha256().hex() {
+                        if let path = Bundle.main.url(forResource: shaHash,
+                                                     withExtension: SRStoryCollectionCell.supportedVideoExt) {
+                            mp4LocalUrl = path
+                        } else {
+                            do {
+                                let fileManager = FileManager.default
+                                let cacheDirectory = try fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+                                let fileName = shaHash + "." + SRStoryCollectionCell.supportedVideoExt
+                                let tempUrl = cacheDirectory.appendingPathComponent(fileName)
+                                
+                                mp4LocalUrl = tempUrl
+                            } catch {
+                                
+                            }
+                        }
+                    }
+                    
+                    let videoUrl = mp4LocalUrl ?? remoteUrl
+                    player = AVPlayer(url: videoUrl)
                     backgroundVideoLayer.player = player
                     player?.play()
                     

@@ -170,7 +170,6 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         guard let ws = cell.widgets() else { return }
         for item in ws {
-            print("Widget willDisplay: \(item.data.id)")
             (item as? SRImageWidgetView)?.playerView?.restartVideo()
         }
     }
@@ -181,7 +180,6 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         guard let ws = cell.widgets() else { return }
         for item in ws {
-            print("Widget endDisplaying: \(item.data.id)")
             (item as? SRImageWidgetView)?.playerView?.stopVideo()
         }
     }

@@ -227,7 +227,10 @@
         
         public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
             let reusable = collectionView.dequeueReusableCell(withReuseIdentifier: "StoryCell", for: indexPath)
-            guard let cell = reusable as? SRStoryCollectionCell else { return reusable }
+            guard let cell = reusable as? SRStoryCollectionCell else {
+                return reusable
+            }
+            
             viewModel.setupCell(cell, index: indexPath.row)
             cell.layoutCanvas()
             

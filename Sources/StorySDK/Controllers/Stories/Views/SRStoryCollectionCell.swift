@@ -47,9 +47,12 @@ import Combine
         }
         
         var backgroundVideo: URL? {
-            get { nil }
-            set {
-                if let remoteUrl = newValue {
+            didSet {
+                if oldValue == backgroundVideo {
+                    return
+                }
+                
+                if let remoteUrl = backgroundVideo {
                     var mp4LocalUrl: URL?
                     if let shaHash = remoteUrl.absoluteString.data(using: .utf8)?.sha256().hex() {
                         if let path = Bundle.main.url(forResource: shaHash,
@@ -132,10 +135,6 @@ import Combine
             super.prepareForReuse()
             cancellables.forEach { $0.cancel() }
             cancellables = .init()
-            backgroundColors = nil
-            backgroundImage = nil
-            backgroundVideo = nil
-            canvasView.cleanCanvas()
             isLoading = false
         }
         

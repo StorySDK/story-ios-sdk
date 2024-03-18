@@ -154,7 +154,7 @@
                     analytics?.reportQuizFinish(time: Date())
                 }
                 
-                onScrollToStory?(index, false)
+                onScrollToStory?(index, true)
             } else {
                 onScrollCompleted?()
             }

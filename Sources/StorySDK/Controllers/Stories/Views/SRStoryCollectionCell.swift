@@ -65,7 +65,9 @@ import Combine
                                 let fileName = shaHash + "." + SRStoryCollectionCell.supportedVideoExt
                                 let tempUrl = cacheDirectory.appendingPathComponent(fileName)
                                 
-                                mp4LocalUrl = tempUrl
+                                if fileManager.fileExists(atPath: tempUrl.absoluteString) {
+                                    mp4LocalUrl = tempUrl
+                                }
                             } catch {
                                 
                             }

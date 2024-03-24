@@ -119,10 +119,6 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         cell.needShowTitle = storySdk.configuration.needShowTitle
         
         let group = DispatchGroup()
-        if let background = data.background {
-            group.enter()
-            setupBackground(cell, background: background) { group.leave() }
-        }
         
         let sortedWidgets = data.widgets.sorted(by: { $0.position.y < $1.position.y })
         SRWidgetConstructor.lastPositionAbsoluteY = 0.0
@@ -154,7 +150,11 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             cell.appendWidget(view, position: position)
         }
         let id = story.id
-        //cell.isLoading = true
+        
+        if let background = data.background {
+            group.enter()
+            setupBackground(cell, background: background) { group.leave() }
+        }
         
         
         group.notify(queue: .main) { [weak progress, weak cell, weak self] in
@@ -170,7 +170,6 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         guard let ws = cell.widgets() else { return }
         for item in ws {
-            print("Widget willDisplay: \(item.data.id)")
             (item as? SRImageWidgetView)?.playerView?.restartVideo()
         }
     }
@@ -181,7 +180,6 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         guard let ws = cell.widgets() else { return }
         for item in ws {
-            print("Widget endDisplaying: \(item.data.id)")
             (item as? SRImageWidgetView)?.playerView?.stopVideo()
         }
     }
@@ -218,6 +216,10 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
                     }
                 }
                 .store(in: &cell.cancellables)
+        case .video(let url, let isFilled):
+            onFilled?(isFilled)
+            cell.backgroundVideo = url
+            completion?()
         }
     }
     

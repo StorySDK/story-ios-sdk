@@ -23,8 +23,11 @@ import Combine
     }
 #elseif os(iOS)
     import UIKit
+    import AVFoundation
 
     class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
+        internal static let supportedVideoExt = "mp4"
+        
         var backgroundColors: [UIColor]? {
             didSet {
                 if let colors = backgroundColors, colors.count > 1 {
@@ -42,6 +45,50 @@ import Combine
                 backgroundImageView.isHidden = newValue == nil
             }
         }
+        
+        var backgroundVideo: URL? {
+            didSet {
+                if oldValue == backgroundVideo {
+                    return
+                }
+                
+                if let remoteUrl = backgroundVideo {
+                    var mp4LocalUrl: URL?
+                    if let shaHash = remoteUrl.absoluteString.data(using: .utf8)?.sha256().hex() {
+                        if let path = Bundle.main.url(forResource: shaHash,
+                                                     withExtension: SRStoryCollectionCell.supportedVideoExt) {
+                            mp4LocalUrl = path
+                        } else {
+                            do {
+                                let fileManager = FileManager.default
+                                let cacheDirectory = try fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+                                let fileName = shaHash + "." + SRStoryCollectionCell.supportedVideoExt
+                                let tempUrl = cacheDirectory.appendingPathComponent(fileName)
+                                
+                                if fileManager.fileExists(atPath: tempUrl.absoluteString) {
+                                    mp4LocalUrl = tempUrl
+                                }
+                            } catch {
+                                
+                            }
+                        }
+                    }
+                    
+                    let videoUrl = mp4LocalUrl ?? remoteUrl
+                    player = AVPlayer(url: videoUrl)
+                    backgroundVideoLayer.player = player
+                    player?.play()
+                    
+                    if let thePlayer = player {
+                        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: thePlayer.currentItem, queue: .main) { _ in
+                            thePlayer.seek(to: CMTime.zero)
+                            thePlayer.play()
+                        }
+                    }
+                }
+            }
+        }
+
         var needShowTitle: Bool {
             get { canvasView.needShowTitle }
             set { canvasView.needShowTitle = newValue }
@@ -65,6 +112,14 @@ import Combine
             v.isUserInteractionEnabled = false
             return v
         }()
+        
+        private var player: AVPlayer?
+        private let backgroundVideoLayer: AVPlayerLayer = {
+            let l = AVPlayerLayer(player: nil)
+            l.videoGravity = .resizeAspectFill
+            return l
+        }()
+        
         private let canvasView = SRStoryCanvasView()
         private let loadingView = LoadingBluredView()
         
@@ -82,14 +137,13 @@ import Combine
             super.prepareForReuse()
             cancellables.forEach { $0.cancel() }
             cancellables = .init()
-            backgroundColors = nil
-            backgroundImage = nil
-            canvasView.cleanCanvas()
             isLoading = false
         }
         
         private func setupView() {
             contentView.layer.addSublayer(backgroundLayer)
+            contentView.layer.addSublayer(backgroundVideoLayer)
+            
             backgroundView = backgroundImageView
             [canvasView, loadingView].forEach(contentView.addSubview)
         }
@@ -97,6 +151,7 @@ import Combine
         override func layoutSubviews() {
             super.layoutSubviews()
             backgroundLayer.frame = bounds
+            backgroundVideoLayer.frame = bounds
             canvasView.frame = bounds
             loadingView.frame = bounds
         }

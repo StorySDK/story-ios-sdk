@@ -15,6 +15,11 @@ final class SRWidgetConstructor {
     static var lastPositionAbsoluteY: CGFloat = 0.0
     static var lastPositionDY: CGFloat = 0.0
     
+    static var lastPositionResY: CGFloat = 0.0
+    static var closestItemsByYPosition: CGFloat = 5.0
+    
+    static var currentStoryId: String?
+    
     static func makeWidget(_ widget: SRWidget, story: SRStory, sdk: StorySDK) -> SRWidgetView {
         var content = widget.content
         var imageUrl: URL?
@@ -83,16 +88,24 @@ final class SRWidgetConstructor {
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
         let defaultStorySize = CGSize.defaultOnboardingSize()
         
+        if currentStoryId != story.id {
+            lastPositionAbsoluteY = 0.0
+            lastPositionDY = 0.0
+            lastPositionResY = 0.0
+            
+            currentStoryId = story.id
+        }
+        
         var limitX = !widget.positionLimits.isResizableX
         var limitY = !widget.positionLimits.isResizableY
         
         var stretchByWidth = false
         
         switch widget.content {
-        case .clickMe(_):
+        case .clickMe(let btn):
             limitX = true
             limitY = true
-        case .text(_):
+        case .text(let t):
             limitY = true
         case .videoWidget(_):
             stretchByWidth = true
@@ -117,12 +130,18 @@ final class SRWidgetConstructor {
         var dx = (position.x / defaultStorySize.width)
         var dy = (position.y / defaultStorySize.height)
         
-        if (dy < lastPositionDY) {
-            let betweenItems = position.y - lastPositionAbsoluteY
-            let dh = betweenItems / defaultStorySize.height
-            
-            dy = lastPositionDY + dh
+        if abs(lastPositionResY - position.y) > closestItemsByYPosition {
+            if (dy < lastPositionDY) {
+                let betweenItems = position.y - lastPositionAbsoluteY
+                if betweenItems > 0 {
+                    let dh = betweenItems / defaultStorySize.height
+                    
+                    dy = lastPositionDY + dh
+                }
+            }
         }
+        
+        lastPositionResY = position.y
         
         var width: CGFloat = position.realWidth
         let height = widget.position.realHeight

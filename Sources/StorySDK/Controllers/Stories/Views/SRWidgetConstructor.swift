@@ -192,7 +192,7 @@ extension CGSize {
     static let smallStory = CGSize(width: 360, height: 640)
     
     static func defaultOnboardingSize() -> CGSize {
-        smallStory
+        largeStory
     }
     
     static func isSmallStories() -> Bool {

@@ -98,7 +98,9 @@
             var frame = view.bounds
             frame.origin.y += view.safeAreaInsets.top
             frame.size.height -= keyboardHeight + view.safeAreaInsets.top
-            var size = CGSize.zero//SRWidgetConstructor.calcWidgetPosition(widget.data, story: widget.story).size
+            var size = SRWidgetConstructor.calcWidgetPosition(widget.data,
+                                                              story: widget.story,
+                                                              defaultStorySize: CGSize.storySize()).size
             size.width *= view.bounds.width
             size.height *= view.bounds.width
             size = widget.sizeThatFits(size)

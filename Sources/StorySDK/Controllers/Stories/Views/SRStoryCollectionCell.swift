@@ -151,6 +151,7 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
             super.prepareForReuse()
             cancellables.forEach { $0.cancel() }
             cancellables = .init()
+            canvasView.cleanCanvas()
             isLoading = false
         }
         

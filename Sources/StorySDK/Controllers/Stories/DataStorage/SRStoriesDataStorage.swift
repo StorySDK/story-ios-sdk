@@ -46,6 +46,8 @@ protocol SRStoriesDataStorage: AnyObject {
     func endDisplaying(_ cell: SRStoryCell, index: Int)
     /// Returns id of the story at index
     func storyId(atIndex index: Int) -> String?
+    /// Default story size (small, large)
+    func storySize() -> CGSize
     
     var onFilled: ((Bool) -> Void)? { get set }
     
@@ -58,6 +60,7 @@ protocol SRStoryCell: AnyObject {
     var backgroundVideo: URL? { get set }
     var cancellables: Set<AnyCancellable> { get set }
     var needShowTitle: Bool { get set }
+    var defaultStorySize: CGSize? { get set }
     var isLoading: Bool { get set }
     
     func appendWidget(_ widget: SRWidgetView, position: CGRect)

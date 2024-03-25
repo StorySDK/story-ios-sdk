@@ -29,9 +29,9 @@
             return lbl
         }()
         
-        init(story: SRStory, data: SRWidget, textWidget: SRTextWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, textWidget: SRTextWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
             self.textWidget = textWidget
-            super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data, url: imageUrl, loader: loader, logger: logger)
         }
         
         override func setupView() {

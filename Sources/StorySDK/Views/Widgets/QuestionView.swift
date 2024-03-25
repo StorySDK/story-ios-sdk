@@ -58,9 +58,9 @@
             return l
         }()
         
-        init(story: SRStory, data: SRWidget, questionWidget: SRQuestionWidget) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, questionWidget: SRQuestionWidget) {
             self.questionWidget = questionWidget
-            super.init(story: story, data: data)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data)
         }
         
         override func setupView() {

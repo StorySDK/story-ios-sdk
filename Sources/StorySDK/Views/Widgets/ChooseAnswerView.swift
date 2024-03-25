@@ -46,9 +46,9 @@
         
         private var answerViews = [AnswerView]()
         
-        init(story: SRStory, data: SRWidget, chooseAnswerWidget: SRChooseAnswerWidget) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, chooseAnswerWidget: SRChooseAnswerWidget) {
             self.chooseAnswerWidget = chooseAnswerWidget
-            super.init(story: story, data: data)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data)
         }
         
         override func setupContentLayer(_ layer: CALayer) {

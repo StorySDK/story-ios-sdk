@@ -38,9 +38,9 @@
             return v
         }()
 
-        init(story: SRStory, data: SRWidget, swipeUpWidget: SRSwipeUpWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, swipeUpWidget: SRSwipeUpWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
             self.swipeUpWidget = swipeUpWidget
-            super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data, url: imageUrl, loader: loader, logger: logger)
         }
         
         override func addSubviews() {
@@ -67,8 +67,8 @@
         
         override func layoutSubviews() {
             super.layoutSubviews()
-            let iconSize = bounds.height * swipeUpWidget.iconSize / data.position.realHeight
-            let fontSize = bounds.height * swipeUpWidget.fontSize / data.position.realHeight
+            let iconSize = bounds.height * swipeUpWidget.iconSize / data.getWidgetPosition(storySize: defaultStorySize).realHeight
+            let fontSize = bounds.height * swipeUpWidget.fontSize / data.getWidgetPosition(storySize: defaultStorySize).realHeight
             titleLabel.font = .regular(ofSize: fontSize)
             iconView.frame = .init(
                 x: 0, y: 0,

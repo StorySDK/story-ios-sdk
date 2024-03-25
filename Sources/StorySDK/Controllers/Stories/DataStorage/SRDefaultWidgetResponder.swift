@@ -36,6 +36,7 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         widget.endEditing(true)
         let vc = SRTalkAboutViewController(
             story: widget.story,
+            defaultStorySize: widget.defaultStorySize,
             data: widget.data,
             talkAboutWidget: widget.talkAboutWidget,
             loader: widget.loader

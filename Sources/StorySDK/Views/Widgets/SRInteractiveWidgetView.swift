@@ -19,9 +19,9 @@ public class SRInteractiveWidgetView: SRWidgetView {
     let story: SRStory
     weak var delegate: SRInteractiveWidgetDelegate?
     
-    init(story: SRStory, data: SRWidget) {
+    init(story: SRStory, defaultStorySize: CGSize, data: SRWidget) {
         self.story = story
-        super.init(data: data)
+        super.init(data: data, defaultStorySize: defaultStorySize)
         
         backgroundColor = .clear
     }

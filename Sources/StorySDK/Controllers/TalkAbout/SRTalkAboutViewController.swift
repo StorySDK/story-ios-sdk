@@ -28,9 +28,10 @@
         private var keyboardHeight: CGFloat = 0
         private let completion: (String?) -> Void
         
-        init(story: SRStory, data: SRWidget, talkAboutWidget: SRTalkAboutWidget, loader: SRImageLoader, completion: @escaping (String?) -> Void) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, talkAboutWidget: SRTalkAboutWidget, loader: SRImageLoader, completion: @escaping (String?) -> Void) {
             self.widget = .init(
                 story: story,
+                defaultStorySize: defaultStorySize,
                 data: data,
                 talkAboutWidget: talkAboutWidget,
                 loader: loader
@@ -97,7 +98,7 @@
             var frame = view.bounds
             frame.origin.y += view.safeAreaInsets.top
             frame.size.height -= keyboardHeight + view.safeAreaInsets.top
-            var size = SRWidgetConstructor.calcWidgetPosition(widget.data, story: widget.story).size
+            var size = CGSize.zero//SRWidgetConstructor.calcWidgetPosition(widget.data, story: widget.story).size
             size.width *= view.bounds.width
             size.height *= view.bounds.width
             size = widget.sizeThatFits(size)

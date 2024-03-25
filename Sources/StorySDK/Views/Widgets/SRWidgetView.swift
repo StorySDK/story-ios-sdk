@@ -35,14 +35,17 @@ import Combine
     public class SRWidgetView: StoryView {
         let contentView: UIView = .init(frame: .zero)
         let data: SRWidget
+        let defaultStorySize: CGSize
+        
         var widgetScale: CGFloat {
-            data.positionLimits.minWidth.map { data.position.realWidth / $0 } ?? 1.0
+            data.positionLimits.minWidth.map { data.getWidgetPosition(storySize: defaultStorySize).realWidth / $0 } ?? 1.0
         }
         
         var loaded: Bool = false
         
-        init(data: SRWidget) {
+        init(data: SRWidget, defaultStorySize: CGSize) {
             self.data = data
+            self.defaultStorySize = defaultStorySize
             super.init(frame: .zero)
             addSubviews()
             setupView()
@@ -63,7 +66,7 @@ import Combine
         }
         
         func setupView() {
-            let angle = data.position.rotate * .pi / 180
+            let angle = data.getWidgetPosition(storySize: defaultStorySize).rotate * .pi / 180
             transform = CGAffineTransform.identity.rotated(by: angle)
             backgroundColor = .clear
             setupContentLayer(contentView.layer)

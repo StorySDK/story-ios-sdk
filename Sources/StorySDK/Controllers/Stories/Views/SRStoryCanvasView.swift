@@ -35,6 +35,8 @@ struct WidgetLayout {
     import UIKit
 
     final class SRStoryCanvasView: StoryView {
+        weak var delegate: SRSizeDelegate?
+        
         private let containerView: UIView = {
             let v = UIView()
             v.translatesAutoresizingMaskIntoConstraints = false
@@ -136,11 +138,9 @@ struct WidgetLayout {
                     var h: CGFloat
                     if !view.data.positionLimits.isResizableY || view.isKind(of: SRClickMeView.self) {
                         let positionRes: SRPosition?
-                        if CGSize.isSmallStories() {
-                            h = view.data.positionByResolutions.res360x640!.realHeight
-                        } else {
-                            h = view.data.positionByResolutions.res360x780!.realHeight
-                        }
+                        
+                        let sz = delegate?.getDefaultStorySize() ?? .smallStory
+                        h = view.data.getWidgetPosition(storySize: sz).realHeight
                     } else {
                         h = round(frame.height * rect.height)
                     }

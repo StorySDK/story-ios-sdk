@@ -40,10 +40,10 @@ import Combine
         private var displayLink: CADisplayLink!
         private var nextUpdate: TimeInterval = 0
         
-        init(data: SRWidget, giphyWidget: SRGiphyWidget, loader: SRImageLoader) {
+        init(data: SRWidget, defaultStorySize: CGSize, giphyWidget: SRGiphyWidget, loader: SRImageLoader) {
             self.giphyWidget = giphyWidget
             self.loader = loader
-            super.init(data: data)
+            super.init(data: data, defaultStorySize: defaultStorySize)
             displayLink = .init(target: self, selector: #selector(linkDisplay))
             displayLink.add(to: .main, forMode: .default)
             displayLink.isPaused = true
@@ -61,7 +61,7 @@ import Combine
         }
         
         public override func sizeThatFits(_ size: CGSize) -> CGSize {
-            return CGSize(width: data.position.width / StoryScreen.screenScale, height: data.position.height / StoryScreen.screenScale)
+            return CGSize(width: data.getWidgetPosition(storySize: defaultStorySize).width / StoryScreen.screenScale, height: data.getWidgetPosition(storySize: defaultStorySize).height / StoryScreen.screenScale)
         }
         
         override func removeFromSuperview() {
@@ -71,7 +71,7 @@ import Combine
         
         override func loadData(_ completion: @escaping () -> Void) -> Cancellable? {
             startLoading()
-            let size = CGSize(width: data.position.realWidth, height: data.position.realHeight)
+            let size = CGSize(width: data.getWidgetPosition(storySize: defaultStorySize).realWidth, height: data.getWidgetPosition(storySize: defaultStorySize).realHeight)
             return loader.loadGif(giphyWidget.gif, size: size) { [weak self] result in
                 defer {
                     self?.stopLoading()
@@ -85,7 +85,7 @@ import Combine
         override func layoutSubviews() {
             super.layoutSubviews()
             indicator.frame = bounds
-            layer.cornerRadius = giphyWidget.borderRadius * bounds.height / data.position.realHeight
+            layer.cornerRadius = giphyWidget.borderRadius * bounds.height / data.getWidgetPosition(storySize: defaultStorySize).realHeight
         }
         
         override func draw(_ rect: CGRect) {

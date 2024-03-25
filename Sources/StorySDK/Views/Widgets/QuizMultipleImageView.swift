@@ -168,13 +168,13 @@ import Combine
             return l
         }()
         
-        init(story: SRStory, data: SRWidget, quizWidget: SRQuizMultipleImageWidget, loader: SRImageLoader, logger: SRLogger) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, quizWidget: SRQuizMultipleImageWidget, loader: SRImageLoader, logger: SRLogger) {
             self.quizWidget = quizWidget
             self.urls = quizWidget.answers.map {$0.image?.url }
             self.loader = loader
             self.logger = logger
             
-            super.init(story: story, data: data)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data)
         }
         
         private var oldSize = CGSize.zero

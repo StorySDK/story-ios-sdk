@@ -33,9 +33,9 @@
             return lbl
         }()
         
-        init(story: SRStory, data: SRWidget, clickMeWidget: SRClickMeWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, clickMeWidget: SRClickMeWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
             self.clickMeWidget = clickMeWidget
-            super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data, url: imageUrl, loader: loader, logger: logger)
         }
         
         deinit {

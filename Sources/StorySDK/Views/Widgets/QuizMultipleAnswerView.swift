@@ -45,9 +45,9 @@
 
         private var answerViews = [EmojiAnswerView]()
         
-        init(story: SRStory, data: SRWidget, widget: SRQuizOneAnswerWidget) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, widget: SRQuizOneAnswerWidget) {
             self.widget = widget
-            super.init(story: story, data: data)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data)
         }
         
         override func setupContentLayer(_ layer: CALayer) {

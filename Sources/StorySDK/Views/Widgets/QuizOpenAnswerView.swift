@@ -72,10 +72,10 @@ import Combine
             return l
         }()
 
-        init(story: SRStory, data: SRWidget, widget: SRQuizOpenAnswerWidget, loader: SRImageLoader) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, widget: SRQuizOpenAnswerWidget, loader: SRImageLoader) {
             self.widget = widget
             self.loader = loader
-            super.init(story: story, data: data)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data)
         }
         
         deinit {

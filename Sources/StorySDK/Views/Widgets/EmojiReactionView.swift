@@ -31,12 +31,12 @@
         }()
         
         override var widgetScale: CGFloat {
-            data.positionLimits.minHeight.map { data.position.realHeight / $0 } ?? 1
+            data.positionLimits.minHeight.map { data.getWidgetPosition(storySize: defaultStorySize).realHeight / $0 } ?? 1
         }
         
-        init(story: SRStory, data: SRWidget, emojiReactionWidget: SREmojiReactionWidget) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, emojiReactionWidget: SREmojiReactionWidget) {
             self.emojiReactionWidget = emojiReactionWidget
-            super.init(story: story, data: data)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data)
             prepareUI(scale: widgetScale)
         }
         

@@ -68,10 +68,12 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
                 self?.groupInfo.icon = image
             }
         }
+        
+        let sz = storySize()
         storySdk.getStories(group) { [weak self] result in
             switch result {
             case .success(let stories):
-                self?.preloader = SRStoriesPreloader(stories: stories)
+                self?.preloader = SRStoriesPreloader(stories: stories, defaultStorySize: sz)
                 let flag = self?.preloader?.isPreloadRequired() ?? false
                 self?.groupInfo.storiesCount = stories.count
                 
@@ -117,15 +119,17 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         guard let data = story.storyData else { return }
         cell.needShowTitle = storySdk.configuration.needShowTitle
+        cell.defaultStorySize = storySize()
         
         let group = DispatchGroup()
         
-        let sortedWidgets = data.widgets.sorted(by: { $0.position.y < $1.position.y })
+        let sortedWidgets = data.widgets.sorted(by: { $0.getWidgetPosition(storySize: storySize()).y < $1.getWidgetPosition(storySize: storySize()).y })
         SRWidgetConstructor.lastPositionAbsoluteY = 0.0
         SRWidgetConstructor.lastPositionDY = 0.0
         
         for widget in sortedWidgets {
-            let view = SRWidgetConstructor.makeWidget(widget, story: story, sdk: storySdk)
+            let view = SRWidgetConstructor.makeWidget(widget, story: story,
+                                                      defaultStorySize: storySize(), sdk: storySdk)
             group.enter()
             view.loadData({ group.leave() })?.store(in: &cell.cancellables)
             storySdk.userDefaults
@@ -146,7 +150,8 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             default:
                 break
             }
-            let position = SRWidgetConstructor.calcWidgetPosition(widget, story: story)
+            let position = SRWidgetConstructor.calcWidgetPosition(widget, story: story,
+                                                                  defaultStorySize: storySize())
             cell.appendWidget(view, position: position)
         }
         let id = story.id
@@ -156,8 +161,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             setupBackground(cell, background: background) { group.leave() }
         }
         
-        
-        group.notify(queue: .main) { [weak progress, weak cell, weak self] in
+        group.notify(queue: .main) { [weak progress, weak cell] in
             progress?.isLoading[id] = true
             cell?.isLoading = false
         }
@@ -171,6 +175,19 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         guard let ws = cell.widgets() else { return }
         for item in ws {
             (item as? SRImageWidgetView)?.playerView?.restartVideo()
+        }
+    }
+    
+    func storySize() -> CGSize {
+        guard let sizePreset = group?.settings?.sizePreset else {
+            return CGSize.smallStory
+        }
+        
+        switch sizePreset {
+        case .IphoneSmall:
+            return CGSize.smallStory
+        case .IphoneLarge:
+            return CGSize.largeStory
         }
     }
     

@@ -81,7 +81,17 @@
         
         public override func loadView() {
             super.loadView()
-            storiesView = .init()
+            
+            let sizePreset = group.settings?.sizePreset ?? .IphoneSmall
+            let sz: CGSize
+            switch sizePreset {
+            case .IphoneSmall:
+                sz = CGSize.smallStory
+            case .IphoneLarge:
+                sz = CGSize.largeStory
+            }
+            
+            storiesView = .init(defaultStorySize: sz)
             view = storiesView
         }
         

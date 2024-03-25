@@ -36,9 +36,9 @@
             return l
         }()
         
-        init(story: SRStory, data: SRWidget, widget: SRUnknownWidget) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, widget: SRUnknownWidget) {
             self.widget = widget
-            super.init(story: story, data: data)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data)
         }
         
         override func setupView() {

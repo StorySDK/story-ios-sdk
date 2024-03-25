@@ -15,6 +15,8 @@ public class SRStoriesPreloader {
     let storySdk: StorySDK
     
     private var stories: [SRStory]
+    private let defaultStorySize: CGSize
+    
     private var preloaded: [String: Bool] = [:]
     
     private var firstWidgetUrlsToLoad: [URL] = [URL]()
@@ -22,9 +24,10 @@ public class SRStoriesPreloader {
     
     private var videosUrlsToLoad: [URL] = [URL]()
     
-    init(sdk: StorySDK = .shared, stories: [SRStory]) {
+    init(sdk: StorySDK = .shared, stories: [SRStory], defaultStorySize: CGSize) {
         self.storySdk = sdk
         self.stories = stories
+        self.defaultStorySize = defaultStorySize
     }
     
     func isPreloadRequired() -> Bool {
@@ -43,7 +46,7 @@ public class SRStoriesPreloader {
                 
                 for widget in data.widgets {
                     print(widget.id.description)
-                    let widgetData = SRWidgetConstructor.makeWidget(widget, story: story, sdk: storySdk)
+                    let widgetData = SRWidgetConstructor.makeWidget(widget, story: story, defaultStorySize: defaultStorySize, sdk: storySdk)
                     
                     if let imageWidget = widgetData as? SRImageWidgetView {
                         if let url = imageWidget.url {

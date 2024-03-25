@@ -22,9 +22,9 @@
     class SREllipseView: SRImageWidgetView {
         let ellipseWidget: SREllipseWidget
 
-        init(story: SRStory, data: SRWidget, ellipseWidget: SREllipseWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, ellipseWidget: SREllipseWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
             self.ellipseWidget = ellipseWidget
-            super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data, url: imageUrl, loader: loader, logger: logger)
         }
         
         override func setupView() {

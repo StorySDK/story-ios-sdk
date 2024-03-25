@@ -179,16 +179,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     }
     
     func storySize() -> CGSize {
-        guard let sizePreset = group?.settings?.sizePreset else {
-            return CGSize.smallStory
-        }
-        
-        switch sizePreset {
-        case .IphoneSmall:
-            return CGSize.smallStory
-        case .IphoneLarge:
-            return CGSize.largeStory
-        }
+        return CGSize.storySize()
     }
     
     func endDisplaying(_ cell: SRStoryCell, index: Int) {

@@ -182,6 +182,21 @@ extension CGSize {
     static let largeStory = CGSize(width: 360, height: 780)
     static let smallStory = CGSize(width: 360, height: 640)
     
+    static func storySize() -> CGSize {
+        let ratio = UIScreen.main.bounds.height / UIScreen.main.bounds.width
+        let largeStoryRatio = largeStory.height / largeStory.width
+        let smallStoryRatio = smallStory.height / smallStory.width
+        
+        let diffL = abs(ratio - largeStoryRatio)
+        let diffS = abs(ratio - smallStoryRatio)
+        
+        if diffL < diffS {
+            return largeStory
+        } else {
+            return smallStory
+        }
+    }
+    
     static func isSmallStories(storySize: CGSize) -> Bool {
         storySize == .smallStory
     }

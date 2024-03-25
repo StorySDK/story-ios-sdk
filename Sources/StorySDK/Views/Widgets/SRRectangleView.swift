@@ -22,9 +22,9 @@
     class SRRectangleView: SRImageWidgetView {
         let rectangleWidget: SRRectangleWidget
         
-        init(story: SRStory, data: SRWidget, rectangleWidget: SRRectangleWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, rectangleWidget: SRRectangleWidget, imageUrl: URL?, loader: SRImageLoader, logger: SRLogger) {
             self.rectangleWidget = rectangleWidget
-            super.init(story: story, data: data, url: imageUrl, loader: loader, logger: logger)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data, url: imageUrl, loader: loader, logger: logger)
         }
         
         override func setupView() {
@@ -34,7 +34,7 @@
                 contentView.backgroundColor = color.withAlphaComponent(fillOpacity)
             }
             
-            contentView.layer.cornerRadius = CGFloat(rectangleWidget.fillBorderRadius) * bounds.height / data.position.realHeight
+            contentView.layer.cornerRadius = CGFloat(rectangleWidget.fillBorderRadius) * bounds.height / data.getWidgetPosition(storySize: defaultStorySize).realHeight
 
             if rectangleWidget.hasBorder, case .color(let color, let isFilled) = rectangleWidget.strokeColor {
                 let strokeOpacity = CGFloat(rectangleWidget.strokeOpacity / 100)

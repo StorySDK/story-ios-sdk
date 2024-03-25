@@ -20,7 +20,8 @@ final class SRWidgetConstructor {
     
     static var currentStoryId: String?
     
-    static func makeWidget(_ widget: SRWidget, story: SRStory, sdk: StorySDK) -> SRWidgetView {
+    static func makeWidget(_ widget: SRWidget, story: SRStory,
+                           defaultStorySize: CGSize, sdk: StorySDK) -> SRWidgetView {
         var content = widget.content
         var imageUrl: URL?
         if case .image(let url, let newContent) = content {
@@ -39,55 +40,55 @@ final class SRWidgetConstructor {
                 imageUrl = url
             }
             
-            return SRRectangleView(story: story, data: widget, rectangleWidget: rectangleWidget, imageUrl: imageUrl, loader: loader, logger: logger)
+            return SRRectangleView(story: story, defaultStorySize: defaultStorySize, data: widget, rectangleWidget: rectangleWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .imageWidget(let imgWidget):
             imageUrl = imgWidget.imageUrl
             
-            return SRImageWidgetView(story: story, data: widget, url: imageUrl, loader: loader, logger: logger)
+            return SRImageWidgetView(story: story, defaultStorySize: defaultStorySize, data: widget, url: imageUrl, loader: loader, logger: logger)
         case .videoWidget(let imgWidget):
             imageUrl = imgWidget.videoUrl
             
-            return SRImageWidgetView(story: story, data: widget, url: imageUrl, loader: loader, logger: logger)
+            return SRImageWidgetView(story: story, defaultStorySize: defaultStorySize, data: widget, url: imageUrl, loader: loader, logger: logger)
         case .ellipse(let ellipseWidget):
-            return SREllipseView(story: story, data: widget, ellipseWidget: ellipseWidget, imageUrl: imageUrl, loader: loader, logger: logger)
+            return SREllipseView(story: story, defaultStorySize: defaultStorySize, data: widget, ellipseWidget: ellipseWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .emoji(let emojiWidget):
-            return EmojiReactionView(story: story, data: widget, emojiReactionWidget: emojiWidget)
+            return EmojiReactionView(story: story, defaultStorySize: defaultStorySize, data: widget, emojiReactionWidget: emojiWidget)
         case .chooseAnswer(let answerWidget):
-            return ChooseAnswerView(story: story, data: widget, chooseAnswerWidget: answerWidget)
+            return ChooseAnswerView(story: story, defaultStorySize: defaultStorySize, data: widget, chooseAnswerWidget: answerWidget)
         case .text(let textWidget):
-            return SRTextView(story: story, data: widget, textWidget: textWidget, imageUrl: imageUrl, loader: loader, logger: logger)
+            return SRTextView(story: story, defaultStorySize: defaultStorySize, data: widget, textWidget: textWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .swipeUp(let swipeUpWidget):
-            return SRSwipeUpView(story: story, data: widget, swipeUpWidget: swipeUpWidget, imageUrl: imageUrl, loader: loader, logger: logger)
+            return SRSwipeUpView(story: story, defaultStorySize: defaultStorySize, data: widget, swipeUpWidget: swipeUpWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .clickMe(let clickMeWidget):
-            return SRClickMeView(story: story, data: widget, clickMeWidget: clickMeWidget, imageUrl: imageUrl, loader: loader, logger: logger)
+            return SRClickMeView(story: story, defaultStorySize: defaultStorySize, data: widget, clickMeWidget: clickMeWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .slider(let sliderWidget):
-            return SliderView( story: story, data: widget, sliderWidget: sliderWidget)
+            return SliderView( story: story, defaultStorySize: defaultStorySize, data: widget, sliderWidget: sliderWidget)
         case .question(let questionWidget):
-            return QuestionView(story: story, data: widget, questionWidget: questionWidget)
+            return QuestionView(story: story, defaultStorySize: defaultStorySize, data: widget, questionWidget: questionWidget)
         case .talkAbout(let talkAboutWidget):
-            return SRTalkAboutView(story: story, data: widget, talkAboutWidget: talkAboutWidget, loader: loader)
+            return SRTalkAboutView(story: story, defaultStorySize: defaultStorySize, data: widget, talkAboutWidget: talkAboutWidget, loader: loader)
         case .giphy(let giphyWidget):
-            return SRGiphyView(data: widget, giphyWidget: giphyWidget, loader: loader)
+            return SRGiphyView(data: widget, defaultStorySize: defaultStorySize,
+                               giphyWidget: giphyWidget, loader: loader)
         case .quizOneAnswer(let oneAnswerWidget):
-            return QuizOneAnswerView(story: story, data: widget, widget: oneAnswerWidget)
+            return QuizOneAnswerView(story: story, defaultStorySize: defaultStorySize, data: widget, widget: oneAnswerWidget)
         case .quizMultipleImageAnswer(let questionWidget):
-            return QuizMultipleImageView(story: story, data: widget, quizWidget: questionWidget, loader: loader, logger: logger)
+            return QuizMultipleImageView(story: story, defaultStorySize: defaultStorySize, data: widget, quizWidget: questionWidget, loader: loader, logger: logger)
         case .quizMultipleAnswers(let multipleAnswerWidget):
-            return QuizMultipleAnswerView(story: story, data: widget, widget: multipleAnswerWidget)
+            return QuizMultipleAnswerView(story: story, defaultStorySize: defaultStorySize, data: widget, widget: multipleAnswerWidget)
         case .quizOpenAnswer(let openAnswerWidget):
-            return QuizOpenAnswerView(story: story, data: widget, widget: openAnswerWidget, loader: loader)
+            return QuizOpenAnswerView(story: story, defaultStorySize: defaultStorySize, data: widget, widget: openAnswerWidget, loader: loader)
         case .quizRate(let rateWidget):
-            return QuizRateView(story: story, data: widget, widget: rateWidget)
+            return QuizRateView(story: story, defaultStorySize: defaultStorySize, data: widget, widget: rateWidget)
         case .image:
             fatalError("Unexpected widget type")
         case .unknownWidget(let unknownWidget):
-            return UnknownWidgetView(story: story, data: widget ,widget: unknownWidget)
+            return UnknownWidgetView(story: story, defaultStorySize: defaultStorySize, data: widget ,widget: unknownWidget)
         }
     }
     
-    static func calcWidgetPosition(_ widget: SRWidget, story: SRStory) -> CGRect {
-        let defaultStorySize = CGSize.defaultOnboardingSize()
-        
+    static func calcWidgetPosition(_ widget: SRWidget, story: SRStory,
+                                   defaultStorySize: CGSize) -> CGRect {
         if currentStoryId != story.id {
             lastPositionAbsoluteY = 0.0
             lastPositionDY = 0.0
@@ -116,16 +117,7 @@ final class SRWidgetConstructor {
         let screenWidth = StoryScreen.screenBounds.width * StoryScreen.screenNativeScale
         let screenHeight = StoryScreen.screenBounds.height * StoryScreen.screenNativeScale
         
-        let positionRes: SRPosition?
-        if CGSize.isSmallStories() {
-            positionRes = widget.positionByResolutions.res360x640
-        } else {
-            positionRes = widget.positionByResolutions.res360x780
-        }
-        
-        guard let position = positionRes else {
-            return CGRect.zero
-        }
+        let position: SRPosition = widget.getWidgetPosition(storySize: defaultStorySize)
         
         var dx = (position.x / defaultStorySize.width)
         var dy = (position.y / defaultStorySize.height)
@@ -144,7 +136,7 @@ final class SRWidgetConstructor {
         lastPositionResY = position.y
         
         var width: CGFloat = position.realWidth
-        let height = widget.position.realHeight
+        let height = widget.getWidgetPosition(storySize: defaultStorySize).realHeight
         
         let xCoeff = min(StoryScreen.screenBounds.width / defaultStorySize.width, 2.0)
         
@@ -187,15 +179,10 @@ final class SRWidgetConstructor {
 
 extension CGSize {
     static let defaultStory = CGSize(width: 1080, height: 1920)
-    
     static let largeStory = CGSize(width: 360, height: 780)
     static let smallStory = CGSize(width: 360, height: 640)
     
-    static func defaultOnboardingSize() -> CGSize {
-        smallStory
-    }
-    
-    static func isSmallStories() -> Bool {
-        defaultOnboardingSize() == .smallStory
+    static func isSmallStories(storySize: CGSize) -> Bool {
+        storySize == .smallStory
     }
 }

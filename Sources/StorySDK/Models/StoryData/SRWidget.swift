@@ -9,7 +9,6 @@ import Foundation
 
 public struct SRWidget: Decodable {
     public var id: String
-    public var position: SRPosition
     public var positionLimits: SRPositionLimits
     public var positionByResolutions: SRPositionByResolutions
     public var content: SRWidgetContent
@@ -25,14 +24,14 @@ public struct SRWidget: Decodable {
         
         positionLimits = try container.decode(SRPositionLimits.self, forKey: .positionLimits)
         positionByResolutions = try container.decode(SRPositionByResolutions.self, forKey: .positionByResolutions)
-        
-        
-        if CGSize.isSmallStories() {
-            position = positionByResolutions.res360x640!
-        } else {
-            position = positionByResolutions.res360x780!
-        }
-        
         content = try container.decode(SRWidgetContent.self, forKey: .content)
+    }
+    
+    public func getWidgetPosition(storySize: CGSize) -> SRPosition {
+        if CGSize.isSmallStories(storySize: storySize) {
+            return positionByResolutions.res360x640!
+        } else {
+            return positionByResolutions.res360x780!
+        }
     }
 }

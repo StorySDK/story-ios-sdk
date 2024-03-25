@@ -127,7 +127,7 @@
         }()
         public let progressView = SRProgressView()
         
-        init() {
+        init(defaultStorySize: CGSize) {
             super.init(frame: .zero)
             setupView()
         }

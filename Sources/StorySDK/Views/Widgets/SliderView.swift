@@ -60,9 +60,9 @@
         private var emojiWidth: CGFloat = 34
         private var sliderPosY: CGFloat = 0
         
-        init(story: SRStory, data: SRWidget, sliderWidget: SRSliderWidget) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, sliderWidget: SRSliderWidget) {
             self.sliderWidget = sliderWidget
-            super.init(story: story, data: data)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data)
             
             slider.value = CGFloat(sliderWidget.value) / 100
         }

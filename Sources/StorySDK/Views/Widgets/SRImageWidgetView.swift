@@ -42,11 +42,11 @@ import Combine
             didSet { oldValue?.cancel() }
         }
         
-        init(story: SRStory, data: SRWidget, url: URL?, loader: SRImageLoader, logger: SRLogger) {
+        init(story: SRStory, defaultStorySize: CGSize, data: SRWidget, url: URL?, loader: SRImageLoader, logger: SRLogger) {
             self.url = url
             self.loader = loader
             self.logger = logger
-            super.init(story: story, data: data)
+            super.init(story: story, defaultStorySize: defaultStorySize, data: data)
             
             if url == nil {
                 self.loaded = true
@@ -124,7 +124,7 @@ import Combine
         }
         
         override func loadData(_ completion: @escaping () -> Void) -> Cancellable? {
-            let size = CGSize(width: data.position.realWidth, height: data.position.realHeight)
+            let size = CGSize(width: data.getWidgetPosition(storySize: defaultStorySize).realWidth, height: data.getWidgetPosition(storySize: defaultStorySize).realHeight)
             return updateImage(size, completion: completion)
         }
         

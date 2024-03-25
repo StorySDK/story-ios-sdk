@@ -25,7 +25,13 @@ import Combine
     import UIKit
     import AVFoundation
 
-    class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
+
+protocol SRSizeDelegate: AnyObject {
+    
+    func getDefaultStorySize() -> CGSize
+}
+
+class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
         internal static let supportedVideoExt = "mp4"
         
         var backgroundColors: [UIColor]? {
@@ -93,6 +99,9 @@ import Combine
             get { canvasView.needShowTitle }
             set { canvasView.needShowTitle = newValue }
         }
+    
+        var defaultStorySize: CGSize?
+    
         var cancellables = Set<AnyCancellable>()
         var isLoading: Bool = false {
             didSet { isLoading ? loadingView.startLoading() : loadingView.stopLoading() }
@@ -120,7 +129,12 @@ import Combine
             return l
         }()
         
-        private let canvasView = SRStoryCanvasView()
+        private lazy var canvasView: SRStoryCanvasView = {
+            let v = SRStoryCanvasView()
+            v.delegate = self
+            return v
+        }()
+    
         private let loadingView = LoadingBluredView()
         
         override init(frame: CGRect) {
@@ -226,4 +240,10 @@ import Combine
             loadingIndicator.stopAnimating()
         }
     }
+
+extension SRStoryCollectionCell: SRSizeDelegate {
+    func getDefaultStorySize() -> CGSize {
+        defaultStorySize ?? .smallStory
+    }
+}
 #endif

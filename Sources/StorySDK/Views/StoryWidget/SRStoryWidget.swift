@@ -163,7 +163,12 @@
                 guard let widget = self else { return }
                 widget.isLoading = false
                 widget.onErrorReceived?(error)
-                widget.delegate?.onWidgetErrorReceived(error, widget: widget)
+                
+                if error is CancellationError {
+                    
+                } else {
+                    widget.delegate?.onWidgetErrorReceived(error, widget: widget)
+                }
             }
             viewModel.onPresentGroup = { [weak self] index in
                 guard let widget = self else { return }

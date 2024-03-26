@@ -55,9 +55,6 @@ struct WidgetLayout {
             }
         }
         
-        var readyToShow: Bool {
-            return loadingWidgets.allSatisfy {$0.value == true}
-        }
         var timer: Timer? {
             didSet {
                 oldValue?.invalidate()
@@ -124,54 +121,50 @@ struct WidgetLayout {
             let top = 0.0//window?.safeAreaInsets.top ?? 0
             let btm = window?.safeAreaInsets.bottom ?? 0
             
-            
             super.layoutSubviews()
             let frame = CGRect(origin: .zero,
                                size: CGSize(width: containerView.bounds.width,
                                             height: containerView.bounds.height))
-            if readyToShow {
-                for (view, rect) in layoutRects {
-                    let transform = view.transform
-                    view.transform = .identity
-                    
-                    
-                    var h: CGFloat
-                    if !view.data.positionLimits.isResizableY || view.isKind(of: SRClickMeView.self) {
-                        let positionRes: SRPosition?
-                        
-                        let sz = delegate?.getDefaultStorySize() ?? .smallStory
-                        h = view.data.getWidgetPosition(storySize: sz).realHeight
-                    } else {
+            
+            for (view, rect) in layoutRects {
+                let transform = view.transform
+                view.transform = .identity
+                
+                
+                var h: CGFloat
+                if !view.data.positionLimits.isResizableY || view.isKind(of: SRClickMeView.self) {
+                    let sz = delegate?.getDefaultStorySize() ?? .smallStory
+                    h = view.data.getWidgetPosition(storySize: sz).realHeight
+                } else {
+                    h = round(frame.height * rect.height)
+                }
+                
+                if let v = view as? SRImageWidgetView {
+                    if v.isVideo() {
                         h = round(frame.height * rect.height)
                     }
-                    
+                }
+                
+                if !view.isKind(of: SRClickMeView.self) {
                     if let v = view as? SRImageWidgetView {
-                        if v.isVideo() {
+                        if v.imageView != nil {
                             h = round(frame.height * rect.height)
                         }
                     }
-                    
-                    if !view.isKind(of: SRClickMeView.self) {
-                        if let v = view as? SRImageWidgetView {
-                            if v.imageView != nil {
-                                h = round(frame.height * rect.height)
-                            }
-                        }
-                    }
-
-                    var size = CGSize(
-                        width: frame.width * rect.width,
-                        height: h
-                    )
-                    size = view.sizeThatFits(size)
-                    let origin = CGPoint(
-                        x: frame.width * rect.origin.x,
-                        y: (frame.height - top) * rect.origin.y
-                    )
-                    
-                    view.frame = .init(origin: origin, size: size)
-                    view.transform = transform
                 }
+
+                var size = CGSize(
+                    width: frame.width * rect.width,
+                    height: h
+                )
+                size = view.sizeThatFits(size)
+                let origin = CGPoint(
+                    x: frame.width * rect.origin.x,
+                    y: (frame.height - top) * rect.origin.y
+                )
+                
+                view.frame = .init(origin: origin, size: size)
+                view.transform = transform
             }
         }
     }

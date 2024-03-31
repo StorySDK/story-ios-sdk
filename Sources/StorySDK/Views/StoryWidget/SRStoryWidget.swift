@@ -152,12 +152,15 @@
         public func bindView() {
             collectionView.dataSource = self
             collectionView.delegate = self
+            
             viewModel.onReloadData = { [weak self] in
-                guard let wSelf = self else { return }
-                wSelf.isLoading = false
-                wSelf.invalidateIntrinsicContentSize()
-                wSelf.viewModel.setupLayout(wSelf.layout)
-                wSelf.collectionView.reloadData()
+                if StorySDK.shared.configuration.onboardingFilter {
+                    guard let wSelf = self else { return }
+                    wSelf.isLoading = false
+                    wSelf.invalidateIntrinsicContentSize()
+                    wSelf.viewModel.setupLayout(wSelf.layout)
+                    wSelf.collectionView.reloadData()
+                }
             }
             viewModel.onErrorReceived = { [weak self] error in
                 guard let widget = self else { return }

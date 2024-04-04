@@ -29,7 +29,6 @@ final class SRWidgetConstructor {
             imageUrl = url
         }
         let loader = sdk.imageLoader
-        let logger = sdk.logger
         switch content {
         case .rectangle(let rectangleWidget):
             if case .image(let url, let _) = rectangleWidget.fillColor {

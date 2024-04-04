@@ -17,12 +17,8 @@ import Combine
         }
         
         var title: String? {
-            get {
-                return ""
-            }
-            set {
-                print("Set!")
-            }
+            get { "" }
+            set { logger.debug("Set!") }
         }
         var image: StoryImage?
         var isPresented: Bool = false

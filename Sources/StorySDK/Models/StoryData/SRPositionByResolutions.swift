@@ -18,9 +18,19 @@ public struct SRPositionByResolutions: Decodable {
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        res360x640 = try? container.decode(SRPosition.self, forKey: .res360x640)
-        res360x780 = try? container.decode(SRPosition.self, forKey: .res360x780)
+        var decodeError: Error?
+        do {
+            res360x640 = try container.decode(SRPosition.self, forKey: .res360x640)
+        } catch {
+            decodeError = error
+        }
+        do {
+            res360x780 = try container.decode(SRPosition.self, forKey: .res360x780)
+        } catch {
+            decodeError = error
+        }
         guard res360x640 == nil && res360x780 == nil else { return }
-        throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Empty position object"))
+        let error = decodeError ?? DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Empty position object"))
+        throw error
     }
 }

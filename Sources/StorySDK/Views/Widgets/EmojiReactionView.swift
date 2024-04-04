@@ -87,12 +87,12 @@
                       let str = UnicodeScalar(result).map({ String($0) }),
                       let image = str.imageFromEmoji(fontSize: emojiWidth) else { continue }
                 let iv = UIImageView(image: image)
-                iv.tag = i
                 let tapgesture = UITapGestureRecognizer(target: self, action: #selector(emojiClicked(_:)))
                 iv.addGestureRecognizer(tapgesture)
                 iv.isUserInteractionEnabled = true
                 emojiViews.append(iv)
                 contentView.addSubview(iv)
+                iv.tag = emojiViews.count - 1
             }
         }
         

@@ -72,8 +72,7 @@ import Combine
         }
         
         deinit {
-            let sdk = StorySDK.shared
-            sdk.logger.debug("deinit of SRImageWidgetView")
+            logger.debug("deinit of SRImageWidgetView")
         }
         
         public func isVideo() -> Bool {

@@ -45,7 +45,7 @@ public class SRStoriesPreloader {
                 }
                 
                 for widget in data.widgets {
-                    print(widget.id.description)
+                    logger.debug(widget.id.description)
                     let widgetData = SRWidgetConstructor.makeWidget(widget, story: story, defaultStorySize: defaultStorySize, sdk: storySdk)
                     
                     if let imageWidget = widgetData as? SRImageWidgetView {
@@ -106,9 +106,9 @@ public class SRStoriesPreloader {
                 
                 switch result {
                 case .success(let image):
-                    print(itemUrl)
+                    logger.debug(itemUrl.absoluteString, logger: .imageCache)
                 case .failure(let error):
-                    print(error.localizedDescription)
+                    logger.error(error.localizedDescription, logger: .imageCache)
                 }
                 
                 index += 1
@@ -121,15 +121,13 @@ public class SRStoriesPreloader {
         }
         
         for videoUrl in videoUrls {
-            downloadVideo(from: videoUrl) { [weak self] result in
+            downloadVideo(from: videoUrl) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let savedURL):
-                        self?.storySdk.logger.debug("Video saved to: \(savedURL.path)",
-                                              logger: .imageCache)
+                        logger.debug("Video saved to: \(savedURL.path)", logger: .imageCache)
                     case .failure(let error):
-                        self?.storySdk.logger.error("Error downloading video: \(error)",
-                                              logger: .imageCache)
+                        logger.error("Error downloading video: \(error)", logger: .imageCache)
                     }
                 }
             }
@@ -191,9 +189,9 @@ public class SRStoriesPreloader {
             ) { [weak self] result in
                 switch result {
                 case .success(let image):
-                    print("Additional loaded: \(itemUrl)")
+                    logger.debug("Additional loaded: \(itemUrl)")
                 case .failure(let error):
-                    print(error.localizedDescription)
+                    logger.error(error)
                 }
             }
         }

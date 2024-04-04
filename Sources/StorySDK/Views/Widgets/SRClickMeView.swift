@@ -39,8 +39,7 @@
         }
         
         deinit {
-            let sdk = StorySDK.shared
-            sdk.logger.debug("deinit of SRClickMeView")
+            logger.debug("deinit of SRClickMeView")
         }
         
         override func setupContentLayer(_ layer: CALayer) {

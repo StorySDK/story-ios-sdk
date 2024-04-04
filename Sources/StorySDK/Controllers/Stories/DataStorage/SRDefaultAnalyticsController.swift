@@ -32,7 +32,6 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
     func sendReaction(_ reaction: SRStatistic, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         var reaction = reaction
         reaction.groupId = group?.id
-        let logger = storySdk.logger
         storySdk.sendStatistic(reaction) { result in
             switch result {
             case .success:

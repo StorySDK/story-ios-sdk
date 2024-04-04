@@ -27,7 +27,6 @@
         
         private let viewModel: SRStoriesViewModel
         private var storiesView: SRStoriesView!
-        private let logger: SRLogger
         
         public weak var delegate: SRStoryWidgetDelegate?
         
@@ -52,7 +51,6 @@
                     asOnboarding: Bool = false,
                     backgroundColor: UIColor = UIColor.black ) {
             self.group = group
-            self.logger = sdk.logger
             let dataStorage = SRDefaultStoriesDataStorage(sdk: sdk)
             let progressController = SRDefaultProgressController()
             let widgetResponder = SRDefaultWidgetResponder(sdk: sdk)
@@ -118,7 +116,7 @@
                 wSelf.viewModel.reportGroupOpen()
             }
             viewModel.onGotEmptyGroup = { [weak self] in
-                print("StorySDK > Warning: group is empty")
+                logger.warning("group is empty")
                 self?.close()
             }
             viewModel.onErrorReceived = { [logger] error in

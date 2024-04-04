@@ -23,7 +23,7 @@ extension StorySDK {
                     return
                 }
             } catch {
-                print(error)
+                logger.error(error)
             }
         }
         
@@ -50,7 +50,7 @@ extension StorySDK {
 //                    return
 //                }
 //            } catch {
-//                print(error)
+//                logger.error(error)
 //            }
 //        }
         
@@ -67,7 +67,7 @@ extension StorySDK {
 extension StorySDK {
     public func getStories(_ group: SRStoryGroup, completion: @escaping (Result<[SRStory], Error>) -> Void) {
         if let bundlePath = Bundle.main.path(forResource: group.id, ofType: "json") {
-            print("Found cached group")
+            logger.error("Found cached group")
             do {
                 if let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
                     let result = try NetworkManager.decode([SRStory].self, from: jsonData, response: nil, error: nil)
@@ -79,10 +79,10 @@ extension StorySDK {
                     return
                 }
             } catch {
-                print(error)
+                logger.error(error)
             }
         } else {
-            print("Not found")
+            logger.error("Not found")
         }
         
         network.getStories(groupId: group.id, completion: completion)

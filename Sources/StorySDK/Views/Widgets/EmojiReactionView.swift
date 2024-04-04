@@ -83,8 +83,13 @@
             
             let emojiWidth: CGFloat = 34 * scale
             for i in 0 ..< emojiReactionWidget.emoji.count {
-                guard let result = UInt32(emojiReactionWidget.emoji[i].unicode, radix: 16),
-                      let str = UnicodeScalar(result).map({ String($0) }),
+                let scalars = emojiReactionWidget.emoji[i].unicode
+                    .split(separator: "-")
+                    .compactMap { UInt32($0, radix: 16) }
+                    .compactMap { UnicodeScalar($0) }
+                var str = ""
+                str.unicodeScalars.append(contentsOf: scalars)
+                guard !str.isEmpty,
                       let image = str.imageFromEmoji(fontSize: emojiWidth) else { continue }
                 let iv = UIImageView(image: image)
                 let tapgesture = UITapGestureRecognizer(target: self, action: #selector(emojiClicked(_:)))

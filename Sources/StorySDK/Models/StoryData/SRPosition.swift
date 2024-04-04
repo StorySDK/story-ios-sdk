@@ -27,14 +27,18 @@ public struct SRPosition: Decodable {
         
         x = try container.decode(Double.self, forKey: .x)
         y = try container.decode(Double.self, forKey: .y)
-        width = try container.decode(Double.self, forKey: .width)
         
-        height = try container.decode(Double.self, forKey: .realHeight)
+        let width = try? container.decode(Double.self, forKey: .width)
+        let height = try? container.decode(Double.self, forKey: .height)
+        let realWidth = try container.decode(Double.self, forKey: .realWidth)
+        let realHeight = try container.decode(Double.self, forKey: .realHeight)
         
-        realWidth = try container.decode(Double.self, forKey: .realWidth)
-        realHeight = try container.decode(Double.self, forKey: .realHeight)
+        self.width = width ?? realWidth
+        self.realWidth = realWidth
+        self.height = height ?? realHeight
+        self.realHeight = realHeight
+        
         rotate = try container.decode(Double.self, forKey: .rotate)
-        
         origin = try container.decode(SROrigin.self, forKey: .origin)
     }
 }

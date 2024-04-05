@@ -378,6 +378,6 @@ public protocol SRStoryWidgetDelegate: AnyObject {
 
 public extension SRStoryWidgetDelegate {
     func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget) {
-        print("StorySDK > Error:", error.localizedDescription)
+        logger.error(error)
     }
 }

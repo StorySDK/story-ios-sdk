@@ -99,7 +99,7 @@ public indirect enum SRWidgetContent: Decodable {
             let params = try container.decode(SRQuizRateWidget.self, forKey: .params)
             return .quizRate(params)
         case .unknown:
-            print("Unknown widget type")
+            logger.error("Unknown widget type")
             
             let widget = SRUnknownWidget(title: "Unknown widget type")
             return .unknownWidget(widget)

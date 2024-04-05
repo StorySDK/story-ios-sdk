@@ -74,11 +74,11 @@
                 case .loaded:
                     completion?(asset)
                 case .failed:
-                    print(".failed")
+                    logger.debug(".failed")
                 case .cancelled:
-                    print(".cancelled")
+                    logger.debug(".cancelled")
                 default:
-                    print("default")
+                    logger.debug("default")
                 }
             }
         }
@@ -109,14 +109,14 @@
                 // Switch over status value
                 switch status {
                 case .readyToPlay:
-                    print(".readyToPlay")
+                    logger.debug(".readyToPlay")
                     player?.play()
                 case .failed:
-                    print(".failed")
+                    logger.debug(".failed")
                 case .unknown:
-                    print(".unknown")
+                    logger.debug(".unknown")
                 @unknown default:
-                    print("@unknown default")
+                    logger.debug("@unknown default")
                 }
             }
         }
@@ -140,20 +140,19 @@
         }
         
         func loopVideo() {
-            let sdk = StorySDK.shared
-            sdk.logger.debug("loopVideo")
+            logger.debug("loopVideo")
             
             nObserver = NotificationCenter.default.addObserver(
                 forName: .AVPlayerItemDidPlayToEndTime,
                 object: player?.currentItem,
                 queue: .main
-            ) { [weak self] notification in
+            ) { [weak self, identifier] notification in
                 if self?.stopped == true {
-                    print("current player \(self?.identifier) is stopped")
+                    logger.debug("current player \(identifier) is stopped")
                     return
                 }
              
-                print("Player \(self?.identifier) seek to zero")
+                logger.debug("Player \(identifier) seek to zero")
                     
                 self?.player?.seek(to: .zero)
                 self?.player?.play()
@@ -164,7 +163,7 @@
             playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
             NotificationCenter.default.removeObserver(nObserver)
             
-            print("deinit of PlayerView")
+            logger.debug("deinit of PlayerView")
         }
     }
 #endif

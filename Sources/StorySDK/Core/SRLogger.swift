@@ -30,6 +30,20 @@ class SRLogger {
         guard logLevel <= .error else { return }
         os_log("%@", log: logger, type: .error, message)
     }
+    
+    func error(_ err: Error, logger: OSLog = .general) {
+        error("\(err)", logger: logger)
+    }
+    
+    func info(_ message: String, logger: OSLog = .general) {
+        guard logLevel <= .info else { return }
+        os_log("%@", log: logger, type: .info, message)
+    }
+    
+    func warning(_ message: String, logger: OSLog = .general) {
+        guard logLevel <= .info else { return }
+        os_log("%@", log: logger, type: .info, message)
+    }
 }
 
 func <=(_ lhs: OSLogType, _ rhs: OSLogType) -> Bool {

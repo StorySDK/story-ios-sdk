@@ -8,6 +8,8 @@
 import Foundation
 import os
 
+private(set) var logger: SRLogger = .init()
+
 public final class StorySDK: NSObject {
     public static let shared = StorySDK()
     public static let imageLoader = SRImageLoader(logger: .init())
@@ -19,7 +21,7 @@ public final class StorySDK: NSObject {
         get { logger.logLevel }
         set { logger.logLevel = newValue }
     }
-    private(set) var logger: SRLogger = .init()
+    
     var context = SRContext()
     
     lazy var network: NetworkManager = {
@@ -57,7 +59,7 @@ public final class StorySDK: NSObject {
                 let newDefaults = try SRDiskUserDefaults(key: key, logger: logger)
                 userDefaults = newDefaults
             } catch {
-                print("StorySDK > Error:", error.localizedDescription)
+                logger.error(error)
                 userDefaults = SRMemoryUserDefaults()
             }
         } else {

@@ -99,7 +99,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         var story: SRStory
         story = stories[index]
 //        if index + 1 == stories.count { // last story
-//            print(totalScore)
+//            logger.debug(totalScore)
 //
 //            let result = allStories.filter {$0.position == index + 1}
 //            let defaultStory = result.filter {$0.layerData?.isDefaultLayer == true}.first

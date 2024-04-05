@@ -51,7 +51,7 @@ public class SRImageLoader {
             scale: scale,
             contentMode: contentMode
         ) {
-            print("Has cache for \(cacheKey)")
+            logger.info("Has cache for \(cacheKey)")
             return image
         }
         
@@ -67,7 +67,7 @@ public class SRImageLoader {
                         return localImage.scale(to: size, scale: scale, mode: contentMode)
                     }
                 } else {
-                    print("cached image not found")
+                    logger.error("cached image not found")
                 }
             }
         }

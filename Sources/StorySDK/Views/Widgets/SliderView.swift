@@ -19,6 +19,27 @@
 #elseif os(iOS)
     import UIKit
 
+    final class SliderExpandedView: UIView {
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            isUserInteractionEnabled = true
+        }
+        
+        override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+            if self.point(inside: point, with: event) {
+                return subviews.reversed().first
+            }
+            
+            return nil
+        }
+        
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+
     class SliderView: SRInteractiveWidgetView {
         let sliderWidget: SRSliderWidget
         
@@ -28,6 +49,11 @@
             l.endPoint = CGPoint(x: 1.0, y: 0.5)
             l.masksToBounds = true
             return l
+        }()
+        
+        private let sliderExpandedView: SliderExpandedView = {
+            let v = SliderExpandedView()
+            return v
         }()
         
         private let centerView: UIView = {
@@ -70,14 +96,16 @@
         override func addSubviews() {
             super.addSubviews()
             contentView.layer.addSublayer(gradientLayer)
-            [centerView, titleLabel, emoji, slider].forEach(contentView.addSubview)
+            [sliderExpandedView].forEach(contentView.addSubview)
+            
+            [centerView, titleLabel, emoji, slider].forEach(sliderExpandedView.addSubview)
         }
         
         override func setupView() {
             super.setupView()
             gradientLayer.colors = sliderWidget.color.gradient.map(\.cgColor)
             slider.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
-            slider.addTarget(self, action: #selector(sliderBeginChange(_:)), for: .editingDidBegin)
+            slider.addTarget(self, action: #selector(sliderBeginChanged(_:)), for: .editingDidBegin)
             slider.addTarget(self, action: #selector(sliderEndChange(_:)), for: .editingDidEnd)
             updateImage()
             titleLabel.text = sliderWidget.text
@@ -120,19 +148,24 @@
             var contentHeight: CGFloat = centerViewHeight
             var y = (bounds.height - contentHeight) / 2
             let width: CGFloat = max(0, bounds.width - padding * 2)
-            if titleLabel.text != nil {
-                var availableHeight: CGFloat = contentView.bounds.height
-                availableHeight -= padding * 2
-                availableHeight -= centerViewHeight
-                availableHeight -= spacing
-                availableHeight = max(0, availableHeight)
-                // let size = titleLabel.sizeThatFits(.init(width: width, height: availableHeight))
-                let textHeight = availableHeight // min(size.height, availableHeight)
-                contentHeight += spacing + textHeight
-                y = (bounds.height - contentHeight) / 2
-                titleLabel.frame = .init(x: padding, y: y, width: width, height: textHeight)
-                y += textHeight + spacing
+            
+            if let text = titleLabel.text {
+                if !text.isEmpty {
+                    var availableHeight: CGFloat = contentView.bounds.height
+                    availableHeight -= padding * 2
+                    availableHeight -= centerViewHeight
+                    availableHeight -= spacing
+                    availableHeight = max(0, availableHeight)
+                    // let size = titleLabel.sizeThatFits(.init(width: width, height: availableHeight))
+                    let textHeight = availableHeight // min(size.height, availableHeight)
+                    contentHeight += spacing + textHeight
+                    y = (bounds.height - contentHeight) / 2
+                    titleLabel.frame = .init(x: padding, y: y, width: width, height: textHeight)
+                    y += textHeight + spacing
+                }
             }
+            
+            sliderExpandedView.frame = .init(x: 0, y: 0, width: bounds.width, height: bounds.height)
             
             centerView.frame = .init(x: padding, y: y, width: width, height: centerViewHeight)
             centerView.layer.cornerRadius = centerView.bounds.height / 2
@@ -143,7 +176,7 @@
             changeEmojiFrame(for: slider.value)
         }
         
-        @objc func sliderBeginChange(_ sender: GradientSliderView) {
+        @objc func sliderBeginChanged(_ sender: GradientSliderView) {
             delegate?.didStartSlide()
             emoji.isHidden = false
             changeEmojiFrame(for: sender.value)

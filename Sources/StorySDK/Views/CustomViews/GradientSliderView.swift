@@ -38,7 +38,7 @@
             }
         }
 
-        var trackHeight: CGFloat = 10 {
+        var trackHeight: CGFloat = 11 {
             didSet { updateLayerFrames() }
         }
         
@@ -130,7 +130,7 @@
         
         private func thumbOriginForValue() -> CGPoint {
             let x = bounds.width * innerValue - thumbImage.size.width / 2
-            return CGPoint(x: x, y: (bounds.height - thumbImage.size.height) / 2.0)
+            return CGPoint(x: x, y: -8)
         }
     }
 
@@ -138,10 +138,16 @@
         override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
             previousLocation = touch.location(in: self)
             let deltaX: CGFloat = 20
+            let deltaY: CGFloat = 60
+            
             var origin = thumbImageView.frame.origin
             origin.x -= deltaX / 2
+            origin.y -= deltaY / 2
+            
             var size = thumbImageView.frame.size
             size.width += deltaX
+            size.height += deltaY
+            
             let tmpFrame = CGRect(origin: origin, size: size)
             let success = tmpFrame.contains(previousLocation)
             sendActions(for: .editingDidBegin)

@@ -69,6 +69,15 @@ extension StoryColor {
         return StoryColor(red: red / 255.0, green: green / 255.0, blue: blue / 255.0, alpha: 1.0)
     }
     
+    static func rgba(_ value: Int) -> StoryColor {
+        let red: CGFloat = CGFloat((value & 0xff000000) >> 24)
+        let green: CGFloat = CGFloat((value & 0x00ff0000) >> 16)
+        let blue: CGFloat = CGFloat((value & 0x0000ff00) >> 8)
+        let alpha: CGFloat = CGFloat(value & 0x000000ff)
+
+        return StoryColor(red: red / 255.0, green: green / 255.0, blue: blue / 255.0, alpha: alpha / 255.0)
+    }
+    
     static func parseParts(_ parts: [CGFloat]) -> StoryColor? {
         guard parts.count >= 3 else { return nil }
         return .init(

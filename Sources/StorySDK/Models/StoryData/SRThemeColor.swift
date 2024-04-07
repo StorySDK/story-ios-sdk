@@ -68,8 +68,9 @@ public enum SRThemeColor: Decodable {
     public var gradient: [StoryColor] {
         switch self {
         case .purple:
-            let from = StoryColor.rgb(0xae13ab)
-            let to = StoryColor(red: 0.54, green: 0.05, blue: 0.92, alpha: 1.00)
+            let from = StoryColor.rgb(0xce25ca)
+            let to = StoryColor.rgba(0xea0e4ef8)
+            
             return [from, to]
         default:
             let color = self.color

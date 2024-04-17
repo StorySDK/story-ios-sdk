@@ -33,7 +33,6 @@
             if case .color(let color, let isFilled) = ellipseWidget.fillColor {
                 let fillOpacity = CGFloat(ellipseWidget.fillOpacity / 100)
                 contentView.backgroundColor = color
-                    .withAlphaComponent(fillOpacity)
             }
             if ellipseWidget.hasBorder, case .color(let color, let isFilled) = ellipseWidget.strokeColor {
                 let strokeOpacity = CGFloat(ellipseWidget.strokeOpacity / 100)

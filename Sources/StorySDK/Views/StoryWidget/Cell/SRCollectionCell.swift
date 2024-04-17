@@ -16,10 +16,7 @@ import Combine
             }
         }
         
-        var title: String? {
-            get { "" }
-            set { logger.debug("Set!") }
-        }
+        var title: String?
         var image: StoryImage?
         var isPresented: Bool = false
         var skeleton: Bool = false
@@ -48,69 +45,23 @@ import Combine
             get { titleLabel.text }
             set {
                 titleLabel.text = newValue
-                //titleLabel.removeSkeleton()
-                let s = style.isTitleInside
-                
                 titleLabel.removeSkeleton()
                 titleLabel.layer.opacity = 1.0
                 titleLabel.layer.backgroundColor = UIColor.clear.cgColor
-                //self?.titleLabel.layer.backgroundColor = UIColor.clear.cgColor
-                //self?.titleLabel.layer.sublayers?.first?.backgroundColor = UIColor.clear.cgColor
-                
-                if s {
-                    titleLabel.textColor = .white
-                } else {
-                    titleLabel.textColor = .label
-                }
+                titleLabel.textColor = style.isTitleInside ? .white : .label
                 
                 borderLayer.isHidden = false
                 
-    //            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-    //                //self?.imageView.removeSkeleton()
-    //                self?.titleLabel.removeSkeleton()
-    //                self?.titleLabel.layer.opacity = 1.0
-    //                self?.titleLabel.layer.backgroundColor = UIColor.clear.cgColor
-    //                //self?.titleLabel.layer.backgroundColor = UIColor.clear.cgColor
-    //                //self?.titleLabel.layer.sublayers?.first?.backgroundColor = UIColor.clear.cgColor
-    //
-    //                if s {
-    //                    self?.titleLabel.textColor = .white
-    //                } else {
-    //                    self?.titleLabel.textColor = .label
-    //                }
-    //
-    //                self?.borderLayer.isHidden = false
-    //            }
+                setNeedsLayout()
             }
         }
         var image: UIImage? {
             get { imageView.image }
             set {
-                //imageView.image = newValue
-                //contentView.removeSkeleton()
-                //contentView.subviews.forEach { $0.removeSkeleton() }
-                //contentView.removeSkeleton()
-                //removeSkeleton()
-                
-                //contentView.subviews.forEach { $0.removeSkeleton() }
-                //imageView.removeSkeleton()
-                
                 imageView.image = newValue
                 imageView.removeSkeleton()
                 imageView.layer.opacity = 1.0
-                
-    //            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-    //                self?.imageView.image = newValue
-    //                self?.imageView.removeSkeleton()
-    //                self?.imageView.layer.opacity = 1.0
-    //                //self?.contentView.subviews.forEach { $0.removeSkeleton() }
-    //            }
             }
-    //        didSet {
-    //            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-    //                self?.imageView.removeSkeleton()
-    //            }
-    //        }
         }
         /// To cancel async operation of image downloading
         var cancelable: Cancellable? {
@@ -146,17 +97,6 @@ import Combine
             contentView.layer.addSublayer(borderLayer)
             [imageView, titleLabel].forEach(contentView.addSubview)
             setupStyle(style)
-            
-            //contentView.subviews.forEach { $0.makeSkeleton() }
-            
-            //imageView.makeSkeleton()
-            
-            //contentView.subviews.forEach { $0.makeSkeleton() }
-            
-            //titleLabel.makeSkeleton()
-            
-            //contentView.subviews.forEach { $0.makeSkeleton() }
-            //contentView.layer.su makeSkeleton()
         }
         
         @available(*, unavailable)
@@ -188,12 +128,7 @@ import Combine
                 width: imageSize.width + imageView.layer.borderWidth * 2,
                 height: imageSize.height + imageView.layer.borderWidth * 2
             )
-    //        borderLayer.frame = .init(
-    //            x: (bounds.width - imageSize.width) / 2,
-    //            y: 0,
-    //            width: imageSize.width,
-    //            height: imageSize.height
-    //        )
+            
             borderLayer.cornerRadius = imageSize.height * style.corderRadius
             CATransaction.commit()
             
@@ -201,7 +136,6 @@ import Combine
             imageView.frame = borderLayer.frame.insetBy(dx: inset, dy: inset)
             imageView.layer.cornerRadius = imageView.frame.height * style.corderRadius
             
-            // let titleRect: CGRect
             if style.isTitleInside {
                 let padding = inset * 3
                 let titleRect = imageView.frame.insetBy(dx: padding, dy: padding)

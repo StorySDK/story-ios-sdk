@@ -11,6 +11,10 @@
     import UIKit
 #endif
 
+public struct SRCollectionDefaultCellStyle {
+    public static let normalBorderColors: [StoryColor] = [StoryColor.rgb(0xA8A8A8)]
+}
+
 public struct SRCollectionCellStyle {
     /// Border gradient color for new stories
     public var newBorderColors: [StoryColor] = [
@@ -18,7 +22,7 @@ public struct SRCollectionCellStyle {
         StoryColor(red: 0.73, green: 0.04, blue: 0.88, alpha: 1.0), // #B90AE0
     ]
     /// Border gradient color for viewew stories
-    public var normalBorderColors: [StoryColor] = [StoryColor(white: 0.91, alpha: 1.0)]
+    public var normalBorderColors: [StoryColor] = SRCollectionDefaultCellStyle.normalBorderColors
     /// Image corner radius as part of image height
     public var corderRadius: CGFloat = 0.5
     /// Display title inside the image view or outside above the image
@@ -34,7 +38,7 @@ public struct SRCollectionCellStyle {
             StoryColor(red: 1.0, green: 0.0, blue: 0.6, alpha: 1.0), // #FF0198
             StoryColor(red: 0.73, green: 0.04, blue: 0.88, alpha: 1.0), // #B90AE0
         ],
-        normalBorderColors: [StoryColor] = [StoryColor(white: 0.91, alpha: 1.0)],
+        normalBorderColors: [StoryColor] = SRCollectionDefaultCellStyle.normalBorderColors,
         corderRadius: CGFloat = 0.5,
         isTitleInside: Bool = false,
         font: StoryFont = .systemFont(ofSize: 10, weight: .semibold),

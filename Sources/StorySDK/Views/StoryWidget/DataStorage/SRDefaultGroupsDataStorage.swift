@@ -27,6 +27,11 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
         didSet { cellConfig.update(settings: groupsStyle) }
     }
     private let storySdk: StorySDK
+    
+    private struct Sizes {
+        static let spacing: CGFloat = 14.0
+    }
+    
     var app: SRStoryApp? { storySdk.app }
     var cellConfig: SRCollectionCellStyle = .init()
     var presentedCancellable: Cancellable? {
@@ -87,13 +92,13 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     open func setupLayout(_ layout: SRGroupsLayout) {
         switch groupsStyle {
         case .circle, .square:
-            layout.updateSpacing(10)
+            layout.updateSpacing(Sizes.spacing)
             layout.updateItemSize(.init(width: 90, height: 90))
         case .bigSquare:
-            layout.updateSpacing(10)
+            layout.updateSpacing(Sizes.spacing)
             layout.updateItemSize(.init(width: 90, height: 90))
         case .rectangle:
-            layout.updateSpacing(10)
+            layout.updateSpacing(Sizes.spacing)
             layout.updateItemSize(.init(width: 72, height: 90))
         }
         layout.invalidateLayout()

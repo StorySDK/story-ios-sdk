@@ -67,7 +67,7 @@ public class SRImageLoader {
                         return localImage.scale(to: size, scale: scale, mode: contentMode)
                     }
                 } else {
-                    logger.error("cached image not found")
+                    logger.error("cached image not found: \(shaHash)")
                 }
             }
         }

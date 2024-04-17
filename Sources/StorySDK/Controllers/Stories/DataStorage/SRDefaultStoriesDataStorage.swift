@@ -123,7 +123,8 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         let group = DispatchGroup()
         
-        let sortedWidgets = data.widgets.sorted(by: { $0.getWidgetPosition(storySize: storySize()).y < $1.getWidgetPosition(storySize: storySize()).y })
+        let sortedWidgets = data.widgets
+            //.sorted(by: { $0.getWidgetPosition(storySize: storySize()).y < $1.getWidgetPosition(storySize: storySize()).y })
         SRWidgetConstructor.lastPositionAbsoluteY = 0.0
         SRWidgetConstructor.lastPositionDY = 0.0
         

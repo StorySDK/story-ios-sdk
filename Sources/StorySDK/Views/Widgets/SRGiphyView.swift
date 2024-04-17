@@ -60,10 +60,6 @@ import Combine
             alpha = giphyWidget.widgetOpacity / 100
         }
         
-        public override func sizeThatFits(_ size: CGSize) -> CGSize {
-            return CGSize(width: data.getWidgetPosition(storySize: defaultStorySize).width / StoryScreen.screenScale, height: data.getWidgetPosition(storySize: defaultStorySize).height / StoryScreen.screenScale)
-        }
-        
         override func removeFromSuperview() {
             super.removeFromSuperview()
             displayLink.invalidate()

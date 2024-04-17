@@ -15,7 +15,7 @@ public struct SRStory: Decodable {
     public var storyData: SRStoryData?
     public var layerData: SRStoryLayer?
     public var createdAt: Date
-    public var updatedAt: Date
+    public var updatedAt: Date?
     
     enum CodingKeys: String, CodingKey {
         case id, creatorId, groupId, position, storyData, layerData, createdAt, updatedAt
@@ -33,7 +33,7 @@ public struct SRStory: Decodable {
         layerData = try? container.decode(SRStoryLayer.self, forKey: .layerData)
         
         createdAt = try container.decode(Date.self, forKey: .createdAt)
-        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        updatedAt = try? container.decode(Date.self, forKey: .updatedAt)
     }
     
     public func readyToShow() -> Bool {

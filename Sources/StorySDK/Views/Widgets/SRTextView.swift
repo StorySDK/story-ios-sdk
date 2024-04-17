@@ -71,7 +71,9 @@
         
         override func layoutSubviews() {
             super.layoutSubviews()
-            label.frame = bounds
+            let sz = textWidget.text.boundingRect(with: CGSize(width: bounds.width, height: 1000), options: .usesLineFragmentOrigin, attributes: [.font: label.font], context: nil)
+            
+            label.frame = CGRect(origin: bounds.origin, size: CGSize(width: bounds.width, height: max(bounds.height, sz.height)))
         }
     }
 #endif

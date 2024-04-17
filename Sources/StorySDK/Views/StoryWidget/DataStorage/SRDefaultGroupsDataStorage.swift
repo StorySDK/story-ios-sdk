@@ -30,6 +30,7 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     
     private struct Sizes {
         static let spacing: CGFloat = 14.0
+        static let groupSize: CGFloat = 94.0
     }
     
     var app: SRStoryApp? { storySdk.app }
@@ -93,13 +94,13 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
         switch groupsStyle {
         case .circle, .square:
             layout.updateSpacing(Sizes.spacing)
-            layout.updateItemSize(.init(width: 90, height: 90))
+            layout.updateItemSize(.init(width: Sizes.groupSize, height: Sizes.groupSize))
         case .bigSquare:
             layout.updateSpacing(Sizes.spacing)
-            layout.updateItemSize(.init(width: 90, height: 90))
+            layout.updateItemSize(.init(width: Sizes.groupSize, height: Sizes.groupSize))
         case .rectangle:
             layout.updateSpacing(Sizes.spacing)
-            layout.updateItemSize(.init(width: 72, height: 90))
+            layout.updateItemSize(.init(width: 72, height: Sizes.groupSize))
         }
         layout.invalidateLayout()
     }
@@ -186,9 +187,9 @@ extension SRAppGroupViewSettings {
         case .circle, .square:
             return .init(width: 64, height: 64)
         case .bigSquare:
-            return .init(width: 90, height: 90)
+            return .init(width: 94, height: 94)
         case .rectangle:
-            return .init(width: 72, height: 90)
+            return .init(width: 72, height: 94)
         }
     }
 }

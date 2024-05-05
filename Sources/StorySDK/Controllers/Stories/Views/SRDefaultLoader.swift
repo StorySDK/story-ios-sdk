@@ -51,7 +51,7 @@ public final class SRDefaultLoader: UIView, SRLoader, CAAnimationDelegate {
         let minEdge = min(rect.width, rect.height)
         
         rect.size = CGSize(width: minEdge, height: minEdge)
-        setupLoaderAnimation(in: layer, size: rect.size, color: UIColor.white)
+        setupLoaderAnimation(in: layer, size: rect.size, color: UIColor.white.withAlphaComponent(0.8))
     }
     
     private func setupLoaderAnimation(in layer: CALayer, size: CGSize, color: UIColor) {

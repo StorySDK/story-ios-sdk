@@ -55,6 +55,10 @@ public class SRImageLoader {
             return image
         }
         
+        guard url.pathExtension != "mp4" else {
+            return nil
+        }
+        
         // try to find local resource in bundle
         if let shaHash = url.absoluteString.data(using: .utf8)?.sha256().hex() {
             if let path = Bundle.main.path(forResource: shaHash, ofType: "webp") {
@@ -67,7 +71,7 @@ public class SRImageLoader {
                         return localImage.scale(to: size, scale: scale, mode: contentMode)
                     }
                 } else {
-                    logger.error("cached image not found: \(shaHash)")
+                    logger.error("cached resource not found: \(shaHash) for \(url)")
                 }
             }
         }

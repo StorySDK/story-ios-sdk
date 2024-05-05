@@ -126,7 +126,11 @@ extension NetworkManager {
             do {
                 let stories = try Self.decode([SRStory].self, from: data, response: response, error: error)
                 let activeStories = stories.filter { $0.readyToShow() }
-                completion(.success(activeStories))
+                if activeStories.count > 0 {
+                    completion(.success(activeStories))
+                } else {
+                    completion(.failure(SRError.noActiveStories))
+                }
             } catch {
                 completion(.failure(error))
             }

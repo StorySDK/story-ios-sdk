@@ -48,6 +48,7 @@
         
         public init(_ group: SRStoryGroup,
                     sdk: StorySDK = .shared,
+                    delegate: SRStoryWidgetDelegate? = nil,
                     asOnboarding: Bool = false,
                     backgroundColor: UIColor = UIColor.black ) {
             self.group = group
@@ -56,6 +57,7 @@
             let widgetResponder = SRDefaultWidgetResponder(sdk: sdk)
             let analyticsController = SRDefaultAnalyticsController(sdk: sdk)
             self.asOnboarding = asOnboarding
+            self.delegate = delegate
             
             self.viewModel = .init(
                 dataStorage: dataStorage,
@@ -112,12 +114,13 @@
                     wSelf.viewModel.startAutoscrolling()
                 }
                 
+                wSelf.viewModel.onStoriesLoaded?()
                 wSelf.storiesView.stopLoading()
                 wSelf.viewModel.reportGroupOpen()
             }
             viewModel.onGotEmptyGroup = { [weak self] in
                 logger.warning("group is empty")
-                self?.close()
+                self?.notifyClose()
             }
             viewModel.onErrorReceived = { [logger] error in
                 logger.error(error.getDetails(), logger: .stories)
@@ -162,6 +165,12 @@
             viewModel.onStoriesClosed = { [weak self] in
                 self?.delegate?.onWidgetGroupClose()
             }
+            viewModel.onStoriesLoading = { [weak self] in
+                self?.delegate?.onWidgetLoading()
+            }
+            viewModel.onStoriesLoaded = { [weak self] in
+                self?.delegate?.onWidgetLoaded()
+            }
             
             if group.type != .onboarding {
                 tapGesture.addTarget(
@@ -174,6 +183,7 @@
         
         private func loadData(_ asOnboading: Bool = false) {
             storiesView.startLoading()
+            viewModel.onStoriesLoading?()
             viewModel.loadStories(group: group, asOnboading: asOnboading)
         }
         
@@ -214,6 +224,10 @@
             viewModel.reportGroupClose()
             dismiss(animated: true)
             
+            notifyClose()
+        }
+        
+        @objc func notifyClose() {
             viewModel.onStoriesClosed?()
         }
         

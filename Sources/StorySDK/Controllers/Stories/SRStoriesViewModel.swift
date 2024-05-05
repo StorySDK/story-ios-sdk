@@ -72,6 +72,17 @@ final class SRStoriesViewModel {
         get { widgetResponder.onStoriesClosed }
         set { widgetResponder.onStoriesClosed = newValue }
     }
+    
+    var onStoriesLoading: (() -> Void)? {
+        get { widgetResponder.onStoriesLoading }
+        set { widgetResponder.onStoriesLoading = newValue }
+    }
+    
+    var onStoriesLoaded: (() -> Void)? {
+        get { widgetResponder.onStoriesLoaded }
+        set { widgetResponder.onStoriesLoaded = newValue }
+    }
+    
     var presentTalkAbout: ((SRTalkAboutViewController) -> Void)? {
         get { widgetResponder.presentTalkAbout }
         set { widgetResponder.presentTalkAbout = newValue }

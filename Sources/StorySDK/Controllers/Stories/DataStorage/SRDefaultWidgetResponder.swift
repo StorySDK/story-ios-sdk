@@ -12,6 +12,8 @@
 #endif
 
 final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
+    var onStoriesLoading: (() -> Void)?
+    var onStoriesLoaded: (() -> Void)?
     var onStoriesClosed: (() -> Void)?
     
     let storySdk: StorySDK

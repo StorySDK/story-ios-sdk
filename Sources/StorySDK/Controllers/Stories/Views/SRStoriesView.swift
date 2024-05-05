@@ -86,9 +86,9 @@
             v.contentInsetAdjustmentBehavior = .never
             return v
         }()
-        private let loadingIndicator: UIActivityIndicatorView = {
-            let indicator = UIActivityIndicatorView(style: .large)
-            indicator.color = .white
+        
+        private let loadingIndicator: SRLoader = {
+            let indicator = StorySDK.shared.configuration.loader
             return indicator
         }()
         
@@ -164,15 +164,17 @@
         }
         
         func startLoading() {
-            guard loadingIndicator.superview == nil else { return }
             collectionView.isHidden = true
+            
+            guard loadingIndicator.superview == nil else { return }
             addSubview(loadingIndicator)
             loadingIndicator.startAnimating()
         }
         
         func stopLoading() {
-            guard loadingIndicator.superview != nil else { return }
             collectionView.isHidden = false
+            
+            guard loadingIndicator.superview != nil else { return }
             loadingIndicator.stopAnimating()
             loadingIndicator.removeFromSuperview()
         }

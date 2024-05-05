@@ -374,6 +374,8 @@ public protocol SRStoryWidgetDelegate: AnyObject {
     func onWidgetGroupsLoaded(groups: [SRStoryGroup])
     func onWidgetGroupClose()
     func onWidgetMethodCall(_ selectorName: String?)
+    func onWidgetLoading()
+    func onWidgetLoaded()
 }
 
 public extension SRStoryWidgetDelegate {

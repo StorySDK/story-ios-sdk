@@ -33,6 +33,8 @@ public struct SRStoryData: Decodable {
     }
     
     public func readyToShow() -> Bool {
+        guard status == .active else { return false }
+        
         let timestamp = TimeInterval(Date().timeIntervalSince1970 * 1000)
         return (startTime < timestamp) && (timestamp < endTime)
     }

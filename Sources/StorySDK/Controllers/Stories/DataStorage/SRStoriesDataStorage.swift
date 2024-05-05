@@ -134,6 +134,9 @@ protocol SRWidgetResponderStorage: AnyObject {
     // TODO: Desc
     var onStoriesClosed: (() -> Void)? { get set }
     
+    var onStoriesLoading: (() -> Void)? { get set }
+    
+    var onStoriesLoaded: (() -> Void)? { get set }
 }
 
 protocol SRAnalyticsController: AnyObject {

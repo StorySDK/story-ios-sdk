@@ -15,6 +15,7 @@ public enum SRError: Error, LocalizedError {
     case unknownError
     case missingDocumentsDirectory
     case notImplementedmacOS
+    case noActiveStories
     
     // MARK: - Parser errors
     case unknownColor(String)
@@ -36,6 +37,8 @@ public enum SRError: Error, LocalizedError {
             return "Can't find documents directory"
         case .notImplementedmacOS:
             return "Not implemented for macOS"
+        case .noActiveStories:
+            return "There is not active stories"
         case .unknownColor(let color):
             return "Unknown color format (\(color))"
         case .unknownType:

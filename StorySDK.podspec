@@ -25,8 +25,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Sources/StorySDK/**/*.swift'
   s.resource_bundles = {
     'StorySDK' => [
-      'Sources/StorySDK/Resources/Images/*.png',
-      'Sources/StorySDK/Resources/Fonts/**/*.ttf',
+      'Sources/Resources/Images/*.png',
     ]
   }
 end

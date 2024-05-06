@@ -19,20 +19,9 @@ let package = Package(
     targets: [
         .target(
             name: "StorySDK",
+            path: "Sources",
             resources: [
-                .copy("Resources/Images/confetti.png"),
-                .copy("Resources/Images/logo.png"),
-                .copy("Resources/Fonts/Inter/Inter-Bold.ttf"),
-                .copy("Resources/Fonts/Inter/Inter-Regular.ttf"),
-                .copy("Resources/Fonts/Inter/Inter-SemiBold.ttf"),
-                .copy("Resources/Fonts/Inter/Inter-Medium.ttf"),
-                .copy("Resources/Fonts/Roboto/Roboto-Bold.ttf"),
-                .copy("Resources/Fonts/Roboto/Roboto-Regular.ttf"),
-                .copy("Resources/Fonts/Roboto/Roboto-Medium.ttf"),
-                .copy("Resources/Fonts/Roboto/Roboto-Light.ttf"),
-                .copy("Resources/Fonts/Montserrat/Montserrat-Bold.ttf"),
-                .copy("Resources/Fonts/SFCompactRounded/SF-Compact-Rounded-Regular.otf"),
-                .copy("Resources/Fonts/SFCompactRounded/SF-Compact-Rounded-Bold.ttf")
+                .process("Resources"),
             ]),
     ]
 )

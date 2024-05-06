@@ -9,8 +9,10 @@ import UIKit
 
 public final class SRDefaultLoader: UIView, SRLoader, CAAnimationDelegate {
     public var isAnimating: Bool = false
+    private var color: UIColor
     
-    init() {
+    public init(color: UIColor = UIColor.white.withAlphaComponent(0.8)) {
+        self.color = color
         super.init(frame: CGRect(x: 0, y: 0, width: 72, height: 72))
     }
     
@@ -51,7 +53,7 @@ public final class SRDefaultLoader: UIView, SRLoader, CAAnimationDelegate {
         let minEdge = min(rect.width, rect.height)
         
         rect.size = CGSize(width: minEdge, height: minEdge)
-        setupLoaderAnimation(in: layer, size: rect.size, color: UIColor.white.withAlphaComponent(0.8))
+        setupLoaderAnimation(in: layer, size: rect.size, color: color)
     }
     
     private func setupLoaderAnimation(in layer: CALayer, size: CGSize, color: UIColor) {

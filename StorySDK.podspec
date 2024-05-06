@@ -26,6 +26,8 @@ Pod::Spec.new do |s|
   s.resource_bundles = {
     'StorySDK' => [
       'Sources/Resources/Images/*.png',
+      'Sources/Resources/Fonts/**/*.ttf',
+      'Sources/PrivacyInfo.xcprivacy',
     ]
   }
 end

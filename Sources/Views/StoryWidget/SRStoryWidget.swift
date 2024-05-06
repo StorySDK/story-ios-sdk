@@ -382,4 +382,7 @@ public extension SRStoryWidgetDelegate {
     func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget) {
         logger.error(error)
     }
+
+    func onWidgetLoading() {}
+    func onWidgetLoaded() {}
 }

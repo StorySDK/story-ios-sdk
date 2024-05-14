@@ -10,6 +10,7 @@ The StorySDK iOS Framework is a software development kit (SDK) for iOS app devel
 
 By integrating the StorySDK iOS Framework into an iOS app, developers can add the following features:
 
+- Embed onboardings
 - Display groups of stories using the Groups Widget
 - Access the direct API to retrieve application information, groups, and stories
 - Customize the configuration of the SDK, such as enabling full screen mode, showing/hiding the title, setting the duration for each story, and setting the progress color.
@@ -102,7 +103,7 @@ let widget = SRStoryWidget()
 addSubview(widget)
 ```
 
-When your app is ready to load groups, call `widget.load()`. You can handle errors and taps on a group by implementing the `SRStoryWidgetDelegate`protocol and setting it as the widget's delegate.
+When your app is ready to load groups, call `widget.load()`. You can handle errors and taps on a group by implementing the `SRStoryWidgetDelegate` protocol and setting it as the widget's delegate.
 
 ### Direct API
 
@@ -160,17 +161,161 @@ b) Show title on / off
 storySdk.configuration.needShowTitle = true / false
 ```
 
-c) Set show time duration for each story
+c) Filter (hide) onboarding on / off
+
+```swift
+storySdk.configuration.onboardingFilter = true / false
+```
+
+d) Set show time duration for each story
 
 ```swift
 storySdk.configuration.storyDuration = 10 // 10 seconds
 ```
 
-d) Set progress color
+e) Set progress color
 
 ```swift
 storySdk.configuration.progressColor = .green
 ```
+
+#### Advanced
+
+StorySDK has a nice default loader. If you prefer to replace it with another one, that it also possible.
+Ensure your custom loader confirms `SRLoader` protocol:
+
+```swift
+public protocol SRLoadingIndicator: AnyObject {
+    func startAnimating()
+    func stopAnimating()
+}
+
+public protocol SRLoader: SRLoadingIndicator where Self: UIView {}
+```
+
+You can use the following loaders, here are some examples:
+
+<details>
+  <summary>NVExtentedActivityIndicatorView</summary>
+
+```swift
+    import UIKit
+    import StorySDK
+    import NVActivityIndicatorView
+
+    class NVExtentedActivityIndicatorView: UIView, SRLoader {
+        var indicator: NVActivityIndicatorView = NVActivityIndicatorView.ballSpin()
+        
+        init() {
+            super.init(frame: CGRect(x: 0, y: 0, width: 72, height: 72))
+            addSubview(indicator)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        func startAnimating() {
+            indicator.startAnimating()
+        }
+        func stopAnimating() {
+            indicator.stopAnimating()
+        }
+    }
+```
+</details>
+
+
+<details>
+  <summary>Lottie</summary>
+
+```swift
+import UIKit
+import StorySDK
+import Lottie
+
+class LottieLoadingIndicatorView: UIView, SRLoader {
+    var indicator: LottieAnimationView!
+    
+    init() {
+        super.init(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+        
+        indicator = LottieAnimationView(name: "equalizer-icon")
+        addSubview(indicator)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func startAnimating() {
+        indicator.play()
+    }
+    
+    func stopAnimating() {
+        indicator.stop()
+    }
+}
+```
+</details>
+or even
+<details>
+  <summary>Rive</summary>
+
+```swift
+import UIKit
+import StorySDK
+import RiveRuntime
+
+class RiveLoadingIndicatorView: UIView, SRLoader {
+    var model = RiveViewModel(fileName: "Screencut_Logo_Loader")
+    var indicator: RiveView!
+    
+    init() {
+        super.init(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
+        
+        indicator = model.createRiveView()
+        //LottieAnimationView(name: "equalizer-icon")
+        addSubview(indicator)
+        indicator.frame = bounds
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func startAnimating() {
+        model.play()
+    }
+    
+    func stopAnimating() {
+        model.stop()
+    }
+}
+```
+</details>
+
+---
+In additional you also can handle custom method defined in dashboard (using `onWidgetMethodCall` from `SRStoryWidgetDelegate` protocol) for instance define action on onboarding close event or request rate your during onboarding. Like this:
+
+```swift
+    func onWidgetMethodCall(_ selectorName: String?) {
+        guard let selectorName else { return }
+        
+        switch selectorName {
+        case "onboarding-finished":
+            setupFinished()
+        case "scrollNext":
+            if !onRateDisplayed {
+                onRateDisplayed = true
+                rate()
+            }
+        default:
+            break
+        }
+    }
+```
+
 
 ## License
 

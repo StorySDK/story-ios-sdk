@@ -275,7 +275,6 @@ class RiveLoadingIndicatorView: UIView, SRLoader {
         super.init(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
         
         indicator = model.createRiveView()
-        //LottieAnimationView(name: "equalizer-icon")
         addSubview(indicator)
         indicator.frame = bounds
     }

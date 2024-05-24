@@ -25,7 +25,7 @@ public struct SRConfiguration {
     
     public var onboardingFilter: Bool
     
-    public var loader: SRLoader = SRDefaultLoader()
+    public var loader: SRLoader? = SRDefaultLoader()
     
     /// Available languages for the app.
     /// Try to load all if it's empty

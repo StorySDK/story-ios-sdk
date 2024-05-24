@@ -87,7 +87,7 @@
             return v
         }()
         
-        private let loadingIndicator: SRLoader = {
+        private var loadingIndicator: SRLoader? = {
             let indicator = StorySDK.shared.configuration.loader
             return indicator
         }()
@@ -166,6 +166,7 @@
         func startLoading() {
             collectionView.isHidden = true
             
+            guard let loadingIndicator = loadingIndicator else { return }
             guard loadingIndicator.superview == nil else { return }
             addSubview(loadingIndicator)
             loadingIndicator.startAnimating()
@@ -174,6 +175,7 @@
         func stopLoading() {
             collectionView.isHidden = false
             
+            guard let loadingIndicator = loadingIndicator else { return }
             guard loadingIndicator.superview != nil else { return }
             loadingIndicator.stopAnimating()
             loadingIndicator.removeFromSuperview()
@@ -207,7 +209,7 @@
             )
             
             collectionView.frame = contentView.bounds
-            loadingIndicator.center = center
+            loadingIndicator?.center = center
         }
         
         func addCloseTarget(_ target: Any, selector: Selector) {

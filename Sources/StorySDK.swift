@@ -50,6 +50,10 @@ public final class StorySDK: NSObject {
         configuration.update(localization: app.localization)
     }
     
+    func resetLanguageToDefault() {
+        network.setupLanguage(configuration.defaultLanguage)
+    }
+    
     private func update(configuration: SRConfiguration) {
         network.setupBaseUrl(configuration.sdkAPIUrl)
         network.setupAuthorization(configuration.sdkId)

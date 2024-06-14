@@ -53,7 +53,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     
     func loadStories(group: SRStoryGroup, asOnboading: Bool = false) {
         self.group = group
-        //groupInfo.title = group.title
+        
         groupInfo.isProhibitToClose = group.settings?.isProhibitToClose ?? asOnboading
         groupInfo.isProgressHidden = group.settings?.isProgressHidden ?? asOnboading
         
@@ -69,6 +69,41 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             }
         }
         
+        let sz = storySize()
+        storySdk.getStories(group) { [weak self] result in
+            switch result {
+            case .success(let stories):
+                self?.preloader = SRStoriesPreloader(stories: stories, defaultStorySize: sz)
+                let flag = self?.preloader?.isPreloadRequired() ?? false
+                self?.groupInfo.storiesCount = stories.count
+                
+                if flag {
+                    self?.preloader?.preload() { result in
+                        self?.groupInfo.title = group.title
+                        self?.updateStories(stories)
+                    }
+                } else {
+                    self?.groupInfo.title = group.title
+                    self?.updateStories(stories)
+                }
+            case .failure(let error):
+                if case SRError.noActiveStories = error {
+                    if self?.configuration.language != self?.configuration.defaultLanguage {
+                        self?.storySdk.resetLanguageToDefault()
+                        self?.repeatRequestStories(group: group)
+                    } else {
+                        self?.onErrorReceived?(error)
+                        self?.onGotEmptyGroup?()
+                    }
+                } else {
+                    self?.onErrorReceived?(error)
+                    self?.onGotEmptyGroup?()
+                }
+            }
+        }
+    }
+    
+    func repeatRequestStories(group: SRStoryGroup) {
         let sz = storySize()
         storySdk.getStories(group) { [weak self] result in
             switch result {

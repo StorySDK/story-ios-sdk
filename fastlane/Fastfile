@@ -1,0 +1,75 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+desc 'Build info by story group for caching'
+lane :onboarding_cache do |options|
+  cache_onboarding(options[:group])
+end
+
+desc 'Prepare cached media files for storysdk'
+lane :prepare_story_cache do |options|
+  cache_info = cache_onboarding(options[:group])
+
+  cache_dir = options[:cachedir]
+  cache_info.each do |k, v|
+    if File.exist?("#{cache_dir}/#{k}")
+      sh("mv", "#{cache_dir}/#{k}", "#{cache_dir}/#{v}")
+    else
+      puts "Warning: #{k} not found"
+    end
+  end
+end
+
+def cache_onboarding(groupId)
+  require 'digest'
+
+  group_json = download_json(
+    json_url: "https://api.storysdk.com/sdk/v1/groups/#{groupId}/stories"
+  )
+
+  data = group_json[:data]
+
+  media = []
+
+  data.each do |item| 
+    widgets = item[:story_data][:widgets]
+    widgets.each do |widget|
+      media_file = "#{widget[:content][:params][:videoUrl]}"
+
+      if media_file.empty?
+      else
+        media.push(media_file)
+      end      
+    end
+  end
+
+  media.compact!
+
+  cache = Hash.new
+  media.each do |file_url|
+    puts file_url
+
+    digest = Digest::SHA256.hexdigest file_url
+    key = File.basename(file_url)
+    ext = File.extname(file_url)
+
+    cache[key] = "#{digest}#{ext}"
+  end
+
+  puts cache
+  return cache
+end

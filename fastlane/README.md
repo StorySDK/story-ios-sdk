@@ -13,14 +13,6 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 # Available Actions
 
-### onboarding_cache
-
-```sh
-[bundle exec] fastlane onboarding_cache
-```
-
-Build cached media info for storysdk
-
 ### prepare_story_cache
 
 ```sh

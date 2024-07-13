@@ -13,63 +13,44 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
-default_platform(:ios)
+require 'digest'
+require 'open-uri'
+require 'json'
 
-desc 'Build info by story group for caching'
-lane :onboarding_cache do |options|
-  cache_onboarding(options[:group])
-end
+default_platform(:ios)
 
 desc 'Prepare cached media files for storysdk'
 lane :prepare_story_cache do |options|
-  cache_info = cache_onboarding(options[:group])
-
-  cache_dir = options[:cachedir]
-  cache_info.each do |k, v|
-    if File.exist?("#{cache_dir}/#{k}")
-      sh("mv", "#{cache_dir}/#{k}", "#{cache_dir}/#{v}")
-    else
-      puts "Warning: #{k} not found"
-    end
-  end
+  cache_onboarding(options[:group])
 end
 
-def cache_onboarding(groupId)
-  require 'digest'
+def cache_onboarding(group_id)
+  cache = {}
 
-  group_json = download_json(
-    json_url: "https://api.storysdk.com/sdk/v1/groups/#{groupId}/stories"
-  )
+  response = JSON.parse(URI.open("https://api.storysdk.com/sdk/v1/groups/#{group_id}/stories").read)
+  raise StandardError, response["error"] unless response["error"].empty?
 
-  data = group_json[:data]
-
-  media = []
+  data = response["data"]
 
   data.each do |item| 
-    widgets = item[:story_data][:widgets]
+    widgets = item["story_data"]["widgets"]
     widgets.each do |widget|
-      media_file = "#{widget[:content][:params][:videoUrl]}"
+      video_url = widget["content"]["params"]["videoUrl"]
 
-      if media_file.empty?
-      else
-        media.push(media_file)
-      end      
+      puts video_url
+
+      unless video_url.nil?
+        digest = Digest::SHA256.hexdigest video_url
+        key = File.basename(video_url)
+        ext = File.extname(video_url)
+
+        Dir.mkdir('./cached') unless Dir.exist?('./cached')
+        File.open("./cached/#{digest}#{ext}", 'wb') do |file|
+          file << URI.open(video_url).read
+        end
+
+        cache[key] = "#{digest}#{ext}"
+      end
     end
   end
-
-  media.compact!
-
-  cache = Hash.new
-  media.each do |file_url|
-    puts file_url
-
-    digest = Digest::SHA256.hexdigest file_url
-    key = File.basename(file_url)
-    ext = File.extname(file_url)
-
-    cache[key] = "#{digest}#{ext}"
-  end
-
-  puts cache
-  return cache
 end

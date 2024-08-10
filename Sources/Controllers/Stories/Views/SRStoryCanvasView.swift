@@ -132,6 +132,8 @@ struct WidgetLayout {
                 
                 
                 var h: CGFloat
+                var w: CGFloat = frame.width * rect.width
+                
                 if !view.data.positionLimits.isResizableY || view.isKind(of: SRClickMeView.self) {
                     let sz = delegate?.getDefaultStorySize() ?? .smallStory
                     h = view.data.getWidgetPosition(storySize: sz).realHeight
@@ -148,13 +150,21 @@ struct WidgetLayout {
                 if !view.isKind(of: SRClickMeView.self) {
                     if let v = view as? SRImageWidgetView {
                         if v.imageView != nil {
-                            h = round(frame.height * rect.height)
+                            let sz = delegate?.getDefaultStorySize() ?? .smallStory
+                            let srPosition = view.data.getWidgetPosition(storySize: sz)
+                            
+                            if srPosition.isHeightLocked == true {
+                                h = round(sz.height * rect.height)
+                                w = round(sz.width * rect.width)
+                            } else {
+                                h = round(frame.height * rect.height)
+                            }
                         }
                     }
                 }
 
                 var size = CGSize(
-                    width: frame.width * rect.width,
+                    width: w,
                     height: h
                 )
                 size = view.sizeThatFits(size)

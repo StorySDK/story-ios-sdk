@@ -19,6 +19,7 @@
     public final class SRNavigationController: UIViewController, SRNavigationViewDataSource {
         private let groups: [SRStoryGroup]
         private let sdk: StorySDK
+        private let backgroundColor: UIColor
         private var loadedViewControllers: [Int: SRStoriesViewController] = [:]
         private let gestures = SRNavigationGestureHelper()
         private var animations: SRNavigationAnimationHelper { gestures.animations }
@@ -29,10 +30,13 @@
         var currentIndex: Int
         var numberOfGroups: Int { groups.count }
         
-        public init(index: Int, groups: [SRStoryGroup], sdk: StorySDK = .shared) {
+        public init(index: Int, groups: [SRStoryGroup], sdk: StorySDK = .shared,
+                    backgroundColor: UIColor = UIColor.black) {
             self.groups = groups
             self.currentIndex = index
             self.sdk = sdk
+            self.backgroundColor = backgroundColor
+            
             super.init(nibName: nil, bundle: nil)
             modalPresentationStyle = .overFullScreen
             modalPresentationCapturesStatusBarAppearance = true
@@ -49,8 +53,8 @@
         
         public override func viewDidLoad() {
             super.viewDidLoad()
-            view.backgroundColor = UIColor.parse(rawValue: "#18182E")!
-            //.black
+            view.backgroundColor = backgroundColor
+            
             gestures.dataSource = self
             setupContainer()
             addGestures()

@@ -38,7 +38,9 @@ public struct SRPosition: Decodable {
         self.realWidth = realWidth
         self.height = height ?? realHeight
         self.realHeight = realHeight
-        self.isHeightLocked = try container.decode(Bool?.self, forKey: .isHeightLocked) ?? false
+        
+        let isHeightLocked = try? container.decode(Bool?.self, forKey: .isHeightLocked)
+        self.isHeightLocked = isHeightLocked ?? false
          
         rotate = try container.decode(Double.self, forKey: .rotate)
         origin = try container.decode(SROrigin.self, forKey: .origin)

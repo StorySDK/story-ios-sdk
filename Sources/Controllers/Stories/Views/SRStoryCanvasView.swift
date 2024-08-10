@@ -161,6 +161,14 @@ struct WidgetLayout {
                             }
                         }
                     }
+                    
+                    if let v = view as? SREllipseView {
+                        let sz = delegate?.getDefaultStorySize() ?? .smallStory
+                        let srPosition = view.data.getWidgetPosition(storySize: sz)
+                        
+                        h = round(sz.height * rect.height)
+                        w = round(sz.width * rect.width)
+                    }
                 }
 
                 var size = CGSize(

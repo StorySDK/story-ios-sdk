@@ -101,26 +101,38 @@ final class SRWidgetConstructor {
         
         var stretchByWidth = false
         
+        let position: SRPosition = widget.getWidgetPosition(storySize: defaultStorySize)
+        var isHeightLocked = false
+        
+        var dx = (position.x / defaultStorySize.width)
+        var dy = (position.y / defaultStorySize.height)
+        
+        let screenWidth = StoryScreen.screenBounds.width * StoryScreen.screenNativeScale
+        let screenHeight = StoryScreen.screenBounds.height * StoryScreen.screenNativeScale
+        
+        var changeDxMiddle = false
+        var changeDxControl = false
+        
         switch widget.content {
         case .clickMe(let btn):
             limitX = true
             limitY = true
         case .text(let t):
             limitY = true
+            changeDxControl = true
         case .videoWidget(_):
             stretchByWidth = true
+            isHeightLocked = position.isHeightLocked
+            changeDxMiddle = true
+        case .imageWidget(_):
+            isHeightLocked = position.isHeightLocked
+            changeDxMiddle = true
+        case .ellipse(_):
+            isHeightLocked = true
+            changeDxControl = true
         default:
             break
         }
-        
-        let screenWidth = StoryScreen.screenBounds.width * StoryScreen.screenNativeScale
-        let screenHeight = StoryScreen.screenBounds.height * StoryScreen.screenNativeScale
-        
-        let position: SRPosition = widget.getWidgetPosition(storySize: defaultStorySize)
-        var isHeightLocked = position.isHeightLocked
-        
-        var dx = (position.x / defaultStorySize.width)
-        var dy = (position.y / defaultStorySize.height)
         
         if abs(lastPositionResY - position.y) > closestItemsByYPosition {
             if (dy < lastPositionDY) {
@@ -156,8 +168,15 @@ final class SRWidgetConstructor {
             dx = (1 - (newWidth / defaultStorySize.width)) / 2
         }
         
-        if isHeightLocked == true {
-            dx = (1 - (newWidth / StoryScreen.screenBounds.width)) / 2
+        if changeDxMiddle {
+            if newWidth > defaultStorySize.width / 2 {
+                dx = (1 - (newWidth / StoryScreen.screenBounds.width)) / 2
+            }
+        }
+        
+        if changeDxControl {
+            var diff = (StoryScreen.screenBounds.width - defaultStorySize.width) / 2
+            dx = (position.x + diff) / StoryScreen.screenBounds.width
         }
         
         if stretchByWidth && !isHeightLocked {
@@ -165,9 +184,6 @@ final class SRWidgetConstructor {
         }
 
         lastPositionAbsoluteY = position.y + position.realHeight
-        
-        
-        
         
         let offsetBetween: CGFloat
         if stretchByWidth {
@@ -180,10 +196,6 @@ final class SRWidgetConstructor {
         
         var ratioX = newWidth / defaultStorySize.width
         var ratioY = newHeight / defaultStorySize.height
-        
-//        if isHeightLocked == true {
-//            ratioX = ratioY
-//        }
         
         return CGRect(
             x: dx,

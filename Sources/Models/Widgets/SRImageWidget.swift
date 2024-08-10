@@ -13,4 +13,5 @@
 
 public struct SRImageWidget: Decodable {
     public var imageUrl: URL?
+    public var borderRadius: Double
 }

@@ -26,9 +26,10 @@ import Combine
         
         let imageView: UIImageView = {
             let v = UIImageView(frame: .zero)
-            v.contentMode = .scaleAspectFill
+            v.contentMode = .scaleAspectFit
             v.isHidden = true
             v.isUserInteractionEnabled = false
+            v.clipsToBounds = true
             return v
         }()
         
@@ -88,6 +89,13 @@ import Combine
         override func addSubviews() {
             super.addSubviews()
             [imageView].forEach(addSubview)
+            
+            switch data.content {
+            case .imageWidget(let widget):
+                imageView.layer.cornerRadius = widget.borderRadius
+            default:
+                break
+            }
             
             if isVideo() {
                 setUpPlayerContainerView()

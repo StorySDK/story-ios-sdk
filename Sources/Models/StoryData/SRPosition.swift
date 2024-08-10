@@ -14,12 +14,13 @@ public struct SRPosition: Decodable {
     public var height: Double
     public var realWidth: Double
     public var realHeight: Double
+    public var isHeightLocked: Bool
     public var rotate: Double
     
     public var origin: SROrigin
     
     enum CodingKeys: String, CodingKey {
-        case x, y, width, height, realWidth, realHeight, rotate, origin
+        case x, y, width, height, realWidth, realHeight, rotate, isHeightLocked, origin
     }
     
     public init(from decoder: Decoder) throws {
@@ -37,7 +38,8 @@ public struct SRPosition: Decodable {
         self.realWidth = realWidth
         self.height = height ?? realHeight
         self.realHeight = realHeight
-        
+        self.isHeightLocked = try container.decode(Bool?.self, forKey: .isHeightLocked) ?? false
+         
         rotate = try container.decode(Double.self, forKey: .rotate)
         origin = try container.decode(SROrigin.self, forKey: .origin)
     }

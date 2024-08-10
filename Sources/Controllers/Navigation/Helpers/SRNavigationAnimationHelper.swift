@@ -27,6 +27,7 @@
             guard let dataSource = dataSource else { return animator }
             let currentIndex = dataSource.currentIndex
             let current = dataSource.loadViewController(currentIndex)
+            let height = dataSource.containerView.frame.height ?? UIScreen.main.bounds.height
             
             animator.addAnimations { [weak dataSource] in
                 UIView.animateKeyframes(
@@ -35,19 +36,12 @@
                     options: .calculationModeCubic,
                     animations: {
                         UIView.addKeyframe(
-                            withRelativeStartTime: 0,
-                            relativeDuration: 0.5,
-                            animations: { dataSource?.mainView.backgroundColor = .clear }
-                        )
-                        UIView.addKeyframe(
-                            withRelativeStartTime: 0,
-                            relativeDuration: 1,
-                            animations: { dataSource?.containerView.transform = .init(translationX: 0, y: 200) }
-                        )
-                        UIView.addKeyframe(
-                            withRelativeStartTime: 0.5,
-                            relativeDuration: 0.5,
-                            animations: { dataSource?.containerView.alpha = 0 }
+                            withRelativeStartTime: 0.0,
+                            relativeDuration: 1.0,
+                            animations: { dataSource?.mainView.transform =
+                                CGAffineTransform(translationX: 0, y: max(0, height / 3))
+                                    .scaledBy(x: 0.9, y: 0.9)
+                            }
                         )
                     }
                 )

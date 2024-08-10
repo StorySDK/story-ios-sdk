@@ -176,8 +176,6 @@ import Combine
             imageView.layer.borderColor = style.backgroundColor.cgColor
             updateBorder(isPresented ? style.normalBorderColors : style.newBorderColors)
             
-            //titleLabel.makeSkeleton()
-            
             setNeedsLayout()
         }
         

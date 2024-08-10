@@ -23,7 +23,7 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
     public var onMethodCall: ((String?) -> Void)?
     
     private(set) public var groups: [SRStoryGroup] = []
-    private(set) var groupsStyle: SRAppGroupViewSettings {
+    private(set) var groupsStyle: SRAppGroupViewSettings = .bigSquare {
         didSet { cellConfig.update(settings: groupsStyle) }
     }
     private let storySdk: StorySDK
@@ -123,7 +123,6 @@ open class SRDefaultGroupsDataStorage: SRGroupsDataStorage {
             size: groupsStyle.iconSize,
             scale: cell.contentsScale
         ) { [weak self, weak cell] result in
-
             cell?.title = group.title
             switch result {
             case .success(let image):

@@ -44,7 +44,7 @@
             } else {
                 return .init(
                     width: CGFloat.greatestFiniteMagnitude,
-                    height: CGFloat.leastNonzeroMagnitude
+                    height: layout.itemSize.height + contentInset.top + contentInset.bottom
                 )
             }
     #endif
@@ -60,7 +60,7 @@
             }
         }
         public var onErrorReceived: ((Error) -> Void)?
-        private var isLoading: Bool = false {
+        private var isLoading: Bool = true {
             didSet {
                 if isLoading {
                     loadingIndicator.startAnimating()
@@ -153,6 +153,8 @@
             collectionView.dataSource = self
             collectionView.delegate = self
             
+            viewModel.setupLayout(self.layout)
+            
             viewModel.onReloadData = { [weak self] in
                 if StorySDK.shared.configuration.onboardingFilter {
                     guard let wSelf = self else { return }
@@ -203,13 +205,11 @@
         public func load() {
             skeletonShown.removeAll()
             viewModel.load()
-            //isLoading = true
             invalidateIntrinsicContentSize()
         }
         
         public func reload() {
             viewModel.reload()
-            //isLoading = true
             invalidateIntrinsicContentSize()
         }
         
@@ -221,7 +221,11 @@
 
     extension SRStoryWidget: UICollectionViewDataSource {
         public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-            viewModel.numberOfItems
+            if isLoading {
+                return 4
+            } else {
+                return viewModel.numberOfItems
+            }
         }
         
         public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -230,7 +234,14 @@
                 return reusable
             }
             
-            viewModel.setupCell(cell, index: indexPath.row)
+            if indexPath.row < viewModel.numberOfItems {
+                viewModel.setupCell(cell, index: indexPath.row)
+            } else {
+                var style = SRCollectionCellStyle()
+                style.update(settings: .bigSquare)
+                
+                cell.setupStyle(style)
+            }
             
             if !(skeletonShown[indexPath.row] ?? false) {
                 cell.makeSkeletonCell()
@@ -280,6 +291,7 @@
             let color = liteColor
             self.layer.removeAllAnimations()
             self.layer.opacity = 0.25
+            
             let animation = CAKeyframeAnimation(keyPath: "opacity")
             animation.values         = [0.25, 0.4]
             animation.keyTimes       = [0, 1]
@@ -287,41 +299,27 @@
             animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             animation.repeatCount    = Float.infinity
             animation.autoreverses   = true
+            
             self.layer.add(animation, forKey: "opacity")
             self.layer.sublayers?.forEach { $0.opacity = 0 }
+            
             switch self {
             case let label as UILabel:
                 label.textColor = .clear
-                
-                // TODO: Check & remove it
-                
-    //            let layer: CALayer = {
-    //                if let l = label.layer.sublayers?.first(where: { $0.cornerRadius == 8 }) {
-    //                    return l
-    //                }
-    //                let layer = CALayer()
-    //                label.layer.addSublayer(layer)
-    //                return layer
-    //            }()
-                
-                //layer.opacity = 0.25
-    //            layer.cornerRadius = 8
-    //            layer.masksToBounds = true
                 label.layer.backgroundColor = color.cgColor
-                label.layer.frame = CGRect(origin: /*.zero*/CGPoint(x: /*(90 - 68) / 2*/13, y: 0.0), size: CGSize(width: 68, height: 18.0))
-                
-                //label.layer.backgroundColor = color.cgColor
+                label.layer.frame = CGRect(origin: CGPoint(x: 13, y: 0.0), size: CGSize(width: 68, height: 18.0))
                 label.layer.cornerRadius = 8
                 label.layer.masksToBounds = true
+                
             case let image as UIImageView:
                 if let content = image.image {
-                    image.image = nil//= content.tintImage(color)
-                    image.backgroundColor = liteColor//.gray//.clear
+                    image.image = nil
+                    image.backgroundColor = liteColor
                 } else {
                     image.image = nil
                     image.layer.cornerRadius = 5
                     image.layer.masksToBounds = true
-                    image.backgroundColor = liteColor//color
+                    image.backgroundColor = liteColor
                 }
             case let textField as UITextField:
                 textField.rightView = nil
@@ -330,6 +328,7 @@
                 textField.layer.cornerRadius = 5
                 textField.layer.masksToBounds = true
                 textField.backgroundColor = color
+                
             case let stackView as UIStackView:
                 stackView.subviews.forEach { $0.removeFromSuperview() }
                 fallthrough

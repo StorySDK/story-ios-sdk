@@ -42,10 +42,17 @@
                     height: layout.itemSize.height + contentInset.top + contentInset.bottom
                 )
             } else {
-                return .init(
-                    width: CGFloat.greatestFiniteMagnitude,
-                    height: layout.itemSize.height + contentInset.top + contentInset.bottom
-                )
+                if StorySDK.shared.configuration.onboardingFilter {
+                    return .init(
+                        width: CGFloat.greatestFiniteMagnitude,
+                        height: layout.itemSize.height + contentInset.top + contentInset.bottom
+                    )
+                } else {
+                    return .init(
+                        width: CGFloat.greatestFiniteMagnitude,
+                        height: CGFloat.leastNonzeroMagnitude
+                    )
+                }
             }
     #endif
         }
@@ -222,7 +229,11 @@
     extension SRStoryWidget: UICollectionViewDataSource {
         public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
             if isLoading {
-                return 4
+                if StorySDK.shared.configuration.onboardingFilter {
+                    return 4
+                } else {
+                    return 0
+                }
             } else {
                 return viewModel.numberOfItems
             }

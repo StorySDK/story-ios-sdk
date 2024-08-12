@@ -113,7 +113,12 @@
             while(view != nil) {
                 guard let v = view else { return false }
                 if v.isKind(of: SRInteractiveWidgetView.self) { return false }
-                if v.isKind(of: SRStoriesView.self) { return true }
+                if v.isKind(of: SRStoriesView.self)
+                    || v.isKind(of: PlayerView.self)
+                    || v.isKind(of: SRImageWidgetView.self) {
+                    return true
+                }
+                
                 view = v.superview
             }
             return true

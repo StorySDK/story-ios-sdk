@@ -81,7 +81,13 @@
         
         public override func loadView() {
             super.loadView()
+            let sz = groupSize()
             
+            storiesView = .init(defaultStorySize: sz)
+            view = storiesView
+        }
+        
+        public func groupSize() -> CGSize {
             let sizePreset = group.settings?.sizePreset ?? .IphoneSmall
             let sz: CGSize
             switch sizePreset {
@@ -91,8 +97,7 @@
                 sz = CGSize.largeStory
             }
             
-            storiesView = .init(defaultStorySize: sz)
-            view = storiesView
+            return sz
         }
         
         public override func viewDidLoad() {

@@ -16,7 +16,7 @@
 #elseif os(iOS)
     import UIKit
 
-    public final class SRNavigationController: UIViewController, SRNavigationViewDataSource {
+public final class SRNavigationController: UIViewController, SRNavigationViewDataSource {
         private let groups: [SRStoryGroup]
         private let sdk: StorySDK
         private let backgroundColor: UIColor
@@ -64,8 +64,7 @@
         public override func viewDidLayoutSubviews() {
             var frame = view.bounds.inset(by: view.safeAreaInsets)
             let maxHeight = frame.height
-            let storySize = CGSize.defaultStory
-            frame.size.height = min(maxHeight, storySize.height * frame.width / storySize.width)
+            
             if sdk.configuration.needShowTitle {
                 frame.size.height = min(maxHeight, frame.height + 64)
             }
@@ -83,7 +82,7 @@
         
         private func loadCurrentViewController() {
             let vc = loadViewController(currentIndex)
-            addViewController(vc)
+            addStoriesViewController(vc)
         }
         
         func loadViewController(_ index: Int) -> SRStoriesViewController {
@@ -108,11 +107,17 @@
             return vc
         }
         
-        func addViewController(_ vc: UIViewController) {
+        func addStoriesViewController(_ vc: SRStoriesViewController?) {
+            guard let vc = vc else { return }
+            
             addChild(vc)
             containerView.addSubview(vc.view)
             vc.didMove(toParent: self)
+            
+            containerView.bounds = CGRect(origin: .zero,
+                                          size: vc.groupSize())
             vc.view.frame = containerView.bounds
+            
             vc.view.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
                 vc.view.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
@@ -120,6 +125,10 @@
                 vc.view.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
                 vc.view.topAnchor.constraint(equalTo: containerView.topAnchor),
             ])
+        }
+    
+        func addViewController(_ vc: UIViewController) {
+            addStoriesViewController(vc as? SRStoriesViewController)
         }
         
         func removeViewController(_ vc: UIViewController) {

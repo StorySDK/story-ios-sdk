@@ -91,7 +91,6 @@
             let vc = SRStoriesViewController(groups[index], sdk: sdk)
             vc.view.backgroundColor = .clear
             vc.isScrollEnabled = false
-            vc.tapGesture.delegate = gestures
             if index < groups.count - 1 {
                 let scrollNext: () -> Void = { [weak animations] in
                     guard let animations = animations else { return }

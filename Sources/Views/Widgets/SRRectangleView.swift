@@ -34,6 +34,10 @@
                 contentView.backgroundColor = color.withAlphaComponent(fillOpacity)
             }
             
+            if case .gradient(let colors, let isFilled) = rectangleWidget.fillColor {
+                let fillOpacity = CGFloat(rectangleWidget.fillOpacity / 100)
+            }
+            
             contentView.layer.cornerRadius = CGFloat(rectangleWidget.fillBorderRadius) * bounds.height / data.getWidgetPosition(storySize: defaultStorySize).realHeight
 
             if rectangleWidget.hasBorder, case .color(let color, let isFilled) = rectangleWidget.strokeColor {
@@ -43,5 +47,14 @@
             }
             isUserInteractionEnabled = false
         }
+        
+        override func layoutSubviews() {
+             super.layoutSubviews()
+            
+            if case .gradient(let colors, let isFilled) = rectangleWidget.fillColor {
+                contentView.setGradientBackground(top: colors.first ?? .clear,
+                                                  bottom: colors.last ?? .clear)
+            }
+         }
     }
 #endif

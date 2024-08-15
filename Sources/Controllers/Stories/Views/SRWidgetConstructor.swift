@@ -101,11 +101,8 @@ final class SRWidgetConstructor {
         
         var stretchByWidth = false
         
-        let position: SRPosition = widget.getWidgetPosition(storySize: defaultStorySize)
+        var position: SRPosition = widget.getWidgetPosition(storySize: defaultStorySize)
         var isHeightLocked = false
-        
-        var dx = (position.x / defaultStorySize.width)
-        var dy = (position.y / defaultStorySize.height)
         
         let screenWidth = StoryScreen.screenBounds.width * StoryScreen.screenNativeScale
         let screenHeight = StoryScreen.screenBounds.height * StoryScreen.screenNativeScale
@@ -130,9 +127,18 @@ final class SRWidgetConstructor {
         case .ellipse(_):
             isHeightLocked = true
             changeDxControl = true
+        case .rectangle(_):
+            // fix editor issue
+            if position.x < 0 {
+                let d = position.x
+                position.x = 0
+            }
         default:
             break
         }
+        
+        var dx = (position.x / defaultStorySize.width)
+        var dy = (position.y / defaultStorySize.height)
         
         if abs(lastPositionResY - position.y) > closestItemsByYPosition {
             if (dy < lastPositionDY) {

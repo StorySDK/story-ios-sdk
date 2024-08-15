@@ -31,13 +31,42 @@ def cache_onboarding(group_id)
   raise StandardError, response["error"] unless response["error"].empty?
 
   data = response["data"]
-
   data.each do |item| 
-    widgets = item["story_data"]["widgets"]
-    widgets.each do |widget|
-      video_url = widget["content"]["params"]["videoUrl"]
+    storyData = item["story_data"]
+    background = storyData["background"]
 
-      puts video_url
+    if !background.nil?
+      type = background["type"]
+      if type == "video"
+        background_video_url = background["value"]
+      end
+    end
+
+    unless background_video_url.nil?
+      digest = Digest::SHA256.hexdigest background_video_url
+      key = File.basename(background_video_url)
+      ext = File.extname(background_video_url)
+
+      Dir.mkdir('./cached') unless Dir.exist?('./cached')
+      File.open("./cached/#{digest}#{ext}", 'wb') do |file|
+        file << URI.open(background_video_url).read
+      end
+
+      cache[key] = "#{digest}#{ext}"
+    end
+
+    widgets = storyData["widgets"]
+
+    widgets.each do |widget|
+      content = widget["content"]
+      params = content["params"]
+
+      puts ""
+      puts content
+
+      if !params.nil?
+        video_url = params["videoUrl"]
+      end
 
       unless video_url.nil?
         digest = Digest::SHA256.hexdigest video_url

@@ -1,6 +1,6 @@
 //
 //  SRInteractiveWidgetView.swift
-//  
+//  StorySDK
 //
 //  Created by Aleksei Cherepanov on 25.05.2022.
 //
@@ -27,4 +27,4 @@ public class SRInteractiveWidgetView: SRWidgetView {
     }
 }
 
-typealias SRInteractiveWidgetDelegate = SRTalkAboutViewDelegate & ChooseAnswerViewDelegate & EmojiReactionViewDelegate & QuestionViewDelegate & SliderViewDelegate & SRClickMeViewDelegate & SRSwipeUpViewDelegate & QuizMultipleImageViewDelegate & QuizOneAnswerViewDelegate & QuizMultipleAnswerViewDelegate & SRWidgetLoadDelegate
+typealias SRInteractiveWidgetDelegate = SRTalkAboutViewDelegate & ChooseAnswerViewDelegate & EmojiReactionViewDelegate & QuestionViewDelegate & SliderViewDelegate & SRClickMeViewDelegate & SRLinkViewDelegate & SRSwipeUpViewDelegate & QuizMultipleImageViewDelegate & QuizOneAnswerViewDelegate & QuizMultipleAnswerViewDelegate & SRWidgetLoadDelegate

@@ -1,6 +1,6 @@
 //
 //  SRWidgetContent.swift
-//  
+//  StorySDK
 //
 //  Created by Aleksei Cherepanov on 23.05.2022.
 //
@@ -29,6 +29,7 @@ public indirect enum SRWidgetContent: Decodable {
     case quizMultipleImageAnswer(SRQuizMultipleImageWidget)
     case quizOpenAnswer(SRQuizOpenAnswerWidget)
     case quizRate(SRQuizRateWidget)
+    case link(SRLinkWidget)
     
     case unknownWidget(SRUnknownWidget)
     
@@ -36,7 +37,7 @@ public indirect enum SRWidgetContent: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let innerType = try container.decode(String.self, forKey: .type)
         
-        var type = SRWidgetTypes(rawValue: innerType) ?? .unknown
+        let type = SRWidgetTypes(rawValue: innerType) ?? .unknown
         let content = try SRWidgetContent.decodeType(type, container: container)
         
         self = content
@@ -71,6 +72,9 @@ public indirect enum SRWidgetContent: Decodable {
         case .clickMe:
             let params = try container.decode(SRClickMeWidget.self, forKey: .params)
             return .clickMe(params)
+        case .link:
+            let params = try container.decode(SRLinkWidget.self, forKey: .params)
+            return .link(params)
         case .talkAbout:
             let params = try container.decode(SRTalkAboutWidget.self, forKey: .params)
             return .talkAbout(params)
@@ -133,6 +137,7 @@ enum SRWidgetTypes: String, Decodable {
     case quizRate = "quiz_rate"
     case image = "image"
     case video = "video"
+    case link = "link"
     
     case unknown = "unknown"
 }

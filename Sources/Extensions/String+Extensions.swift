@@ -23,6 +23,12 @@ extension String {
             string.draw(in: .init(origin: .zero, size: imageSize))
         }
     }
+    
+    func boundingRectWithSize(_ size: CGSize, font: UIFont) -> CGRect {
+        let str = NSString(string: self)
+        return str.boundingRect(with: size, options: .usesLineFragmentOrigin,
+                                attributes: [.font: font], context: nil)
+    }
 #endif
     
     func toHexEncodedString(uppercase: Bool = true, prefix: String = "", separator: String = "") -> String {

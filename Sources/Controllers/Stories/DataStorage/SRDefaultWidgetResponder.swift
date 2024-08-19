@@ -181,6 +181,28 @@ final class SRDefaultWidgetResponder: NSObject, SRWidgetResponder {
         }
     }
     
+    // MARK: - SRLinkViewDelegate
+    
+    func didTapLink(_ widget: SRLinkView) {
+        let request = SRStatistic(type: .click, value: widget.linkWidget.url)
+        analytics?.sendWidgetReaction(request, widget: widget)
+        
+        guard let url = URL(string: widget.linkWidget.url) else {
+            onMethodCall?("scrollNext")
+            progress?.scrollNext()
+            
+            return
+        }
+        
+        guard StoryWorkspace.shared.canOpen(url) else {
+            onMethodCall?(widget.linkWidget.url)
+            return
+        }
+
+        progress?.pauseAutoscrolling()
+        StoryWorkspace.shared.open(url)
+    }
+    
     // MARK: - SRSwipeUpViewDelegate
     
     func didChooseQuizMultipleImageAnswer(_ widget: QuizMultipleImageView, answer: String) {

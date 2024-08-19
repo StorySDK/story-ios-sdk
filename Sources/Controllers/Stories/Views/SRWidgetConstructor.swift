@@ -60,6 +60,8 @@ final class SRWidgetConstructor {
             return SRSwipeUpView(story: story, defaultStorySize: defaultStorySize, data: widget, swipeUpWidget: swipeUpWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .clickMe(let clickMeWidget):
             return SRClickMeView(story: story, defaultStorySize: defaultStorySize, data: widget, clickMeWidget: clickMeWidget, imageUrl: imageUrl, loader: loader, logger: logger)
+        case .link(let linkWidget):
+            return SRLinkView(story: story, defaultStorySize: defaultStorySize, data: widget, linkWidget: linkWidget, imageUrl: imageUrl, loader: loader, logger: logger)
         case .slider(let sliderWidget):
             return SliderView( story: story, defaultStorySize: defaultStorySize, data: widget, sliderWidget: sliderWidget)
         case .question(let questionWidget):

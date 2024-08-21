@@ -185,29 +185,15 @@ Often, to load stories faster, for example, to build onboarding in an app especi
 
 Caching is provided using a couple of lanes fastlane and consists of a few simple steps:
 
-First of all, make sure that your app already has fastlane, if it is, it will be enough to install the plugin
-
-```bash
-fastlane add_plugin json
-```
-and add the contents of the __Fastfile__ file from `StorySDK` to __Fastfile__ in your project.
-
-if not, then install _fastlane_ first (by running the _fastlane_ 
+Install _fastlane_ first (by running the _fastlane_ 
 command in the root of the project) and then follow the step above.
 
 After run
    ```bash
-   fastlane onboarding_cache group:"groupId"
+   fastlane prepare_story_cache group:"groupId"
    ```
-where groupId is the id of the group that contains the media files you want to cache
-
-The result of the execution will be several URLs like https://d8si935cjir3p3.cloudfront.net/732788293adff43434322/17183148717600jaXtXHTdN3hJeKqMuG1rK.mp4, these are files to be cached, which __you will need to download__ to your caching folder.
-
-And downloading the files, run
-   ```bash
-   fastlane prepare_story_cache group:"groupId" cachedir:"path_to_your_caching_folder"
-   ```
-   if successful, you will see your media files renamed.
+where groupId is the id of the group that contains the media files you want to cache.
+If successful, you will see your media files in the "fastlane/cached" directory.
 
 Now it’s enough to add these files to the Xcode project, like resources via _Add Files to..._ action so that they end up in the bundle of your app, that’s all - in this form `StorySDK` can already see them. Caching is now complete.
 

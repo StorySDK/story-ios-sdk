@@ -260,9 +260,9 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
                     }
                 }
                 .store(in: &cell.cancellables)
-        case .video(let url, let isFilled):
+        case .video(let video, let isFilled):
             onFilled?(isFilled)
-            cell.backgroundVideo = url
+            cell.backgroundVideo = video.value
             completion?()
         }
     }
@@ -285,6 +285,8 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             onGotEmptyGroup?()
             return
         }
+        
+        progress?.totalDuration = stories.map { $0.duration }.reduce(TimeInterval.zero, +)
         progress?.numberOfItems = numberOfItems
         onReloadData?()
         updateStoryDuration()

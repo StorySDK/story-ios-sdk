@@ -38,8 +38,8 @@ public class SRStoriesPreloader {
             
             if let data = story.storyData {
                 switch data.background {
-                case .video(let url, _):
-                    videosUrlsToLoad.append(url)
+                case .video(let video, _):
+                    videosUrlsToLoad.append(video.value)
                 default:
                     break
                 }

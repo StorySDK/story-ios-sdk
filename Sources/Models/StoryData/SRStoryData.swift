@@ -38,6 +38,22 @@ public struct SRStoryData: Decodable {
         let timestamp = TimeInterval(Date().timeIntervalSince1970 * 1000)
         return (startTime < timestamp) && (timestamp < endTime)
     }
+    
+    public var duration: TimeInterval {
+        let defaultDuration = StorySDK.shared.configuration.storyDuration
+        var result: TimeInterval = defaultDuration
+        
+        guard let background = background else { return defaultDuration }
+        
+        switch background {
+        case .video(let video, _):
+            result = video.metadata?.duration ?? defaultDuration
+        default:
+            break
+        }
+        
+        return result + 1.0
+    }
 }
 
 public enum SRStoryStatus: String, Decodable {

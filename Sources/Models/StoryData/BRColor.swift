@@ -15,7 +15,7 @@ public enum BRColor: Decodable {
     case color(StoryColor, Bool)
     case gradient([StoryColor], Bool)
     case image(URL, Bool)
-    case video(URL, Bool)
+    case video(SRVideo, Bool)
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -46,7 +46,10 @@ public enum BRColor: Decodable {
             self = BRColor.image(url, isFilled)
         case "video":
             let url = try container.decode(URL.self, forKey: .value)
-            self = BRColor.video(url, isFilled)
+            let metadata = try? container.decode(SRMetadata.self, forKey: .metadata)
+            let video = SRVideo(value: url, metadata: metadata)
+            
+            self = BRColor.video(video, isFilled)
         default:
             throw SRError.unknownType
         }
@@ -55,6 +58,6 @@ public enum BRColor: Decodable {
 
 extension BRColor {
     enum CodingKeys: String, CodingKey {
-        case type, value, isFilled
+        case type, value, isFilled, metadata
     }
 }

@@ -41,4 +41,8 @@ public struct SRStory: Decodable {
         
         return storyData.readyToShow()
     }
+    
+    public var duration: TimeInterval {
+        storyData?.duration ?? StorySDK.shared.configuration.storyDuration
+    }
 }

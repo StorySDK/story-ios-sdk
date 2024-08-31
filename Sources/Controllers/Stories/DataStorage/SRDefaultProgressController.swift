@@ -23,11 +23,11 @@
         var isInteracted: Bool = false
         var isLoading: [String: Bool] = [:]
         var timerPeriod: TimeInterval = 0.5
-        var timeForStory: TimeInterval = 7
         var onProgressUpdated: ((Float) -> Void)?
         var onScrollToStory: ((Int, Bool) -> Void)?
         var onScrollCompleted: (() -> Void)?
         var numberOfItems: Int = 0
+        var totalDuration: TimeInterval = 0.0
         var activeColor: StoryColor?
         var progress: Float = 0 {
             didSet { onProgressUpdated?(progress) }
@@ -116,9 +116,10 @@
             if !isLoading.isEmpty, !isLoading.allSatisfy({ $0.value }) { return }
             guard progress < 1 else { return }
             guard numberOfItems > 0 else { return }
+            
             let storyProgress = 1 / Float(numberOfItems)
             let oldIndex = floor(progress / storyProgress)
-            let totalTime = TimeInterval(numberOfItems) * timeForStory
+            let totalTime = totalDuration
             let progressForOneFire = Float(timerPeriod / totalTime)
             let newProgress = progress + progressForOneFire
             if newProgress >= 1 {

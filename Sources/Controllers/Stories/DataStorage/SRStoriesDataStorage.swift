@@ -84,6 +84,8 @@ protocol SRProgressController: AnyObject {
     var isLoading: [String: Bool] { get set }
     /// Number of components
     var numberOfItems: Int { get set }
+    /// Duration
+    var totalDuration: TimeInterval { get set }
     /// Progress bar tint color
     var activeColor: StoryColor? { get set }
     /// It’s used when the progress bar needs to be updated

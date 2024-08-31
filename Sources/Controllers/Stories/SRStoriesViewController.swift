@@ -271,6 +271,8 @@
         
         public func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
             guard let cell = cell as? SRStoryCollectionCell else { return }
+            
+            cell.cancelAnything()
             viewModel.endDisplaying(cell, index: indexPath.row)
         }
     }

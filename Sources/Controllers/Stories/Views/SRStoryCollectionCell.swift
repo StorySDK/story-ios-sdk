@@ -86,10 +86,14 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
                     player?.play()
                     
                     if let thePlayer = player {
-                        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: thePlayer.currentItem, queue: .main) { _ in
-                            thePlayer.seek(to: CMTime.zero)
-                            thePlayer.play()
-                        }
+                        NotificationCenter.default
+                            .publisher(for: .AVPlayerItemDidPlayToEndTime)
+                            .sink { notification in
+                                print(notification.name.rawValue)
+                                
+                                thePlayer.seek(to: CMTime.zero)
+                                thePlayer.play()
+                            }.store(in: &cancellables)
                     }
                 }
             }
@@ -149,7 +153,16 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
         
         override func prepareForReuse() {
             super.prepareForReuse()
-            cancellables.forEach { $0.cancel() }
+            cancelAnything()
+        }
+    
+        func cancelAnything() {
+            player?.seek(to: CMTime.zero)
+            player?.pause()
+            
+            cancellables.forEach {
+                $0.cancel()
+            }
             cancellables = .init()
             canvasView.cleanCanvas()
             isLoading = false

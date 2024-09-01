@@ -83,7 +83,6 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
                     let videoUrl = mp4LocalUrl ?? remoteUrl
                     player = AVPlayer(url: videoUrl)
                     backgroundVideoLayer.player = player
-                    player?.play()
                     
                     if let thePlayer = player {
                         NotificationCenter.default
@@ -166,6 +165,21 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
             cancellables = .init()
             canvasView.cleanCanvas()
             isLoading = false
+        }
+    
+        func cancelActivities() {
+            player?.seek(to: CMTime.zero)
+            player?.pause()
+            
+            cancellables.forEach {
+                $0.cancel()
+            }
+            
+            cancellables = .init()
+        }
+    
+        func startActivitiesIfNeeded() {
+            player?.play()
         }
         
         private func setupView() {

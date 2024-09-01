@@ -75,6 +75,8 @@ protocol SRProgressComponent: AnyObject {
     var progress: Float { get set }
     var activeColor: StoryColor { get set }
     var animationDuration: TimeInterval { get set }
+    var totalDuration: TimeInterval { get set }
+    var durations: [TimeInterval] { get set }
 }
 
 protocol SRProgressController: AnyObject {
@@ -86,6 +88,8 @@ protocol SRProgressController: AnyObject {
     var numberOfItems: Int { get set }
     /// Duration
     var totalDuration: TimeInterval { get set }
+    /// Duration of each story
+    var durations: [TimeInterval] { get set }
     /// Progress bar tint color
     var activeColor: StoryColor? { get set }
     /// It’s used when the progress bar needs to be updated

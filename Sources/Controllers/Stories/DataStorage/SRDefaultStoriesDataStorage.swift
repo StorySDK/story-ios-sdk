@@ -157,9 +157,8 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         cell.defaultStorySize = storySize()
         
         let group = DispatchGroup()
-        
         let sortedWidgets = data.widgets
-            //.sorted(by: { $0.getWidgetPosition(storySize: storySize()).y < $1.getWidgetPosition(storySize: storySize()).y })
+        
         SRWidgetConstructor.lastPositionAbsoluteY = 0.0
         SRWidgetConstructor.lastPositionDY = 0.0
         
@@ -194,7 +193,9 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         if let background = data.background {
             group.enter()
-            setupBackground(cell, background: background) { group.leave() }
+            setupBackground(cell, background: background) {
+                group.leave()
+            }
         }
         
         group.notify(queue: .main) { [weak progress, weak cell] in
@@ -206,7 +207,6 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     func willDisplay(_ cell: SRStoryCell, index: Int) {
         guard let id = storyId(atIndex: index) else { return }
         if progress?.isLoading[id] ?? false { return }
-        progress?.isLoading[id] = false
         
         guard let ws = cell.widgets() else { return }
         for item in ws {
@@ -287,6 +287,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         }
         
         progress?.totalDuration = stories.map { $0.duration }.reduce(TimeInterval.zero, +)
+        progress?.durations = stories.map { $0.duration }
         progress?.numberOfItems = numberOfItems
         onReloadData?()
         updateStoryDuration()

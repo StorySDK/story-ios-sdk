@@ -41,6 +41,20 @@
             }
         }
         
+        var totalDuration: TimeInterval {
+            get { maskLayer.totalDuration }
+            set {
+                maskLayer.totalDuration = newValue
+            }
+        }
+        
+        var durations: [TimeInterval] {
+            get { maskLayer.durations }
+            set {
+                maskLayer.durations = newValue
+            }
+        }
+        
         var progress: Float = 0 {
             didSet {
                 setNeedsLayout()
@@ -65,7 +79,7 @@
         public func setupInLoadingState(info: HeaderInfo) {
             activeColor = .white.withAlphaComponent(0.75)
             progress = 0.0
-            numberOfItems = info.storiesCount
+            //numberOfItems = info.storiesCount
         }
         
         @available(*, unavailable)
@@ -101,21 +115,33 @@
             }
         }
         
+        var totalDuration: TimeInterval = .zero
+        var durations: [TimeInterval] = []
+        
         override func draw(in ctx: CGContext) {
             guard numberOfItems > 0 else { return }
             
             let spacing: CGFloat = bounds.height
             var itemWidth = bounds.width
-            itemWidth -= CGFloat(numberOfItems - 1) * spacing
-            itemWidth /= CGFloat(numberOfItems)
             
+            itemWidth -= CGFloat(numberOfItems - 1) * spacing
+            
+            guard durations.count == numberOfItems else { return }
+            
+            var offset: CGFloat = .zero
             for i in 0..<numberOfItems {
+                let w = durations[i] / totalDuration
+                let iWidth = round(w * itemWidth)
+                
                 let rect = CGRect(
-                    x: CGFloat(i) * (itemWidth + spacing),
+                    x: offset,
                     y: 0,
-                    width: itemWidth,
+                    width: iWidth,
                     height: bounds.height
                 )
+                
+                offset += (iWidth + spacing)
+                
                 let path = UIBezierPath(roundedRect: rect, cornerRadius: bounds.height / 2)
                 ctx.addPath(path.cgPath)
             }

@@ -266,13 +266,15 @@
         
         public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
             guard let cell = cell as? SRStoryCollectionCell else { return }
+            
+            cell.startActivitiesIfNeeded()
             viewModel.willDisplay(cell, index: indexPath.row)
         }
         
         public func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
             guard let cell = cell as? SRStoryCollectionCell else { return }
             
-            cell.cancelAnything()
+            cell.cancelActivities()
             viewModel.endDisplaying(cell, index: indexPath.row)
         }
     }
@@ -282,12 +284,7 @@
             collectionView.frame.size
         }
         
-        public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            viewModel.didScroll(
-                offset: Float(scrollView.contentOffset.x),
-                contentWidth: Float(scrollView.contentSize.width)
-            )
-        }
+        public func scrollViewDidScroll(_ scrollView: UIScrollView) { }
         
         public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
             viewModel.willBeginDragging()

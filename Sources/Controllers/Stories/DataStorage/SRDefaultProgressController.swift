@@ -27,11 +27,36 @@
         var onScrollToStory: ((Int, Bool) -> Void)?
         var onScrollCompleted: (() -> Void)?
         var numberOfItems: Int = 0
-        var totalDuration: TimeInterval = 0.0
+        var totalDuration: TimeInterval = .zero
+        var durations: [TimeInterval] = []
         var activeColor: StoryColor?
         var progress: Float = 0 {
             didSet { onProgressUpdated?(progress) }
         }
+        var elapsedTime: TimeInterval = .zero
+        var enabledScroll: Bool = true
+        
+        func durationsEdges(n: Int) -> TimeInterval {
+            guard n >= 0 else { return .zero }
+            var partSum: TimeInterval = .zero
+            
+            for index in 0...n {
+                partSum += durations[index]
+            }
+            
+            return partSum
+        }
+        
+        func indexOfStoryByDuration(value: TimeInterval) -> Int {
+            for index in 0..<numberOfItems {
+                if value < durationsEdges(n: index) {
+                    return index
+                }
+            }
+            
+            return numberOfItems-1
+        }
+        
         /// The view controller is being transited
         var isTransiting: Bool = false
         var timer: Timer? {
@@ -97,15 +122,32 @@
         }
         
         func didScroll(offset: Float, contentWidth: Float) {
+            guard enabledScroll else { return }
             guard contentWidth > 0 else { return }
             guard numberOfItems > 0 else { return }
             let index = Int(offset / (contentWidth / Float(numberOfItems)))
-            analytics?.storyDidChanged(to: index, byUser: isDragging)
+            let currentIndex = indexOfStoryByDuration(value: elapsedTime)
+            
             guard isDragging else { return }
-            progress = min(1, max(0, offset / contentWidth))
+            
+            if index != currentIndex {
+                enabledScroll = false
+                
+                if index > currentIndex {
+                    if index >= numberOfItems {
+                        return
+                    }
+                    
+                    scrollNext(index: currentIndex + 1)
+                } else {
+                    scrollBack(index: max(currentIndex - 1, 0))
+                }
+            }
         }
         
         func setupProgress(_ component: SRProgressComponent) {
+            component.totalDuration = totalDuration
+            component.durations = durations
             component.numberOfItems = numberOfItems
             component.animationDuration = timerPeriod
             activeColor.map { component.activeColor = $0 }
@@ -117,21 +159,30 @@
             guard progress < 1 else { return }
             guard numberOfItems > 0 else { return }
             
-            let storyProgress = 1 / Float(numberOfItems)
-            let oldIndex = floor(progress / storyProgress)
+            let storyProgressInSecs = totalDuration
+            
+            let oldIndex = indexOfStoryByDuration(value: elapsedTime)
+            
             let totalTime = totalDuration
+            
             let progressForOneFire = Float(timerPeriod / totalTime)
-            let newProgress = progress + progressForOneFire
-            if newProgress >= 1 {
+            
+            elapsedTime += timerPeriod
+            enabledScroll = true
+            
+            let nProgress = elapsedTime / storyProgressInSecs
+            let nIndex = indexOfStoryByDuration(value: elapsedTime)
+            
+            if nProgress >= 1 {
                 progress = 1
                 onScrollCompleted?()
                 return
             } else {
-                let newIndex = floor(newProgress / storyProgress)
-                if newIndex - oldIndex > .ulpOfOne {
-                    onScrollToStory?(Int(newIndex), false)
+                if nIndex - oldIndex > 0 {
+                    onScrollToStory?(nIndex, false)
                 }
-                progress = newProgress
+                
+                progress = Float(nProgress)
             }
         }
         
@@ -143,12 +194,27 @@
             startAutoscrolling()
         }
         
+        func scrollNext(index: Int) {
+            let currentIndex = indexOfStoryByDuration(value: elapsedTime)
+            guard index != currentIndex else { return }
+            
+            scrollNext()
+        }
+        
+        func scrollBack(index: Int) {
+            let currentIndex = indexOfStoryByDuration(value: elapsedTime)
+            guard index != currentIndex else { return }
+            
+            scrollBack()
+        }
+        
         func scrollNext() {
-            let storyProgress = 1 / Float(numberOfItems)
-            var index = Int(floor(progress / storyProgress))
+            let currentIndex = indexOfStoryByDuration(value: elapsedTime)
+            var index = currentIndex
             if index + 1 < numberOfItems {
                 index += 1
-                progress = Float(index) / Float(numberOfItems)
+                progress = Float( durationsEdges(n: currentIndex) / totalDuration)
+                elapsedTime = durationsEdges(n: currentIndex)
                 analytics?.storyDidChanged(to: index, byUser: true)
                 
                 if index + 1 == numberOfItems { // final story
@@ -162,13 +228,16 @@
         }
         
         func scrollBack() {
-            let storyProgress = 1 / Float(numberOfItems)
-            var index = Int(floor(progress / storyProgress))
-            index -= 1
-            guard index >= 0 else { return }
-            progress = Float(index) / Float(numberOfItems)
-            analytics?.storyDidChanged(to: index, byUser: true)
-            onScrollToStory?(index, false)
+            let currentIndex = indexOfStoryByDuration(value: elapsedTime)
+            var index = currentIndex
+            if index - 1 >= 0 {
+                index -= 1
+                progress = Float(durationsEdges(n: index - 1) / totalDuration)
+                elapsedTime = durationsEdges(n: index - 1)
+                
+                analytics?.storyDidChanged(to: index, byUser: true)
+                onScrollToStory?(index, false)
+            }
         }
     }
 #endif

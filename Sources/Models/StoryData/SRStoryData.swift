@@ -52,7 +52,7 @@ public struct SRStoryData: Decodable {
             break
         }
         
-        return result + 1.0
+        return result + 0.3
     }
 }
 

@@ -29,7 +29,7 @@ The StorySDK service also provides a web-based dashboard for managing stories, w
 
 To install StorySDK using Swift Package Manager, follow these steps:
 
-1. Open your project in Xcode and go to File > Swift Packages > Add Package Dependency.
+1. Open your project in Xcode and go to `File > Swift Packages > Add Package Dependency`.
 2. In the search field, enter `https://github.com/StorySDK/ios-sdk.git` and click Next.
 3. Select the version rule "Up to Next Major" and enter "1.0.0" in the text field.
 4. Click Next and then Finish.
@@ -70,8 +70,6 @@ $ carthage update
 
 ## Usage
 
-### Import SDK
-
 Make sure to import the project wherever you may use it:
 
 ```swift
@@ -83,18 +81,11 @@ import StorySDK
 To use the SDK, you need to obtain a token from the StorySDK dashboard. You can find your token in the Settings section of the dashboard at [https://app.storysdk.com/dashboard/](https://app.storysdk.com/dashboard/).
 
 ```swift
-storySdk.configuration.sdkId = "[YOUR_SDK_ID]"
+var config = SRConfiguration(sdkId: "[YOUR_SDK_ID]")
+StorySDK.shared.configuration = config
 ```
 
-#### Optional
-
-You can define language for the stories. 
-
-```swift
-storySdk.configuration.language = "en"
-```
-
-### UI Integration
+### Integration
 
 You can use the Groups Widget to display groups of stories in your app. To add the widget to your view hierarchy:
 
@@ -107,10 +98,16 @@ When your app is ready to load groups, call `widget.load()`. You can handle erro
 
 ### Direct API
 
+Further we consider that
+
+```swift
+storySdk = StorySDK.shared
+```
+
 To get information about the SDK application:
 
 ```swift
-storySDK.getApps { result in
+storySdk.getApps { result in
     switch result {
     case .success(let app):
         print(app)
@@ -123,7 +120,7 @@ storySDK.getApps { result in
 To get the groups of the app:
 
 ```swift
-storySDK.getGroups { result in
+storySdk.getGroups { result in
     switch result {
     case .success(let groups):
         print(groups)
@@ -136,7 +133,7 @@ storySDK.getGroups { result in
 To show the stories of a selected group using the top view controller:
 
 ```swift
-storySDK.getStories(group) { [weak self] result in
+storySdk.getStories(group) { [weak self] result in
     switch result {
     case .success(let stories):
         guard !stories.isEmpty else { break } // No active stories
@@ -148,32 +145,37 @@ storySDK.getStories(group) { [weak self] result in
 ```
 
 #### Configuration
+a) Set language
 
-a) Set full screen on / off
+```swift
+storySdk.configuration.language = "en"
+```
+
+b) Set full screen on / off
 
 ```swift
 storySdk.configuration.needFullScreen = true / false
 ```
 
-b) Show title on / off
+c) Show title on / off
 
 ```swift
 storySdk.configuration.needShowTitle = true / false
 ```
 
-c) Filter (hide) onboarding on / off
+d) Filter (hide) onboarding on / off
 
 ```swift
 storySdk.configuration.onboardingFilter = true / false
 ```
 
-d) Set show time duration for each story
+e) Set show time duration for each story
 
 ```swift
 storySdk.configuration.storyDuration = 10 // 10 seconds
 ```
 
-e) Set progress color
+f) Set progress color
 
 ```swift
 storySdk.configuration.progressColor = .green
@@ -211,7 +213,13 @@ public protocol SRLoadingIndicator: AnyObject {
 public protocol SRLoader: SRLoadingIndicator where Self: UIView {}
 ```
 
-You can use the following loaders, here are some examples:
+You can just remove the loader if you don't need it:
+
+```swift
+storySdkconfiguration.loader = nil
+```
+
+Or use the your own custom loaders, here are some examples:
 
 <details>
   <summary>NVExtentedActivityIndicatorView</summary>

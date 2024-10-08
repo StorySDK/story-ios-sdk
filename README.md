@@ -87,11 +87,48 @@ StorySDK.shared.configuration = config
 
 ### Integration
 
-You can use the Groups Widget to display groups of stories in your app. To add the widget to your view hierarchy:
+You can use the Groups Widget to display groups of stories in your app. Create and add the widget to your view hierarchy:
 
 ```swift
 let widget = SRStoryWidget()
-addSubview(widget)
+widget.delegate = self
+widget.translatesAutoresizingMaskIntoConstraints = false
+view.addSubview(widget)
+```
+
+Layout widget:
+```swift
+NSLayoutConstraint.activate([
+    widget.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+    widget.widthAnchor.constraint(equalTo: view.widthAnchor),
+    widget.heightAnchor.constraint(equalToConstant: 120.0),
+])
+```
+
+Conform `SRStoryWidgetDelegate` protocol and implement openStories action (`SRNavigationController` from StorySDK allows you to open specific group of stories):
+
+```swift
+func openStories(index: Int, groups: [SRStoryGroup], in vc: UIViewController,
+                 delegate: SRStoryWidgetDelegate?, animated: Bool) {
+    let controller = SRNavigationController(index: index, groups: groups,
+                                            backgroundColor: UIColor.gray)
+    vc.present(controller, animated: animated)
+}
+
+extension YourViewController: SRStoryWidgetDelegate {
+    func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget) {}
+    func onWidgetGroupPresent(index: Int, groups: [SRStoryGroup], widget: SRStoryWidget) {
+        guard groups.count > index else { return }
+        
+        openStories(index: index, groups: groups, in: self, delegate: self, animated: true)
+    }
+    
+    func onWidgetGroupsLoaded(groups: [SRStoryGroup]) {}
+    func onWidgetGroupClose() {}
+    func onWidgetMethodCall(_ selectorName: String?) {}
+    func onWidgetLoading() {}
+    func onWidgetLoaded() {}
+}
 ```
 
 When your app is ready to load groups, call `widget.load()`. You can handle errors and taps on a group by implementing the `SRStoryWidgetDelegate` protocol and setting it as the widget's delegate.

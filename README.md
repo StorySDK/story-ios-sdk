@@ -85,12 +85,52 @@ var config = SRConfiguration(sdkId: "[YOUR_SDK_ID]")
 StorySDK.shared.configuration = config
 ```
 
+Further we consider that
+
+```swift
+storySdk = StorySDK.shared
+```
+
 ### Integration
+
+Define Groups Widget in your UIViewController
+
+```swift
+private var widget: SRStoryWidget!
+```
+
+Get information about the SDK application:
+
+```swift
+storySdk.getApps { result in
+    switch result {
+    case .success(let app):
+        print(app)
+    case .failure(let error):
+        print("Error:", error.localizedDescription)
+    }
+}
+```
+
+Get the groups of the app and then call `widget.load()`:
+
+```swift
+storySdk.getGroups { result in
+    switch result {
+    case .success(let groups):
+        print(groups)
+        // Convenient place to call widget loading
+        widget.load()
+    case .failure(let error):
+        print("Error:", error.localizedDescription)
+    }
+}
+```
 
 You can use the Groups Widget to display groups of stories in your app. Create and add the widget to your view hierarchy:
 
 ```swift
-let widget = SRStoryWidget()
+widget = SRStoryWidget()
 widget.delegate = self
 widget.translatesAutoresizingMaskIntoConstraints = false
 view.addSubview(widget)
@@ -105,16 +145,18 @@ NSLayoutConstraint.activate([
 ])
 ```
 
-Conform `SRStoryWidgetDelegate` protocol and implement openStories action (`SRNavigationController` from StorySDK allows you to open specific group of stories):
+Conform `SRStoryWidgetDelegate` protocol and implement openStories action:
 
 ```swift
 func openStories(index: Int, groups: [SRStoryGroup], in vc: UIViewController,
                  delegate: SRStoryWidgetDelegate?, animated: Bool) {
+    // SRNavigationController allows you to open specific group of stories
     let controller = SRNavigationController(index: index, groups: groups,
                                             backgroundColor: UIColor.gray)
     vc.present(controller, animated: animated)
 }
 
+// You can handle errors and taps on a group by conforming the `SRStoryWidgetDelegate` protocol
 extension YourViewController: SRStoryWidgetDelegate {
     func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget) {}
     func onWidgetGroupPresent(index: Int, groups: [SRStoryGroup], widget: SRStoryWidget) {
@@ -131,41 +173,9 @@ extension YourViewController: SRStoryWidgetDelegate {
 }
 ```
 
-When your app is ready to load groups, call `widget.load()`. You can handle errors and taps on a group by implementing the `SRStoryWidgetDelegate` protocol and setting it as the widget's delegate.
+When your app is ready to load groups, call `widget.load()`.
 
 ### Direct API
-
-Further we consider that
-
-```swift
-storySdk = StorySDK.shared
-```
-
-To get information about the SDK application:
-
-```swift
-storySdk.getApps { result in
-    switch result {
-    case .success(let app):
-        print(app)
-    case .failure(let error):
-        print("Error:", error.localizedDescription)
-    }
-}
-```
-
-To get the groups of the app:
-
-```swift
-storySdk.getGroups { result in
-    switch result {
-    case .success(let groups):
-        print(groups)
-    case .failure(let error):
-        print("Error:", error.localizedDescription)
-    }
-}
-```
 
 To show the stories of a selected group using the top view controller:
 
@@ -253,7 +263,7 @@ public protocol SRLoader: SRLoadingIndicator where Self: UIView {}
 You can just remove the loader if you don't need it:
 
 ```swift
-storySdkconfiguration.loader = nil
+storySdk.configuration.loader = nil
 ```
 
 Or use the your own custom loaders, here are some examples:

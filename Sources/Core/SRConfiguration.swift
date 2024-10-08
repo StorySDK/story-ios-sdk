@@ -45,7 +45,7 @@ public struct SRConfiguration {
                 storyDuration: TimeInterval = 6.0,
                 needShowTitle: Bool = false,
                 progressColor: StoryColor = .init(white: 1, alpha: 1),
-                onboardingFilter: Bool = false
+                onboardingFilter: Bool = true
     ) {
         self.language = language
         self.sdkId = sdkId

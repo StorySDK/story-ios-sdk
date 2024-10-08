@@ -17,6 +17,11 @@ By integrating the StorySDK iOS Framework into an iOS app, developers can add th
 
 The StorySDK iOS Framework is available for installation via CocoaPods, Carthage, and Swift Package Manager. The framework is open source and available on GitHub, where developers can contribute to the development of the framework, report issues, and request new features.
 
+<picture>
+    <source srcset="./media/storysdk-widget.jpg" media="(prefers-color-scheme: dark)" alt="Group of stories">
+    <img src="./media/storysdk-widget.jpg" alt="Group of stories">
+</picture>
+
 ### Why Use StorySDK?
 
 The StorySDK service provides a platform for mobile app developers to create and add stories to their apps, which can increase user engagement and provide a more dynamic user experience. By integrating the StorySDK iOS Framework into an iOS app, developers can access the features of the StorySDK service without having to build the functionality from scratch, saving development time and effort.
@@ -174,6 +179,13 @@ extension YourViewController: SRStoryWidgetDelegate {
 ```
 
 When your app is ready to load groups, call `widget.load()`.
+
+### Onboarding
+
+<picture>
+    <source srcset="./media/storysdk-onboarding.jpg" media="(prefers-color-scheme: dark)" alt="Onboarding">
+    <img src="./media/storysdk-onboarding.jpg" alt="Onboarding">
+</picture>
 
 ### Direct API
 

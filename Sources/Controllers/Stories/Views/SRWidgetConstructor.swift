@@ -111,6 +111,7 @@ final class SRWidgetConstructor {
         
         var changeDxMiddle = false
         var changeDxControl = false
+        var isVideoWidget = false
         
         switch widget.content {
         case .clickMe(let btn):
@@ -123,6 +124,7 @@ final class SRWidgetConstructor {
             stretchByWidth = true
             isHeightLocked = position.isHeightLocked
             changeDxMiddle = true
+            isVideoWidget = true
         case .imageWidget(_):
             isHeightLocked = position.isHeightLocked
             changeDxMiddle = true
@@ -160,13 +162,15 @@ final class SRWidgetConstructor {
         
         let xCoeff = min(StoryScreen.screenBounds.width / defaultStorySize.width, 2.0)
         
+        var newWidth: CGFloat
         if stretchByWidth {
-            width = ((width * xCoeff) / StoryScreen.screenBounds.width) * width
+            width = max(width * xCoeff, StoryScreen.screenBounds.width)
+            newWidth = width
+        } else {
+            newWidth = min(width, defaultStorySize.width)
         }
 
         var newHeight: CGFloat = height
-        var newWidth: CGFloat = min(width, defaultStorySize.width)
-        
         if limitY {
             let old = newHeight
             newHeight = max(old, newHeight / (StoryScreen.screenBounds.height / defaultStorySize.height))
@@ -189,6 +193,10 @@ final class SRWidgetConstructor {
         
         if stretchByWidth && !isHeightLocked {
             newHeight = ((height * xCoeff) / StoryScreen.screenBounds.height) * defaultStorySize.height
+        }
+        
+        if isVideoWidget && stretchByWidth {
+            newHeight = height * xCoeff
         }
 
         lastPositionAbsoluteY = position.y + position.realHeight

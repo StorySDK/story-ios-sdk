@@ -208,7 +208,11 @@ final class SRWidgetConstructor {
             offsetBetween = position.realHeight / StoryScreen.screenBounds.height
         }
         
-        lastPositionDY = dy + offsetBetween
+        if !isVideoWidget {
+            lastPositionDY = dy + offsetBetween
+        } else {
+            lastPositionDY = dy
+        }
         
         var ratioX = newWidth / defaultStorySize.width
         var ratioY = newHeight / defaultStorySize.height

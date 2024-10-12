@@ -187,6 +187,91 @@ When your app is ready to load groups, call `widget.load()`.
     <img src="./media/storysdk-onboarding.jpg" alt="Onboarding">
 </picture>
 
+To add onboarding to your app, follow these steps:
+
+1. First, create an onboarding in the Onboarding section of the dashboard at https://app.storysdk.com/dashboard/ and copy your Onboarding ID from Onboarding Settings
+
+2. Then conform `SRStoryWidgetDelegate` protocol and fill some methods such implementation
+(here we've added `dismiss` func that call paywall screen and `rate` func that request rate the app on second onboarding screen, this is a standard approach, you can implement similar or completely different behavior as you wish)
+
+```swift
+import StorySDK
+import StoreKit
+
+extension YourViewController: SRStoryWidgetDelegate {
+    func onWidgetErrorReceived(_ error: Error, widget: SRStoryWidget) {}
+    func onWidgetGroupPresent(index: Int, groups: [SRStoryGroup], widget: SRStoryWidget) {
+        guard groups.count > index else { return }
+        let group = groups[index]
+        
+        let controller = SRStoriesViewController(group, asOnboarding: true)
+        controller.view.backgroundColor = UIColor.gray
+        controller.delegate = self
+        
+        present(controller, animated: false)
+    }
+    
+    func onWidgetGroupsLoaded(groups: [SRStoryGroup]) {
+        widget?.openAsOnboarding(groupId: Constants.onboardingGroup)
+    }
+
+    func onWidgetGroupClose() {
+        dismiss()
+    }
+
+    func onWidgetMethodCall(_ selectorName: String?) {
+        guard let selectorName = selectorName else { return }
+        
+        let sel = NSSelectorFromString(selectorName)
+        if canPerformAction(sel, withSender: self) {
+            performSelector(onMainThread: sel, with: nil, waitUntilDone: true)
+        }
+    }
+
+    func onWidgetLoading() {}
+    func onWidgetLoaded() {}
+
+    @objc func dismiss() {
+        let vc = YourPaywallViewController(paywallID: "YOUR_PAYWALL_ID")
+        let pvc = presentedViewController ?? self
+        pvc.present(vc, animated: false)
+    }
+    
+    @objc func scrollNext() {
+        // NB: this method is called every time you move to the next story in onboarding
+        // add a condition so that rate is called only once
+        rate()
+    }
+
+    private func rate() {
+        guard let scene = UIApplication.shared.connectedScenes
+            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else {
+            return
+        }
+        
+        SKStoreReviewController.requestReview(in: scene)
+    }
+}
+```
+
+3. Caching (optional but useful step)
+
+Often, to load stories faster, for example, to build onboarding in an app especially if you have video files in your stories, you may need to get them without waiting for loading from the server. In this case, caching will help you:
+
+Caching is provided using a couple of lanes fastlane and consists of a few simple steps:
+
+Install _fastlane_ first (by running the _fastlane_ 
+command in the root of the project) and then follow the step above.
+
+After run
+   ```bash
+   fastlane prepare_story_cache group:"groupId"
+   ```
+where groupId is the id of the group that contains the media files you want to cache.
+If successful, you will see your media files in the "fastlane/cached" directory.
+
+Now it’s enough to add these files to the Xcode project, like resources via _Add Files to..._ action so that they end up in the bundle of your app, that’s all - in this form `StorySDK` can already see them. Caching is now complete.
+
 ### Direct API
 
 To show the stories of a selected group using the top view controller:
@@ -239,24 +324,6 @@ f) Set progress color
 ```swift
 storySdk.configuration.progressColor = .green
 ```
-
-### Caching
-
-Often, to load stories faster, for example, to build onboarding in an app especially if you have video files in your stories, you may need to get them without waiting for loading from the server. In this case, caching will help you:
-
-Caching is provided using a couple of lanes fastlane and consists of a few simple steps:
-
-Install _fastlane_ first (by running the _fastlane_ 
-command in the root of the project) and then follow the step above.
-
-After run
-   ```bash
-   fastlane prepare_story_cache group:"groupId"
-   ```
-where groupId is the id of the group that contains the media files you want to cache.
-If successful, you will see your media files in the "fastlane/cached" directory.
-
-Now it’s enough to add these files to the Xcode project, like resources via _Add Files to..._ action so that they end up in the bundle of your app, that’s all - in this form `StorySDK` can already see them. Caching is now complete.
 
 #### Advanced
 

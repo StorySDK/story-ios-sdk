@@ -177,7 +177,7 @@ final class SRWidgetConstructor {
         }
         
         if stretchByWidth {
-            dx = (1 - (newWidth / defaultStorySize.width)) / 2
+            dx = max((1 - (newWidth / defaultStorySize.width)) / 2, 0.0)
         }
         
         if changeDxMiddle {

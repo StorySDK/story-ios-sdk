@@ -12,9 +12,10 @@ public struct SRStoryLayer: Decodable {
     public var positionInGroup: Int
     public var score: SRLayerScore?
     public var isDefaultLayer: Bool
+    public var shortDataId: String?
     
     enum CodingKeys: String, CodingKey {
-        case layersGroupId, positionInGroup, score, isDefaultLayer
+        case layersGroupId, positionInGroup, score, isDefaultLayer, shortDataId
     }
     
     public init(from decoder: Decoder) throws {
@@ -24,5 +25,6 @@ public struct SRStoryLayer: Decodable {
         positionInGroup = try container.decode(Int.self, forKey: .positionInGroup)
         score = try? container.decode(SRLayerScore.self, forKey: .score)
         isDefaultLayer = try container.decode(Bool.self, forKey: .isDefaultLayer)
+        shortDataId = try? container.decode(String.self, forKey: .shortDataId)
     }
 }

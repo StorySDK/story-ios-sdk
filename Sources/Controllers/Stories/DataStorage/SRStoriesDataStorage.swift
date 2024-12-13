@@ -46,6 +46,7 @@ protocol SRStoriesDataStorage: AnyObject {
     func endDisplaying(_ cell: SRStoryCell, index: Int)
     /// Returns id of the story at index
     func storyId(atIndex index: Int) -> String?
+    func storyShortDataId(atIndex index: Int) -> String?
     /// Default story size (small, large)
     func storySize() -> CGSize
     
@@ -164,6 +165,8 @@ protocol SRAnalyticsController: AnyObject {
     func reportQuizStart(time: Date)
     
     func reportQuizFinish(time: Date)
+    
+    func getCurrentShortStoryId() -> String?
 }
 
 typealias SRWidgetResponder = SRWidgetResponderStorage & SRInteractiveWidgetDelegate

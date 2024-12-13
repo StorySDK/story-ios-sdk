@@ -186,7 +186,7 @@ final class SRWidgetConstructor {
             }
         }
         
-        if changeDxControl {
+        if changeDxControl /*&& !StorySDK.shared.configuration.onboardingFilter*/ {
             var diff = (StoryScreen.screenBounds.width - defaultStorySize.width) / 2
             dx = (position.x + diff) / StoryScreen.screenBounds.width
         }
@@ -232,13 +232,17 @@ extension CGSize {
     static let smallStory = CGSize(width: 360, height: 640)
     
     static func storySize() -> CGSize {
+        if StorySDK.shared.configuration.onboardingFilter == true {
+            return smallStory
+        }
+        
         let ratio = UIScreen.main.bounds.height / UIScreen.main.bounds.width
         let largeStoryRatio = largeStory.height / largeStory.width
         let smallStoryRatio = smallStory.height / smallStory.width
         
         let diffL = abs(ratio - largeStoryRatio)
         let diffS = abs(ratio - smallStoryRatio)
-        
+
         if diffL < diffS {
             return largeStory
         } else {

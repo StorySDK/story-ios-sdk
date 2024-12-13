@@ -18,6 +18,7 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
     var groupOpenTime: Date?
     weak var dataStorage: SRStoriesDataStorage?
     private var currentStory: StoryInfo?
+    private var currentShortStoryId: String?
     
     // TODO: Move flags to a group
     private var isStarted: Bool
@@ -27,6 +28,10 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
         storySdk = sdk
         isStarted = false
         isFinished = false
+    }
+    
+    func getCurrentShortStoryId() -> String? {
+        currentShortStoryId
     }
     
     func sendReaction(_ reaction: SRStatistic, completion: ((Result<Bool, Error>) -> Void)? = nil) {
@@ -62,6 +67,8 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
         groupOpenTime = Date()
         if let id = group?.id { storySdk.userDefaults.didPresent(group: id) }
         guard let first = dataStorage?.storyId(atIndex: 0) else { return }
+        currentShortStoryId = dataStorage?.storyShortDataId(atIndex: 0)
+        
         reportStoryOpen(.init(index: 0, id: first))
     }
     

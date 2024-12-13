@@ -84,6 +84,7 @@
             v.register(SRStoryCollectionCell.self, forCellWithReuseIdentifier: "StoryCell")
             v.backgroundColor = .clear
             v.contentInsetAdjustmentBehavior = .never
+            v.layer.cornerRadius = StorySDK.shared.configuration.onboardingFilter ? 8.0 : 0.0
             return v
         }()
         
@@ -108,12 +109,32 @@
             bt.tintColor = .white
             return bt
         }()
+        
+        private func loadImage() -> UIImage? {
+            guard let url = Bundle.module.url(forResource: "share-icon", withExtension: "png") else { return nil }
+            guard let data = try? Data(contentsOf: url) else { return nil }
+            return UIImage(data: data)
+        }
+
+        private lazy var shareButton: UIImageView = {
+            let v = UIImageView(frame: .zero)
+            v.contentMode = .scaleAspectFit
+            v.isUserInteractionEnabled = false
+            v.clipsToBounds = true
+            
+            v.image = loadImage()
+            v.isHidden = !StorySDK.shared.configuration.onboardingFilter
+            
+            return v
+        }()
+        
         private let contentView: UIView = {
             let v = UIView(frame: StoryScreen.screenBounds)
             v.layer.cornerRadius = 0
             v.layer.masksToBounds = true
             return v
         }()
+        
         private let headerView = SRGroupHeaderView()
         private let headerGradientView: CAGradientLayer = {
             let l = CAGradientLayer()
@@ -125,6 +146,7 @@
             ].map(\.cgColor)
             return l
         }()
+        
         public let progressView = SRProgressView()
         
         init(defaultStorySize: CGSize) {
@@ -142,24 +164,29 @@
             [contentView].forEach(addSubview)
             [collectionView].forEach(contentView.addSubview)
             contentView.layer.addSublayer(headerGradientView)
-            [progressView, headerView, closeButton].forEach(contentView.addSubview)
-            [progressView, headerView, closeButton].forEach {
+            [progressView, headerView, closeButton, shareButton].forEach(contentView.addSubview)
+            [progressView, headerView, closeButton, shareButton].forEach {
                 $0.translatesAutoresizingMaskIntoConstraints = false
             }
             
             NSLayoutConstraint.activate([
                 progressView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-                progressView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 12),
+                progressView.topAnchor.constraint(equalTo: collectionView.topAnchor, constant: 12),
                 progressView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
                 
                 headerView.leadingAnchor.constraint(equalTo: progressView.leadingAnchor),
                 headerView.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 8),
                 headerView.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor),
                 
-                closeButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-                closeButton.topAnchor.constraint(equalTo: progressView.bottomAnchor),
-                closeButton.widthAnchor.constraint(equalToConstant: 48),
-                closeButton.heightAnchor.constraint(equalToConstant: 48),
+                closeButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18),
+                closeButton.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 12),
+                closeButton.widthAnchor.constraint(equalToConstant: 24),
+                closeButton.heightAnchor.constraint(equalToConstant: 24),
+                
+                shareButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18),
+                shareButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -54),
+                shareButton.widthAnchor.constraint(equalToConstant: 24),
+                shareButton.heightAnchor.constraint(equalToConstant: 24),
             ])
         }
         
@@ -208,12 +235,21 @@
                 height: closeButton.frame.maxY + closeButton.frame.height
             )
             
-            collectionView.frame = contentView.bounds
+
+            if StorySDK.shared.configuration.onboardingFilter {
+                collectionView.frame = CGRect(origin: CGPoint(x: 0, y: (contentView.bounds.size.height - CGSize.storySize().height) / 2 * 0.7 ), size: CGSize(width: contentView.bounds.width , height: CGSize.storySize().height + (StorySDK.shared.configuration.needShowTitle ? 59.0 : 0.0) ))
+            } else {
+                collectionView.frame = contentView.bounds
+            }
             loadingIndicator?.center = center
         }
         
         func addCloseTarget(_ target: Any, selector: Selector) {
             closeButton.addTarget(target, action: selector, for: .touchUpInside)
+        }
+        
+        func addShareTarget(_ target: Any, selector: Selector) {
+            shareButton.addTapTarget(target, action: selector)
         }
         
         func scroll(to x: CGFloat, animated: Bool) {

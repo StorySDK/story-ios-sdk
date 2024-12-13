@@ -117,6 +117,7 @@
             storiesView.delegate = self
             storiesView.dataSource = self
             storiesView.addCloseTarget(self, selector: #selector(close))
+            storiesView.addShareTarget(self, selector: #selector(share))
             viewModel.onReloadData = { [weak self] in
                 guard let wSelf = self else { return }
                 
@@ -243,6 +244,15 @@
             dismiss(animated: true)
             
             notifyClose()
+        }
+        
+        @objc func share() {
+            guard let storyId = viewModel.dataStorage.analytics?.getCurrentShortStoryId() else { return }
+            guard let url = URL(string: "https://app.storysdk.com/share/\(storyId)") else { return }
+            
+            let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+            
+            present(vc, animated: true, completion: nil)
         }
         
         @objc func notifyClose() {

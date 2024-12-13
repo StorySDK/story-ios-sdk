@@ -67,10 +67,6 @@ public struct SRStoryGroup: Decodable {
         }
         
         return active || type == .onboarding
-        
-//        let timestamp = TimeInterval(Date().timeIntervalSince1970 * 1000)
-//        return active && /*(settings?.addToStories ?? true) &&*/
-//            (startTime < timestamp) && (timestamp < endTime)
     }
 }
 

@@ -236,6 +236,12 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         return index < stories.count ? stories[index].id : nil
     }
     
+    func storyShortDataId(atIndex index: Int) -> String? {
+        guard index >= 0 else { return nil }
+        
+        return index < stories.count ? stories[index].layerData?.shortDataId : nil
+    }
+    
     private func setupBackground(_ cell: SRStoryCell?, background: BRColor, completion: (() -> Void)? = nil) {
         
         guard let cell = cell else { return }

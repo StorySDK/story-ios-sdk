@@ -181,12 +181,12 @@ final class SRWidgetConstructor {
         }
         
         if changeDxMiddle {
-            if newWidth >= defaultStorySize.width / 2 {
+            if newWidth > defaultStorySize.width / 2 {
                 dx = (1 - (newWidth / StoryScreen.screenBounds.width)) / 2
             }
         }
         
-        if changeDxControl /*&& !StorySDK.shared.configuration.onboardingFilter*/ {
+        if changeDxControl {
             var diff = (StoryScreen.screenBounds.width - defaultStorySize.width) / 2
             dx = (position.x + diff) / StoryScreen.screenBounds.width
         }

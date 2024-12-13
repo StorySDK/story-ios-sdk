@@ -28,11 +28,14 @@ public struct SRWidget: Decodable {
     }
     
     public func getWidgetPosition(storySize: CGSize) -> SRPosition {
-//        if CGSize.isSmallStories(storySize: storySize) {
-//            return positionByResolutions.res360x640!
-//        } else {
-//            return positionByResolutions.res360x780!
-//        }
-        return positionByResolutions.res360x780!
+        if StorySDK.shared.configuration.onboardingFilter {
+            return positionByResolutions.res360x780!
+        } else {
+            if CGSize.isSmallStories(storySize: storySize) {
+                return positionByResolutions.res360x640!
+            } else {
+                return positionByResolutions.res360x780!
+            }
+        }
     }
 }

@@ -235,9 +235,11 @@
                 height: closeButton.frame.maxY + closeButton.frame.height
             )
             
-
+            let off = (StorySDK.shared.configuration.needShowTitle && StoryScreen.isLongDevice ? 98.0 : 0.0)
+            let h = CGSize.storySize().height + off
+            
             if StorySDK.shared.configuration.onboardingFilter {
-                collectionView.frame = CGRect(origin: CGPoint(x: 0, y: (contentView.bounds.size.height - CGSize.storySize().height) / 2 * 0.7 ), size: CGSize(width: contentView.bounds.width , height: CGSize.storySize().height + (StorySDK.shared.configuration.needShowTitle ? 59.0 : 0.0) ))
+                collectionView.frame = CGRect(origin: CGPoint(x: 0, y: StoryScreen.isLongDevice ? (contentView.bounds.size.height - h) / 2 : 24.0), size: CGSize(width: contentView.bounds.width , height: CGSize.storySize().height + off))
             } else {
                 collectionView.frame = contentView.bounds
             }

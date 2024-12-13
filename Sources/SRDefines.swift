@@ -96,6 +96,10 @@
         static var screenNativeScale: CGFloat {
             return UIScreen.main.nativeScale
         }
+        
+        static var isLongDevice: Bool {
+            return (UIScreen.main.bounds.height > 844.0) ? true : false
+        }
     }
 
     public extension StoryWorkspace {

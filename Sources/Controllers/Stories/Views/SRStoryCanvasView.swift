@@ -50,7 +50,7 @@ struct WidgetLayout {
         var keyboardHeight: CGFloat = 0
         var needShowTitle: Bool = false {
             didSet {
-                topOffset.constant = needShowTitle ? 59 : 0
+                topOffset.constant = needShowTitle && StoryScreen.isLongDevice ? 98.0 : 0
             }
         }
         
@@ -117,7 +117,7 @@ struct WidgetLayout {
         override func layoutSubviews() {
             let window = UIApplication.shared.windows.first
             
-            let top = 0.0//window?.safeAreaInsets.top ?? 0
+            let top = 0.0
             let btm = window?.safeAreaInsets.bottom ?? 0
             
             super.layoutSubviews()

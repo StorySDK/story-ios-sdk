@@ -177,7 +177,7 @@ final class SRWidgetConstructor {
         }
         
         if stretchByWidth {
-            dx = max((1 - (newWidth / defaultStorySize.width)) / 2, 0.0)
+            dx = (1 - (newWidth / defaultStorySize.width)) / 2
         }
         
         if changeDxMiddle {
@@ -195,7 +195,7 @@ final class SRWidgetConstructor {
             newHeight = ((height * xCoeff) / StoryScreen.screenBounds.height) * defaultStorySize.height
         }
         
-        if isVideoWidget && stretchByWidth && !StorySDK.shared.configuration.onboardingFilter {
+        if isVideoWidget && stretchByWidth {
             newHeight = height * xCoeff
         }
 
@@ -214,7 +214,12 @@ final class SRWidgetConstructor {
             lastPositionDY = dy
         }
         
-        var ratioX = min(newWidth / defaultStorySize.width, 1.0)
+        var ratioX: CGFloat
+        if !StorySDK.shared.configuration.onboardingFilter {
+            ratioX = newWidth / defaultStorySize.width
+        } else {
+            ratioX = min(newWidth / defaultStorySize.width, 1.0)
+        }
         var ratioY = newHeight / defaultStorySize.height
         
         return CGRect(

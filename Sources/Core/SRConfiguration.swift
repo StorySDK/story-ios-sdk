@@ -64,4 +64,11 @@ public struct SRConfiguration {
     func fetchCurrentLanguage() -> String {
         languages.contains(language) ? language : defaultLanguage
     }
+    
+    func getCurrentCountry() -> String? {
+        guard let regionCode = Locale.current.regionCode else { return nil }
+          
+        let fixedLocale = Locale(identifier: "en_US")
+        return fixedLocale.localizedString(forRegionCode: regionCode)
+    }
 }

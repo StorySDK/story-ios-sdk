@@ -5,7 +5,7 @@
 //  Created by Aleksei Cherepanov on 12.05.2022.
 //
 
-import Foundation
+import UIKit
 
 // MARK: - Network for App
 
@@ -79,6 +79,10 @@ extension StorySDK {
         reaction.locale = configuration.fetchCurrentLanguage()
         reaction.userId = userDefaults.userId
         reaction.value = reaction.value ?? ""
+        reaction.country = configuration.getCurrentCountry()
+        reaction.device = UIDevice.current.getDeviceModel()
+        reaction.os = UIDevice.current.getOSVersion()
+        
         network.sendStatistic(reaction: reaction, completion: completion)
     }
 }

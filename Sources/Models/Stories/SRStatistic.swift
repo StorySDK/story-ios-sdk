@@ -15,6 +15,9 @@ public struct SRStatistic: Encodable {
     public var groupId: String?
     public var value: String?
     public var locale: String?
+    public var country: String?
+    public var device: String?
+    public var os: String?
 }
 
 extension SRStatistic: CustomDebugStringConvertible {
@@ -27,6 +30,10 @@ extension SRStatistic: CustomDebugStringConvertible {
         dict["groupId"] = groupId
         dict["value"] = value.map { "\"\($0)\"" }
         dict["locale"] = locale
+        dict["country"] = country
+        dict["device"] = device
+        dict["os"] = os
+        
         let string = dict.map { "\($0.0): \($0.1)" }.joined(separator: "; ")
         return "[\(string)]"
     }

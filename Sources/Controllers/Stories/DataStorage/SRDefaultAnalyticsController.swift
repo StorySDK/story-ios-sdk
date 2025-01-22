@@ -87,7 +87,7 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
     
     func reportStoryClose(_ info: StoryInfo) {
         let duration = -info.openTime.timeIntervalSinceNow
-        if duration > 2 { reportImpression(info.id) }
+        if duration > 1 { reportImpression(info.id) }
         reportViewDuration(info.id, duration: duration)
         sendReaction(.init(type: .close, storyId: info.id))
     }

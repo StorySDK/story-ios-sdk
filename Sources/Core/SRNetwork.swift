@@ -79,9 +79,13 @@ extension StorySDK {
         reaction.locale = configuration.fetchCurrentLanguage()
         reaction.userId = userDefaults.userId
         reaction.value = reaction.value ?? ""
-        reaction.country = configuration.getCurrentCountry()
-        reaction.device = UIDevice.current.getDeviceModel()
-        reaction.os = UIDevice.current.getOSVersion()
+        reaction.country = configuration.getCurrentCountry()?.lowercased()
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            reaction.device = "tablet"
+        } else {
+            reaction.device = "mobile"
+        }
+        reaction.os = "iOS"
         
         network.sendStatistic(reaction: reaction, completion: completion)
     }

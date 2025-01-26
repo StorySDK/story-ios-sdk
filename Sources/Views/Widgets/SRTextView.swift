@@ -63,9 +63,9 @@
             label.textAlignment = alignment
             
             var fontSize = textWidget.fontSize
-            label.font = UIFont.improvedFont(family: textWidget.fontFamily,
-                                             ofSize: fontSize, weight: textWidget.fontParams.weight)
             label.text = textWidget.text
+            label.font = StoryFont.improvedFont(family: textWidget.fontFamily,
+                                             ofSize: fontSize, weight: textWidget.fontParams.weight)
             delegate?.didWidgetLoad(self)
         }
         

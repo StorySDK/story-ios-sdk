@@ -241,16 +241,20 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         switch background {
         case .color(let color, let isFilled):
             onFilled?(isFilled)
+            cell.backgroundVideo = nil
             cell.backgroundColors = [color, color]
             completion?()
         case .gradient(let array, let isFilled):
             onFilled?(isFilled)
+            cell.backgroundVideo = nil
             cell.backgroundColors = array
             completion?()
         case .image(let url, let isFilled):
             onFilled?(isFilled)
             let size = StoryScreen.screenBounds.size
             let scale = StoryScreen.screenScale
+            cell.backgroundVideo = nil
+            
             storySdk.imageLoader
                 .load(url, size: size, scale: scale, contentMode: StoryViewContentMode.scaleAspectFill) { [weak cell, weak self] result in
                     defer { completion?() }

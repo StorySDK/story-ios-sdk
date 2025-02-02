@@ -79,12 +79,7 @@
                 boundingRect = textWidget.text.boundingRect(with: CGSize(width: bounds.width, height: 1000), options: .usesLineFragmentOrigin, attributes: [.font: label.font], context: nil)
             }
             
-            var xDiff: CGFloat = 0.0
-            if boundingRect.height / textWidget.fontSize < 2 {
-                xDiff = fabs(boundingRect.width - bounds.width)
-            }
-            
-            label.frame = CGRect(origin: CGPoint(x: bounds.origin.x - xDiff/2, y: bounds.origin.y),
+            label.frame = CGRect(origin: CGPoint(x: bounds.origin.x, y: bounds.origin.y),
                                  size: CGSize(width: max(bounds.width, boundingRect.width),
                                                                      height: max(bounds.height, boundingRect.height)))
         }

@@ -12,9 +12,6 @@
 #endif
 
 final class SRWidgetConstructor {
-    static var lastPositionAbsoluteY: CGFloat = 0.0
-    static var lastPositionDY: CGFloat = 0.0
-    
     static var lastPositionResY: CGFloat = 0.0
     static var closestItemsByYPosition: CGFloat = 5.0
     
@@ -91,8 +88,6 @@ final class SRWidgetConstructor {
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory,
                                    defaultStorySize: CGSize) -> CGRect {
         if currentStoryId != story.id {
-            lastPositionAbsoluteY = 0.0
-            lastPositionDY = 0.0
             lastPositionResY = 0.0
             
             currentStoryId = story.id
@@ -112,14 +107,16 @@ final class SRWidgetConstructor {
         var changeDxMiddle = false
         var changeDxControl = false
         var isVideoWidget = false
+        var textControl = false
         
         switch widget.content {
         case .clickMe(let btn):
             limitX = true
             limitY = true
-        case .text(let t):
+        case .text(_):
             limitY = true
             changeDxControl = true
+            textControl = true
         case .videoWidget(_):
             stretchByWidth = true
             isHeightLocked = position.isHeightLocked
@@ -165,6 +162,10 @@ final class SRWidgetConstructor {
             newHeight = max(old, newHeight / (StoryScreen.screenBounds.height / defaultStorySize.height))
         }
         
+        if textControl {
+            newHeight = (height * CGSize.horizontalRatio()).rounded()
+        }
+        
         if stretchByWidth {
             dx = (1 - (newWidth / defaultStorySize.width)) / 2
         }
@@ -186,21 +187,6 @@ final class SRWidgetConstructor {
         
         if isVideoWidget && stretchByWidth {
             newHeight = height * xCoeff
-        }
-
-        lastPositionAbsoluteY = position.y + position.realHeight
-        
-        let offsetBetween: CGFloat
-        if stretchByWidth {
-            offsetBetween = newHeight / defaultStorySize.height
-        } else {
-            offsetBetween = position.realHeight / StoryScreen.screenBounds.height
-        }
-        
-        if !isVideoWidget {
-            lastPositionDY = dy + offsetBetween
-        } else {
-            lastPositionDY = dy
         }
         
         var ratioX: CGFloat

@@ -160,9 +160,9 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         let group = DispatchGroup()
         let sortedWidgets = data.widgets
-        
-        SRWidgetConstructor.lastPositionAbsoluteY = 0.0
-        SRWidgetConstructor.lastPositionDY = 0.0
+//        
+//        SRWidgetConstructor.lastPositionAbsoluteY = 0.0
+//        SRWidgetConstructor.lastPositionDY = 0.0
         
         for widget in sortedWidgets {
             let view = SRWidgetConstructor.makeWidget(widget, story: story,

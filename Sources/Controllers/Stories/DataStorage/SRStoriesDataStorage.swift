@@ -98,6 +98,8 @@ protocol SRProgressController: AnyObject {
     var onScrollToStory: ((Int, Bool) -> Void)? { get set }
     /// When timer finished
     var onScrollCompleted: (() -> Void)? { get set }
+    /// When paused
+    var onPaused: (() -> Void)? { get set }
     /// When user is going to scroll
     func willBeginDragging()
     /// When user stopped scrolling

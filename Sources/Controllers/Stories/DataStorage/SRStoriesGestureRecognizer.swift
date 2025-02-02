@@ -86,6 +86,23 @@
                 break
             }
         }
+        
+        @objc func onLongPress(_ gesture: UILongPressGestureRecognizer) {
+            switch gesture.state {
+            case .possible, .changed:
+                break
+            case .began:
+                progress?.willBeginDragging()
+                progress?.pauseAutoscrolling()
+            case .ended:
+                progress?.didEndDragging()
+                progress?.startAutoscrolling()
+            case .cancelled, .failed:
+                progress?.didEndDragging()
+            @unknown default:
+                break
+            }
+        }
     }
 
     final class SRSwipeUpGestureRecognizer: UIPanGestureRecognizer {

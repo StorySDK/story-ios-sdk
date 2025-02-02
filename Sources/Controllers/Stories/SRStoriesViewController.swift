@@ -36,6 +36,13 @@
             return gesture
         }()
         
+        let longPressGesture: UILongPressGestureRecognizer = {
+            let gesture = UILongPressGestureRecognizer()
+            gesture.minimumPressDuration = 0.5
+            gesture.isEnabled = true
+            return gesture
+        }()
+        
         var isScrollEnabled: Bool {
             get { storiesView.isScrollEnabled }
             set {
@@ -182,7 +189,13 @@
                     viewModel.gestureRecognizer,
                     action: #selector(SRStoriesGestureRecognizer.onTap)
                 )
+                longPressGesture.addTarget(
+                    viewModel.gestureRecognizer,
+                    action: #selector(SRStoriesGestureRecognizer.onLongPress)
+                )
+                
                 storiesView.addGestureRecognizer(tapGesture)
+                storiesView.addGestureRecognizer(longPressGesture)
             }
         }
         

@@ -52,7 +52,20 @@
              super.layoutSubviews()
             
             if case .gradient(let colors, let isFilled) = rectangleWidget.fillColor {
-                contentView.setGradientBackground(top: colors.first ?? .clear,
+                var alpha: CGFloat = 0
+                var red: CGFloat = 0
+                var green: CGFloat = 0
+                var blue: CGFloat = 0
+                
+                var topColor: UIColor? = colors.first
+                if let first = colors.first {
+                    first.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+                    if alpha < 0.05 {
+                        topColor = .clear
+                    }
+                }
+                
+                contentView.setGradientBackground(top: topColor ?? .clear,
                                                   bottom: colors.last ?? .clear)
             }
          }

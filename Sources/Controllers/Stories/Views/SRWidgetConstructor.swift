@@ -142,18 +142,7 @@ final class SRWidgetConstructor {
         }
         
         var dx = (position.x / defaultStorySize.width)
-        var dy = (position.y / defaultStorySize.height)
-        
-        if abs(lastPositionResY - position.y) > closestItemsByYPosition {
-            if (dy < lastPositionDY) {
-                let betweenItems = position.y - lastPositionAbsoluteY
-                if betweenItems > 0 {
-                    let dh = betweenItems / defaultStorySize.height
-                    
-                    dy = lastPositionDY + dh
-                }
-            }
-        }
+        var dy = min(1, (position.y + position.realHeight) / defaultStorySize.height)
         
         lastPositionResY = position.y
         
@@ -186,7 +175,7 @@ final class SRWidgetConstructor {
             }
         }
         
-        if changeDxControl {
+        if changeDxControl /*&& !StorySDK.shared.configuration.onboardingFilter*/ {
             var diff = (StoryScreen.screenBounds.width - defaultStorySize.width) / 2
             dx = (position.x + diff) / StoryScreen.screenBounds.width
         }
@@ -253,6 +242,10 @@ extension CGSize {
         } else {
             return smallStory
         }
+    }
+    
+    static func horizontalRatio() -> CGFloat {
+        return UIScreen.main.bounds.width / storySize().width
     }
     
     static func isSmallStories(storySize: CGSize) -> Bool {

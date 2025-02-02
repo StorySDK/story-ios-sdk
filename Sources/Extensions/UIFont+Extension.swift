@@ -18,7 +18,22 @@ extension StoryFont {
             return getSystemFont(size: size, weight: weight)
         }
         
-        if let font = StoryFont(name: name, size: size) {
+        var preferredFontName: String
+        if "SF Compact Rounded" == name {
+            switch weight {
+            case .bold, .semibold:
+                preferredFontName = "SFCompactRounded-Bold"
+            case .medium:
+                preferredFontName = "SFCompactRounded-Medium"
+            default:
+                preferredFontName = "SFCompactRounded-Regular"
+            }
+            
+            return StoryFont(name: preferredFontName, size: size) ?? getSystemFont(size: size, weight: weight)
+        } else {
+            preferredFontName = name
+        }
+        if let font = StoryFont(name: preferredFontName, size: size) {
             if let weight = weight {
                 return font.withWeight(weight)
             } else {
@@ -108,7 +123,7 @@ extension StoryFont {
         
         
         
-        let points = sizeInPoints(size)
+        let points = (sizeInPoints(size) * CGSize.horizontalRatio()).rounded()
         return getFont(name: family, size: points, weight: fontWeight)
     }
     

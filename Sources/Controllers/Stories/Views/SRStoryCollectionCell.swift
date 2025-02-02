@@ -165,6 +165,8 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
             cancellables = .init()
             canvasView.cleanCanvas()
             isLoading = false
+            
+            backgroundVideoLayer.isHidden = true
         }
     
         func cancelActivities() {
@@ -179,6 +181,11 @@ class SRStoryCollectionCell: UICollectionViewCell, SRStoryCell {
         }
     
         func startActivitiesIfNeeded() {
+            guard let _ = backgroundVideo else {
+                return
+            }
+            
+            backgroundVideoLayer.isHidden = false
             player?.play()
         }
         

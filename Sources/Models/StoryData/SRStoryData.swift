@@ -8,7 +8,6 @@
 import Foundation
 
 public struct SRStoryData: Decodable {
-    //public var background: SRColor?
     public var background: BRColor?
     public var status: SRStoryStatus
     public var widgets: [SRWidget]

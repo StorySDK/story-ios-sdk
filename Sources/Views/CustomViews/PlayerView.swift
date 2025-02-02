@@ -133,6 +133,14 @@
             stopped = true
         }
         
+        func pauseVideo() {
+            player?.pause()
+        }
+        
+        func restoreVideo() {
+            player?.play()
+        }
+        
         func restartVideo() {
             stopped = false
             player?.seek(to: .zero)

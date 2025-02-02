@@ -183,10 +183,10 @@
                 closeButton.widthAnchor.constraint(equalToConstant: 24),
                 closeButton.heightAnchor.constraint(equalToConstant: 24),
                 
-                shareButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18),
-                shareButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -54),
-                shareButton.widthAnchor.constraint(equalToConstant: 24),
-                shareButton.heightAnchor.constraint(equalToConstant: 24),
+                shareButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -14),
+                shareButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 24),
+                shareButton.widthAnchor.constraint(equalToConstant: 28),
+                shareButton.heightAnchor.constraint(equalToConstant: 28),
             ])
         }
         
@@ -235,11 +235,12 @@
                 height: closeButton.frame.maxY + closeButton.frame.height
             )
             
-            let off = (StorySDK.shared.configuration.needShowTitle && StoryScreen.isLongDevice ? 98.0 : 0.0)
-            let h = CGSize.storySize().height + off
-            
+
             if StorySDK.shared.configuration.onboardingFilter {
-                collectionView.frame = CGRect(origin: CGPoint(x: 0, y: StoryScreen.isLongDevice ? (contentView.bounds.size.height - h) / 2 : 24.0), size: CGSize(width: contentView.bounds.width , height: CGSize.storySize().height + off))
+                let window = UIApplication.shared.windows.first
+                let safeAreaTopHeight = window?.safeAreaInsets.top ?? 0
+                
+                collectionView.frame = CGRect(origin: CGPoint(x: 0, y: safeAreaTopHeight > 20 ? (60 - safeAreaTopHeight) : 10), size: CGSize(width: contentView.bounds.width , height: (CGSize.storySize().height * CGSize.horizontalRatio()).rounded()))
             } else {
                 collectionView.frame = contentView.bounds
             }

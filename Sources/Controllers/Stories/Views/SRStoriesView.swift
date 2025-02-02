@@ -183,10 +183,10 @@
                 closeButton.widthAnchor.constraint(equalToConstant: 24),
                 closeButton.heightAnchor.constraint(equalToConstant: 24),
                 
-                shareButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18),
-                shareButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -54),
-                shareButton.widthAnchor.constraint(equalToConstant: 24),
-                shareButton.heightAnchor.constraint(equalToConstant: 24),
+                shareButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -14),
+                shareButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 24),
+                shareButton.widthAnchor.constraint(equalToConstant: 28),
+                shareButton.heightAnchor.constraint(equalToConstant: 28),
             ])
         }
         
@@ -237,7 +237,10 @@
             
 
             if StorySDK.shared.configuration.onboardingFilter {
-                collectionView.frame = CGRect(origin: CGPoint(x: 0, y: (contentView.bounds.size.height - CGSize.storySize().height) / 2 * 0.7 ), size: CGSize(width: contentView.bounds.width , height: CGSize.storySize().height + (StorySDK.shared.configuration.needShowTitle ? 59.0 : 0.0) ))
+                let window = UIApplication.shared.windows.first
+                let safeAreaTopHeight = window?.safeAreaInsets.top ?? 0
+                
+                collectionView.frame = CGRect(origin: CGPoint(x: 0, y: safeAreaTopHeight > 20 ? (60 - safeAreaTopHeight) : 10), size: CGSize(width: contentView.bounds.width , height: (CGSize.storySize().height * CGSize.horizontalRatio()).rounded()))
             } else {
                 collectionView.frame = contentView.bounds
             }

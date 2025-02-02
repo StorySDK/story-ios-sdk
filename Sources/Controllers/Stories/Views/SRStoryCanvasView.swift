@@ -175,9 +175,10 @@ struct WidgetLayout {
                     height: h
                 )
                 size = view.sizeThatFits(size)
+                
                 let origin = CGPoint(
                     x: frame.width * rect.origin.x,
-                    y: (frame.height - top) * rect.origin.y
+                    y: frame.height * rect.origin.y - size.height
                 )
                 
                 view.frame = .init(origin: origin, size: size)

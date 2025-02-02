@@ -123,7 +123,7 @@ extension StoryFont {
         
         
         
-        let points = sizeInPoints(size)
+        let points = (sizeInPoints(size) * CGSize.horizontalRatio()).rounded()
         return getFont(name: family, size: points, weight: fontWeight)
     }
     

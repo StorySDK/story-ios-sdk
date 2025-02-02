@@ -36,6 +36,8 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
     weak var progress: SRProgressController? {
         didSet {
             progress?.activeColor = configuration.progressColor
+            progress?.onPaused = {
+            }
         }
     }
     weak var analytics: SRAnalyticsController?

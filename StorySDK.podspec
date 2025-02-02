@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'StorySDK'
-  s.version          = '0.1.0'
+  s.version          = '0.9.24'
   s.summary          = 'Add stories in your app.'
 
   s.description      = <<-DESC
@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
   s.resource_bundles = {
     'StorySDK' => [
       'Sources/Resources/Images/*.png',
-      'Sources/Resources/Fonts/**/*.ttf',
+      'Sources/Resources/Fonts/**/*.otf',
       'Sources/PrivacyInfo.xcprivacy',
     ]
   }

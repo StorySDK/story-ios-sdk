@@ -26,6 +26,7 @@
         var onProgressUpdated: ((Float) -> Void)?
         var onScrollToStory: ((Int, Bool) -> Void)?
         var onScrollCompleted: (() -> Void)?
+        var onPaused: (() -> Void)?
         var numberOfItems: Int = 0
         var totalDuration: TimeInterval = .zero
         var durations: [TimeInterval] = []
@@ -98,6 +99,7 @@
         
         public func pauseAutoscrolling() {
             timer = nil
+            onPaused?()
         }
         
         public func pauseAutoscrollingUntil(_ deadline: DispatchTime) {

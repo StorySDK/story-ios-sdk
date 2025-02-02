@@ -21,13 +21,15 @@ extension StoryFont {
         var preferredFontName: String
         if "SF Compact Rounded" == name {
             switch weight {
-                case .bold, .semibold:
-                    preferredFontName = "SFCompactRounded-Bold"
-                    return StoryFont(name: preferredFontName, size: size) ?? getSystemFont(size: size, weight: weight)
-                default:
-                    preferredFontName = "SFCompactRounded-Regular"
-                    return StoryFont(name: preferredFontName, size: size) ?? getSystemFont(size: size, weight: weight)
+            case .bold, .semibold:
+                preferredFontName = "SFCompactRounded-Bold"
+            case .medium:
+                preferredFontName = "SFCompactRounded-Medium"
+            default:
+                preferredFontName = "SFCompactRounded-Regular"
             }
+            
+            return StoryFont(name: preferredFontName, size: size) ?? getSystemFont(size: size, weight: weight)
         } else {
             preferredFontName = name
         }

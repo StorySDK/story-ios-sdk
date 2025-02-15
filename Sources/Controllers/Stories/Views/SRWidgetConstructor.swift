@@ -12,7 +12,6 @@
 #endif
 
 final class SRWidgetConstructor {
-    static var lastPositionResY: CGFloat = 0.0
     static var closestItemsByYPosition: CGFloat = 5.0
     
     static var currentStoryId: String?
@@ -88,8 +87,6 @@ final class SRWidgetConstructor {
     static func calcWidgetPosition(_ widget: SRWidget, story: SRStory,
                                    defaultStorySize: CGSize) -> CGRect {
         if currentStoryId != story.id {
-            lastPositionResY = 0.0
-            
             currentStoryId = story.id
         }
         
@@ -140,8 +137,6 @@ final class SRWidgetConstructor {
         
         var dx = (position.x / defaultStorySize.width)
         var dy = min(1, (position.y + position.realHeight) / defaultStorySize.height)
-        
-        lastPositionResY = position.y
         
         var width: CGFloat = position.realWidth
         let height = widget.getWidgetPosition(storySize: defaultStorySize).realHeight

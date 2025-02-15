@@ -176,10 +176,19 @@ struct WidgetLayout {
                 )
                 size = view.sizeThatFits(size)
                 
-                let origin = CGPoint(
-                    x: frame.width * rect.origin.x,
-                    y: frame.height * rect.origin.y - size.height
-                )
+
+                let origin: CGPoint
+                if StorySDK.shared.configuration.onboardingFilter {
+                    origin = CGPoint(
+                        x: frame.width * rect.origin.x,
+                        y: (CGSize.smallStory.height * rect.origin.y - size.height) + (frame.height - CGSize.smallStory.height)
+                    )
+                } else {
+                    origin = CGPoint(
+                        x: frame.width * rect.origin.x,
+                        y: frame.height * rect.origin.y - size.height
+                    )
+                }
                 
                 view.frame = .init(origin: origin, size: size)
                 view.transform = transform

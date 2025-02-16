@@ -13,4 +13,5 @@
 
 public struct SRVideoWidget: Decodable {
     public var videoUrl: URL?
+    public var metadata: SRMetadata?
 }

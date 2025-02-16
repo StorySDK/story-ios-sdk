@@ -51,6 +51,17 @@ public struct SRStoryData: Decodable {
             break
         }
         
+        for item in widgets {
+            let content = item.content
+            
+            switch content {
+            case .videoWidget(let widget):
+                result = max(result, widget.metadata?.duration ?? defaultDuration)
+            default:
+                break
+            }
+        }
+        
         return result + 0.3
     }
 }

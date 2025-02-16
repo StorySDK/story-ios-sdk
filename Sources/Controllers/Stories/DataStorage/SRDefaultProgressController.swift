@@ -225,6 +225,8 @@
                 
                 onScrollToStory?(index, true)
             } else {
+                elapsedTime = durationsEdges(n: currentIndex)
+                analytics?.storyDidChanged(to: -1, byUser: true)
                 onScrollCompleted?()
             }
         }

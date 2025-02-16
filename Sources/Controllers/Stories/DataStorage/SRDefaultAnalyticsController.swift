@@ -93,6 +93,15 @@ final class SRDefaultAnalyticsController: SRAnalyticsController {
     }
     
     func storyDidChanged(to index: Int, byUser: Bool) {
+        if index == -1 {
+            guard let old = currentStory else {
+                return
+            }
+            
+            reportStoryClose(old)
+            return
+        }
+        
         guard let id = dataStorage?.storyId(atIndex: index) else { return }
         guard let old = currentStory else {
             reportStoryOpen(.init(index: index, id: id))

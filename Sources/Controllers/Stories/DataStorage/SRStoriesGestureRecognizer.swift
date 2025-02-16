@@ -94,9 +94,15 @@
             case .began:
                 progress?.willBeginDragging()
                 progress?.pauseAutoscrolling()
+                
+                NotificationCenter.default.post(name: NSNotification.Name("playerToggle"),
+                                                object: nil)
             case .ended:
                 progress?.didEndDragging()
                 progress?.startAutoscrolling()
+                
+                NotificationCenter.default.post(name: NSNotification.Name("playerToggle"),
+                                                object: nil)
             case .cancelled, .failed:
                 progress?.didEndDragging()
             @unknown default:

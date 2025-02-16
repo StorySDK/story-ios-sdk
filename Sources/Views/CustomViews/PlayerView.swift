@@ -24,12 +24,12 @@
 
     final class PlayerView: UIView {
         private var playerItemContext = 0
-        //private
         var playerItem: AVPlayerItem?
         
         var identifier: String?
         
         var stopped: Bool = false
+        var paused: Bool = false
         
         var nObserver: NSObjectProtocol?
         
@@ -37,6 +37,7 @@
             self.identifier = identifier
             self.stopped = false
             super.init(frame: .zero)
+            addEvents()
         }
         
         override init(frame: CGRect) {
@@ -46,6 +47,14 @@
         @available(*, unavailable)
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
+        }
+        
+        func addEvents() {
+            NotificationCenter.default
+                .addObserver(self,
+                             selector: #selector(togglePlayer),
+                             name: NSNotification.Name("playerToggle"),
+                             object: nil)
         }
         
         override class var layerClass: AnyClass {
@@ -121,6 +130,14 @@
             }
         }
         
+        @objc func togglePlayer() {
+            if !paused {
+                pauseVideo()
+            } else {
+                restoreVideo()
+            }
+        }
+        
         func play(with url: URL) {
             setUpAsset(with: url) { [weak self] (asset: AVAsset) in
                 self?.setUpPlayerItem(with: asset)
@@ -134,10 +151,12 @@
         }
         
         func pauseVideo() {
+            paused = true
             player?.pause()
         }
         
         func restoreVideo() {
+            paused = false
             player?.play()
         }
         

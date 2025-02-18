@@ -14,23 +14,36 @@
 # update_fastlane
 
 require 'digest'
-require 'open-uri'
+require 'uri'
+require 'net/http'
 require 'json'
 
 default_platform(:ios)
 
 desc 'Prepare cached media files for storysdk'
 lane :prepare_story_cache do |options|
-  cache_onboarding(options[:group])
+  cache_onboarding(options[:group], options[:token])
 end
 
-def cache_onboarding(group_id)
+def cache_onboarding(group_id, sdk_api_token)
   cache = {}
 
-  response = JSON.parse(URI.open("https://api.storysdk.com/sdk/v1/groups/#{group_id}/stories").read)
-  raise StandardError, response["error"] unless response["error"].empty?
+  uri = URI("https://api.storysdk.com/sdk/v1/groups/#{group_id}/stories")
+  request = Net::HTTP::Get.new(uri)
+  request['Authorization'] ="SDK #{sdk_api_token}"
 
-  data = response["data"]
+  https = Net::HTTP.new(uri.host, uri.port)
+  https.use_ssl = true
+
+  response = https.request(request)
+  if response.code.to_i == 200
+      json = JSON.parse(response.body)
+      raise StandardError, json["error"] unless json["error"].empty?
+  else
+    raise StandardError, response.code
+  end 
+
+  data = json["data"]
   data.each do |item| 
     storyData = item["story_data"]
     background = storyData["background"]
@@ -52,6 +65,7 @@ def cache_onboarding(group_id)
         file << URI.open(background_video_url).read
       end
 
+      UI.message "Cached #{digest}#{ext}"
       cache[key] = "#{digest}#{ext}"
     end
 
@@ -60,9 +74,6 @@ def cache_onboarding(group_id)
     widgets.each do |widget|
       content = widget["content"]
       params = content["params"]
-
-      puts ""
-      puts content
 
       if !params.nil?
         video_url = params["videoUrl"]
@@ -78,6 +89,7 @@ def cache_onboarding(group_id)
           file << URI.open(video_url).read
         end
 
+        UI.message "Cached #{digest}#{ext}"
         cache[key] = "#{digest}#{ext}"
       end
     end

@@ -74,7 +74,8 @@
             
             let boundingRect: CGRect
             if data.positionLimits.isResizableX {
-                boundingRect = textWidget.text.boundingRect(with: CGSize(width: UIScreen.screenBounds.width - 2 * 20, height: 1000), options: .usesLineFragmentOrigin, attributes: [.font: label.font], context: nil)
+                let inset = data.positionByResolutions.res360x780?.x ?? 0
+                boundingRect = textWidget.text.boundingRect(with: CGSize(width: UIScreen.screenBounds.width - 2 * inset, height: 1000), options: .usesLineFragmentOrigin, attributes: [.font: label.font], context: nil)
             } else {
                 boundingRect = textWidget.text.boundingRect(with: CGSize(width: bounds.width, height: 1000), options: .usesLineFragmentOrigin, attributes: [.font: label.font], context: nil)
             }

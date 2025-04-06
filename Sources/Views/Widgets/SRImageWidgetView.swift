@@ -37,6 +37,8 @@ import Combine
         var playerView: PlayerView!
         
         let url: URL?
+        var videoUrl: URL?
+        
         let logger: SRLogger
         weak var loader: SRImageLoader?
         private var loadingTask: Cancellable? {
@@ -67,7 +69,7 @@ import Combine
                         }
                     }
                     
-                    playVideo(url: videoURL)
+                    self.videoUrl = videoURL
                 }
             }
         }
@@ -102,6 +104,12 @@ import Combine
                 
                 playerView = PlayerView(identifier: data.id)
                 playerContainerView.addSubview(playerView)
+            }
+        }
+        
+        func playPreparedVideo() {
+            if let videoUrl = videoUrl {
+                playVideo(url: videoUrl)
             }
         }
           

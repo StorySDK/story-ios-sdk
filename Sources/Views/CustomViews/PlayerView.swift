@@ -119,7 +119,10 @@
                 switch status {
                 case .readyToPlay:
                     logger.debug(".readyToPlay")
-                    player?.play()
+                    player?.pause()
+                    player?.seek(to: .zero) { [weak self] _ in
+                        self?.player?.play()
+                    }
                 case .failed:
                     logger.debug(".failed")
                 case .unknown:
@@ -142,12 +145,11 @@
             setUpAsset(with: url) { [weak self] (asset: AVAsset) in
                 self?.setUpPlayerItem(with: asset)
             }
-            
-            loopVideo()
         }
         
         func stopVideo() {
             stopped = true
+            player?.pause()
         }
         
         func pauseVideo() {
@@ -162,25 +164,25 @@
         
         func restartVideo() {
             stopped = false
-            player?.seek(to: .zero)
-            player?.play()
+            loopVideo()
         }
         
         func loopVideo() {
             logger.debug("loopVideo")
+            NotificationCenter.default.removeObserver(nObserver)
+            nObserver = nil
             
             nObserver = NotificationCenter.default.addObserver(
                 forName: .AVPlayerItemDidPlayToEndTime,
                 object: player?.currentItem,
                 queue: .main
-            ) { [weak self, identifier] notification in
+            ) { [weak self] notification in
                 if self?.stopped == true {
-                    logger.debug("current player \(identifier) is stopped")
+                    logger.debug("current player is stopped")
                     return
                 }
-             
-                logger.debug("Player \(identifier) seek to zero")
-                    
+
+                self?.player?.pause()
                 self?.player?.seek(to: .zero)
                 self?.player?.play()
             }

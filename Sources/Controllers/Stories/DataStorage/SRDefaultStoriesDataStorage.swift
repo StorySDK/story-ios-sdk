@@ -199,7 +199,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         }
         
         group.notify(queue: .main) { [weak progress, weak cell] in
-            progress?.isLoading[id] = true
+            progress?.isLoading[id] = false
             cell?.isLoading = false
         }
     }
@@ -210,6 +210,7 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         guard let ws = cell.widgets() else { return }
         for item in ws {
+            (item as? SRImageWidgetView)?.playPreparedVideo()
             (item as? SRImageWidgetView)?.playerView?.restartVideo()
         }
     }

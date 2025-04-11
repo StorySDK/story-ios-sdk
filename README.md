@@ -265,9 +265,9 @@ command in the root of the project) and then follow the step above.
 
 After run
    ```bash
-   fastlane prepare_story_cache group:"groupId"
+   fastlane prepare_story_cache group:"groupId" token:"SDKtoken"
    ```
-where groupId is the id of the group that contains the media files you want to cache.
+where `groupId` is the id of the group that contains the media files you want to cache and `SDKtoken` is the SDK token from the Settings from the dashboard.
 If successful, you will see your media files in the "fastlane/cached" directory.
 
 Now it’s enough to add these files to the Xcode project, like resources via _Add Files to..._ action so that they end up in the bundle of your app, that’s all - in this form `StorySDK` can already see them. Caching is now complete.

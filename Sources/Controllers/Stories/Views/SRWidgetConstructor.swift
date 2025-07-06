@@ -12,7 +12,8 @@
 #endif
 
 final class SRWidgetConstructor {
-    static var closestItemsByYPosition: CGFloat = 5.0
+    static let closestItemsByYPosition: CGFloat = 5.0
+    static let maxWidth: CGFloat = 660.0
     
     static var currentStoryId: String?
     
@@ -141,7 +142,7 @@ final class SRWidgetConstructor {
         var width: CGFloat = position.realWidth
         let height = widget.getWidgetPosition(storySize: defaultStorySize).realHeight
         
-        let xCoeff = StorySDK.shared.configuration.onboardingFilter ? 1.0 : min(StoryScreen.screenBounds.width / defaultStorySize.width, 2.0)
+        let xCoeff = StorySDK.shared.configuration.onboardingFilter ? 1.0 : min( min(StoryScreen.screenBounds.width, SRWidgetConstructor.maxWidth) / defaultStorySize.width, 2.0)
         
         var newWidth: CGFloat
         if stretchByWidth && !StorySDK.shared.configuration.onboardingFilter {
@@ -205,6 +206,7 @@ extension CGSize {
     static let defaultStory = CGSize(width: 1080, height: 1920)
     static let largeStory = CGSize(width: 360, height: 780)
     static let smallStory = CGSize(width: 360, height: 640)
+    static let restrictHorizontalRatioWidth: CGFloat = 440.0
     
     static func storySize() -> CGSize {
         if StorySDK.shared.configuration.onboardingFilter == true {
@@ -226,7 +228,7 @@ extension CGSize {
     }
     
     static func horizontalRatio() -> CGFloat {
-        return UIScreen.main.bounds.width / storySize().width
+        return min(UIScreen.main.bounds.width, CGSize.restrictHorizontalRatioWidth) / storySize().width
     }
     
     static func isSmallStories(storySize: CGSize) -> Bool {

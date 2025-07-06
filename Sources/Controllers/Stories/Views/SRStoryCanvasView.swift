@@ -186,7 +186,7 @@ struct WidgetLayout {
                 } else {
                     origin = CGPoint(
                         x: frame.width * rect.origin.x,
-                        y: frame.height * rect.origin.y - size.height
+                        y: max(frame.height * rect.origin.y - size.height, 0)
                     )
                 }
                 

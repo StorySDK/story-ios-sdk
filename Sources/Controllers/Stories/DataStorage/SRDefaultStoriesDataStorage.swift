@@ -136,31 +136,20 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
         
         var story: SRStory
         story = stories[index]
-//        if index + 1 == stories.count { // last story
-//            logger.debug(totalScore)
-//
-//            let result = allStories.filter {$0.position == index + 1}
-//            let defaultStory = result.filter {$0.layerData?.isDefaultLayer == true}.first
-//
-//            story = defaultStory ?? allStories[index]
-//
-//            for item in result {
-//                if let level = item.layerData?.score?.points {
-//                    if totalScore >= level {
-//                        story = item
-//                    }
-//                }
-//            }
-//        } else {
-//            story = stories[index]
-//        }
         
         guard let data = story.storyData else { return }
         cell.needShowTitle = storySdk.configuration.needShowTitle
         cell.defaultStorySize = storySize()
         
         let group = DispatchGroup()
-        let sortedWidgets = data.widgets
+        
+        let defaultStorySize = storySize()
+        let sortedWidgets = data.widgets.sorted {
+            if $0.content.isVideo() != $1.content.isVideo() {
+                return $0.content.isVideo() && $1.content.isVideo()
+            }
+            return $0.getWidgetPosition(storySize: defaultStorySize).origin.y < $1.getWidgetPosition(storySize: defaultStorySize).origin.y
+        }
         
         for widget in sortedWidgets {
             let view = SRWidgetConstructor.makeWidget(widget, story: story,
@@ -190,6 +179,8 @@ final class SRDefaultStoriesDataStorage: SRStoriesDataStorage {
             cell.appendWidget(view, position: position)
         }
         let id = story.id
+        
+        SRWidgetConstructor.lastDY = 0.0
         
         if let background = data.background {
             group.enter()

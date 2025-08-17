@@ -16,6 +16,7 @@ final class SRWidgetConstructor {
     static let maxWidth: CGFloat = 660.0
     
     static var currentStoryId: String?
+    static var lastDY: CGFloat = 0.0
     
     static func makeWidget(_ widget: SRWidget, story: SRStory,
                            defaultStorySize: CGSize, sdk: StorySDK) -> SRWidgetView {
@@ -137,7 +138,21 @@ final class SRWidgetConstructor {
         }
         
         var dx = (position.x / defaultStorySize.width)
-        var dy = min(1, (position.y + position.realHeight) / defaultStorySize.height)
+        
+        var dy: CGFloat = 0.0
+        if StoryScreen.isShortDevice {
+            if lastDY > 0 {
+                dy = min(0.98, max (position.origin.y / defaultStorySize.height, lastDY))
+            }
+            else {
+                dy = max(min(1, (position.origin.y) / defaultStorySize.height), lastDY)
+                if !widget.content.isVideo() {
+                    lastDY = min(1, (position.origin.y + position.realHeight) / defaultStorySize.height)
+                }
+            }
+        } else {
+            dy = min(1, (position.y + position.realHeight) / defaultStorySize.height)
+        }
         
         var width: CGFloat = position.realWidth
         let height = widget.getWidgetPosition(storySize: defaultStorySize).realHeight

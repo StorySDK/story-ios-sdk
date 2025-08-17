@@ -33,6 +33,16 @@ public indirect enum SRWidgetContent: Decodable {
     
     case unknownWidget(SRUnknownWidget)
     
+    
+    func isVideo() -> Bool {
+        switch self {
+        case .videoWidget:
+            return true
+        default:
+            return false
+        }
+    }
+    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let innerType = try container.decode(String.self, forKey: .type)

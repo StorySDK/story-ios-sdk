@@ -100,6 +100,10 @@
         static var isLongDevice: Bool {
             return (UIScreen.main.bounds.height > 844.0) ? true : false
         }
+        
+        static var isShortDevice: Bool {
+            return (UIScreen.main.bounds.height < 668.0) ? true : false
+        }
     }
 
     public extension StoryWorkspace {
